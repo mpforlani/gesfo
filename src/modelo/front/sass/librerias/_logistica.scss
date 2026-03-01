@@ -1,0 +1,109 @@
+@use "../abstracts/variables" as *;
+@use "../../../../front/sass/abstract/variablesModelo" as *;
+@use "../abstracts/mixins" as *;
+
+.tabs_contents_item.formularioPestana {
+
+    &[transp="aereo"] {
+
+        a.detalleFlete,
+        table.detalleFlete {
+            display: none !important;
+        }
+
+        div.fo {
+
+            &.diasLibres,
+            &.contenedor {
+                display: none !important;
+            }
+        }
+
+        &[tipoCarga="LCL"] {
+
+            div.fo {
+
+                &.MBLMAWB {
+
+                    display: none !important;
+                }
+            }
+        }
+    }
+
+    &[transp="terrestre"] {
+
+        div.fo {
+
+            &.MBLMAWB,
+            &.diasLibres,
+            &.contenedor,
+            &.maritima {
+                display: none !important;
+            }
+        }
+
+        &[tipoCarga="FCL"] {
+
+            a.caractProd,
+            table.caractProd {
+                display: none !important;
+            }
+        }
+
+        &[tipoCarga="LCL"] {
+
+            a.detalleFlete,
+            table.detalleFlete {
+                display: none !important;
+            }
+        }
+    }
+
+    &[transp="maritimo"] {
+
+        &[tipoCarga="LCL"] {
+            div.fo {
+
+                &.MBLMAWB,
+                &.diasLibres {
+                    display: none !important;
+                }
+            }
+
+            a.detalleFlete,
+            table.detalleFlete {
+                display: none !important;
+            }
+        }
+
+        &[tipoCarga="FCL"] {
+
+            a.caractProd,
+            table.caractProd {
+                display: none !important;
+            }
+
+        }
+    }
+
+    table.cotizacionLogistica {
+
+        tr[itemventa="seguro"],
+        tr[itemventa="segurointernacional"] {
+
+            td.importeCotizacion,
+            td.importeDosCotizacion,
+            td.importeTresCotizacion,
+            td.importeCuatroCotizacion,
+            td.comisionCotizacion {
+                opacity: 0;
+
+                input {
+                    display: none;
+                }
+
+            }
+        }
+    }
+}

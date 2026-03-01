@@ -1,0 +1,51 @@
+//Colores clientes
+$colorPrincipal: rgb(9, 26, 44);
+$colorSecundario: rgb(255, 255, 255);
+$colorTerciario: rgb(119, 0, 0);
+//Bodys Locales
+$fondoBodyLocal: linear-gradient(to right bottom, $colorPrincipal, $colorSecundario);
+//$fondoBodyLocalMain: red;
+$closePop: white;
+//primera parte navegación
+//color icono menu tres rayitas
+$colorIconoMenu: white;
+$ColorMenuSup: white;
+$colorLogo: white;
+//Color Menu izquierda
+$colorMenuIzq: white;
+$colorContadorAbm: white;
+//menuDesplegables
+$fondoUnoMenuDesplegable: $colorPrincipal;
+//form Individual
+$fondo-formIndividual-local: linear-gradient(to right, $colorSecundario, $colorPrincipal);
+$fondo-formIndividual-adjuto: rgb(255, 255, 255); //Formulario adjunto
+$fondo-cartel: rgb(232, 231, 233);
+//botoneraIndividual
+$colorFondoBotoneraInd: rgba(255, 255, 255, 0.767);
+$botoneraTablaSeguridad: white;
+//Impresion
+$fondo-impresion-local: #c5cfec;
+$logoEmpresa: 3.5rem;
+$hoverOlvidaste: rgb(226, 44, 44);
+$colorNavegacionPrincipal: white;
+$colorNavegacionPrincipalBorde: rgb(226, 44, 44);
+$withlogoEmpresa: 2.4rem;
+$colorImpresionP: rgb(116, 41, 41);
+$marginPimpresion: -2rem;
+$colorHistorial: rgb(202, 194, 194);
+//Fondos texturados
+$fondoNavusuarioIzquierda: url(../../img/fondoImpresion/); // el fonde del menu
+$colorHoverMenuUsuario: rgb(255, 255, 255); //el hover
+$fondoUno: url("/img/fondoImpresion/fondoImpresionUno.jpg");
+
+//Navegacion Vertical
+$colorNavVertirical: rgba(255, 255, 255, 0.541);
+$bordeNavVertical: red;
+$colorColeccionIndividual: rgb(182, 194, 228); //color coleecion individual usuarios fo
+
+//Carteles
+$cartelOscuro: rgb(20, 30, 48);
+$colorEnviarOscuro: #2a5265;
+$backgrounEvniarOscuro: #066df3;
+$cartelClaro: rgb(232, 231, 233);
+$bordeCartel: rgb(43, 36, 36)

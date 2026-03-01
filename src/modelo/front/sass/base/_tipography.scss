@@ -1,0 +1,95 @@
+.headingSecondary {
+  font-size: 2.5rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  display: inline-block;
+
+  background-image: linear-gradient(to right, rgb(255, 255, 255) 100%, rgba(36, 153, 104, 0.8));
+  -webkit-background-clip: text;
+  color: transparent;
+  letter-spacing: 0.2rem;
+  transition: all 0.2s;
+
+  &:hover {
+    transform: skewY(2deg) skewX(15deg) scale(1.1);
+    text-shadow: 0.5rem 1rem 2rem rgba(112, 106, 106, 0.733);
+  }
+}
+
+.headingTerciary {
+  font-size: 1.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.paragraph {
+  font-size: 1.3rem;
+
+  &:not(:last-child) {
+    margin-bottom: 3rem;
+  }
+}
+
+.letraVerdePasto {
+  background-image: linear-gradient(to right, rgb(255, 255, 255) 85%, rgba(36, 153, 104, 0.8));
+  -webkit-background-clip: text;
+  color: transparent;
+  width: auto;
+}
+
+//Tamaño tipografy
+//0.1= 2.5
+.fsCeroOcho {
+
+  font-size: 0.8rem !important;
+  line-height: 0.96rem !important;
+}
+
+.fsCeroNueve {
+
+  font-size: 0.9rem !important;
+  line-height: 1.08rem !important;
+}
+
+.fsUno {
+
+  font-size: 1rem !important;
+  line-height: 1.2rem !important;
+}
+
+.fsOnce {
+
+  font-size: 1.1rem !important;
+  line-height: 1.32rem !important;
+}
+
+.fsDoce {
+
+  font-size: 1.2rem !important;
+  line-height: 1.44rem !important;
+}
+
+.fsTrece {
+
+  font-size: 1.3rem !important;
+  line-height: 1.72rem !important;
+}
+
+.bold {
+  font-weight: bold !important;
+}
+
+.negrita {
+  font-weight: bold !important;
+}
+
+.torcido {
+  display: inline-block !important;
+  transform: skew(-10deg) !important;
+}
+.interSans {
+  font-family: 'Inter', sans-serif;
+}
+.notBold {
+  font-weight:normal !important;
+} 

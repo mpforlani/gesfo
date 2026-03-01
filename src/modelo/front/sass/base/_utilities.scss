@@ -1,0 +1,107 @@
+[class*="ocult"],
+.oculto,
+.ocult,
+[oculto=true] {
+    display: none !important;
+}
+
+.opacityCero {
+    opacity: 0 !important;
+}
+
+td.totales:has(> input.ocultoSiempre) {
+    display: none;
+}
+
+#oculto,
+#ocultoUser {
+    //Esto solo usa para el usuario de node en la pagina de inicio, en algun momento va tener q volar
+    display: none;
+}
+
+.escondidoConWidth {
+
+    visibility: hidden;
+    position: absolute;
+}
+
+[ocultoconlugar=true],
+.ocultoConLugar {
+    opacity: 0;
+    background-color: #ffffff00;
+    border: #ffffff00;
+}
+
+//Esta se usa para no ver van de la izquierda debajo del nombre
+.noneMarket,
+.noneHome {
+    display: none;
+}
+
+div[color] {
+
+    &::before {
+        content: "";
+        position: absolute;
+        left: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 0.9rem;
+        height: 0.9rem;
+        border-radius: 2px;
+
+    }
+
+    input {
+        padding-left: 2rem !important;
+    }
+}
+
+div[color="Verde"] {
+    &::before {
+        background-color: green;
+
+    }
+}
+
+div[color="Blanco"] {
+    &::before {
+        background-color: white;
+        border: 1px solid black;
+
+    }
+}
+
+div[color="Azul"] {
+    &::before {
+        background-color: blue;
+    }
+}
+
+div[color="Amarillo"] {
+    &::before {
+        background-color: yellow;
+
+    }
+}
+
+.RobotoItalic {
+    font-family: 'Roboto', sans-serif !important;
+    font-style: italic !important;
+}
+
+.boxShadow {
+    box-shadow: inset 0 -1px 0 rgba(156, 165, 185, 1);
+}
+
+.greyColor {
+    color: rgb(90, 90, 91);
+}
+
+.darkGreyColor {
+    color: rgb(61, 61, 61);
+}
+
+.transparente {
+    background-color: rgba(230, 230, 230, 0.425);
+}

@@ -1,0 +1,185 @@
+@use "../../abstracts/variables" as *;
+@use "../../../../../front/sass/abstract/variablesModelo" as *;
+@use "../../abstracts/mixins" as *;
+
+.nav-vert {
+
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+    height: 15%;
+    border: 2px solid white;
+    position: relative;
+    cursor: pointer;
+    width: 0.4rem;
+    background-color: white;
+    margin: 0.5rem 0 0 0.5rem;
+    //animation: navIzquierdaDefOut .8s ease-out;
+
+    &.enEspera {
+        cursor: wait !important;
+    }
+
+    &.oculto {
+        display: none;
+    }
+
+    .itemMenu {
+        display: none;
+    }
+
+    .closeNavegacion {
+        display: none;
+    }
+
+    &.activeNav {
+
+        padding: 0.7rem 0.5rem 0.8rem 0.8rem;
+        height: fit-content;
+        // animation: navIzquierdaDef .8s ease-out;
+        margin: 0.5rem 0 0 0.5rem;
+        opacity: 1;
+        width: auto;
+        cursor: auto;
+        background-color: transparent;
+
+        .closeNavegacion {
+            display: flex;
+            transform: rotate(45deg);
+            font-size: 1.2rem;
+            position: absolute;
+            top: 0.2rem;
+            right: 0.7rem;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+
+            &:hover {
+                transform: rotate(45deg) scale(1.2);
+            }
+        }
+
+        .itemMenu {
+            margin: 0;
+            opacity: 1;
+            display: block;
+
+            &:first {
+                margin-top: 5rem;
+            }
+
+
+            h4 {
+                margin: 0.5rem 0 0 0.4rem;
+                padding-right: 0.8rem;
+                font-size: 1rem;
+                align-content: center;
+                white-space: nowrap;
+                transition: all 0.4s;
+                display: flex;
+                color: $colorMenuIzq;
+                font-family: $fuenteMenuIzq;
+                font-weight: 400;
+                font-style: normal;
+
+                &:hover {
+
+                    cursor: pointer;
+                    transform: scale(1.04)
+                }
+
+                .trianguloAbajo {
+                    @include tringuloAbajo;
+                    background-color: $colorMenuIzq;
+                    width: 0.5rem;
+                    height: 0.5rem;
+                    margin-top: 1rem;
+                    margin-left: 0.6rem;
+                }
+
+                &[visualizar=none],
+                &[visualizar=false] {
+                    display: none;
+                }
+            }
+        }
+
+        .subMenu {
+            margin-top: 0.5rem;
+            font-size: 1rem;
+            display: none;
+            animation: moveInLeftDisaperar .5s ease-out;
+
+
+            &.show {
+                display: flex;
+                flex-direction: column;
+                animation: moveInRigth .5s ease-out;
+            }
+
+            p {
+                white-space: nowrap;
+                margin: 0 1.5rem 0 1.5rem;
+                padding: 0;
+                color: $colorMenuIzq;
+                font-family: $fuenteMenuIzq;
+                font-style: normal;
+                font-size: 0.9rem;
+                font-weight: 400;
+                cursor: pointer;
+
+                &:hover {
+
+                    transform: scale(1.04)
+                }
+
+                &[visualizar=none],
+                &[visualizar=false] {
+                    display: none;
+                }
+            }
+
+            div.menuReportes:not(.ocultoSiempre) {
+
+                p {
+                    font-style: italic;
+                }
+            }
+        }
+
+        .desplegableAbm {
+            animation: moveInRigth .5s ease-out;
+
+            &.oculto {
+                display: none;
+                animation: moveInLeft .5s ease-out;
+            }
+        }
+    }
+
+    .material-symbols-outlined {
+
+        color: white;
+        font-size: 1rem;
+        position: absolute;
+        top: 0.4rem;
+        right: 1.8rem;
+        cursor: pointer;
+
+        &:hover {
+            transform: scale(1.2);
+        }
+    }
+
+    &.enEspera {
+        cursor: wait !important;
+    }
+
+    .noneSee,
+    .noneMarket,
+    .noneHome {
+        display: none !important;
+    }
+
+
+}

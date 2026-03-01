@@ -1,0 +1,305 @@
+@use "../abstracts/variables" as *;
+@use "../../../../front/sass/abstract/variablesModelo" as *;
+@use "../abstracts/mixins" as *;
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    width: 100%;
+    height: 100dvh;
+    overflow: hidden;
+    font-size: 100%;
+
+
+    /* @include respond(tab-port) {
+        // Tablet vertical 900px
+        font-size: 50%;
+    }
+
+    @include respond(tab-land) {
+        // Minimo 1200px 
+        // Notebook 15.7" 1492px
+        font-size: 70%;
+    }
+
+    @include respond(big-desktop) {
+        // Tablet horizontal 1800px
+        // Minotor 24" 1875
+        font-size: 120%;
+    }*/
+}
+
+#cortinaNegra {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100%;
+    height: 100dvh;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 8999;
+    display: flex;
+}
+
+body {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+    font-family: $pagina-principal;
+    font-weight: 400;
+    font-size: 16px;
+    width: 100%;
+    height: 100%;
+    color: rgb(0, 0, 0);
+    background-image: $fondoBodyLocal;
+
+    .cartelHistorial {
+        position: absolute;
+        top: 20%;
+        left: 50%;
+        transform: translate(-50%, 0);
+        overflow-y: visible;
+    }
+
+    &.enEspera {
+        cursor: wait !important;
+    }
+
+    &:not([cajas="true"]) {
+
+        .nav-vert {
+
+            #cajas,
+            #itemsCajas {
+                display: none;
+            }
+        }
+
+        .tabs_contents_item {
+            &:not([nombre="empresa"]) {
+
+                div.fo.cajas,
+                td.cajas,
+                th.cajas {
+                    display: none !important;
+                }
+            }
+        }
+    }
+
+    &:not([listaPrecios="true"]) {
+
+        .tabs_contents_item:not([nombre="empresa"]) {
+
+            div.fo.listasPrecios,
+            td.listasPrecios,
+            th.listasPrecios {
+                display: none !important;
+            }
+        }
+    }
+
+    &[color="Verde"] {
+        .nav-vert {
+            border: 2px solid green !important;
+            background-color: green;
+
+            &.activeNav {
+                background-color: transparent;
+            }
+        }
+
+        .comanderaPestana.active div.botonesPest div.barraForm span {
+            &.okBoton {
+                background-color: rgba(0, 128, 0, 0.212) !important;
+            }
+        }
+    }
+
+    &[color="Azul"] {
+        .nav-vert {
+            border: 2px solid blue !important;
+            background-color: blue;
+
+            &.activeNav {
+                background-color: transparent;
+            }
+        }
+
+        .comanderaPestana.active div.botonesPest div.barraForm span {
+            &.okBoton {
+                background-color: rgba(0, 0, 255, 0.212) !important;
+            }
+        }
+    }
+
+    &[color="Amarillo"] {
+        .nav-vert {
+            border: 2px solid yellow !important;
+            background-color: yellow;
+
+            &.activeNav {
+                background-color: transparent;
+            }
+        }
+
+        .comanderaPestana.active div.botonesPest div.barraForm span {
+            &.okBoton {
+                background-color: rgba(255, 255, 0, 0.212) !important;
+            }
+        }
+    }
+
+}
+
+#menu-container {
+    display: grid;
+    flex-direction: column;
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    margin: 0;
+    padding: 0;
+    height: 100dvh;
+    width: 100%;
+
+    .cabecera {
+        display: flex;
+        justify-content: flex-end;
+    }
+
+}
+
+.cuerpoPrincipal {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: min-content;
+    grid-auto-rows: min-content;
+    height: $altoPantallaSinNaVSup;
+    max-height: $altoPantallaSinNaVSup;
+    overflow: auto;
+
+    #tablas {
+        position: relative;
+        display: grid;
+        grid-template-columns: 1fr;
+        grid-auto-rows: min-content;
+        margin-left: 1rem;
+        height: $altoPantallaSinNaVSup;
+        overflow: hidden;
+
+        .tabs_links {
+            //este es el contenedor de las pestanas
+            display: grid;
+            grid-auto-flow: column;
+            grid-auto-columns: minmax(1rem, 12rem);
+            margin-top: 0.5rem;
+            z-index: 10;
+            position: relative;
+            height: $altoPestana;
+            padding-right: 2rem;
+
+            div.pestana {
+                //pestanas
+                display: flex;
+                width: auto;
+                text-overflow: ellipsis;
+                background-color: $abm-desactivado;
+                border: 2px solid #bbb;
+                border-radius: 5px 5px 0 0;
+                border-bottom: transparent;
+                color: black;
+                text-decoration: none;
+                font-family: $letra-pestana, sans-serif;
+                font-size: $pestanas;
+                font-weight: bold;
+                padding: 0.4rem 0.5rem 0.4rem 1.5rem;
+                margin-left: 0;
+                cursor: pointer;
+
+                position: relative;
+
+                &.active {
+                    background: $abm-active;
+                    z-index: 15;
+                }
+
+                div.palabraPest {
+                    white-space: nowrap;
+                    text-overflow: ellipsis;
+                    overflow: hidden;
+
+
+                }
+
+                .close,
+                .closeFormInd {
+                    font-size: 1rem;
+                    transform: rotate(45deg);
+                    cursor: pointer;
+                    color: rgb(0, 0, 0);
+                    font-weight: bolder;
+                    z-index: 15;
+                    align-self: flex-end;
+                    position: absolute;
+                    top: 0;
+                    right: 5px;
+
+                }
+
+
+            }
+
+
+        }
+
+        .tabs_contents {
+            display: grid;
+            grid-template-columns: 1fr;
+            margin-right: 2rem;
+            height: 100%;
+            max-height: $altocontenedor;
+
+            &.enEspera {
+                cursor: wait !important;
+            }
+        }
+    }
+}
+
+.section-about {
+    padding: 10rem 0;
+    margin-top: -20vh;
+
+    .gridTest {
+        margin-top: 5rem;
+    }
+
+    .centrado {
+        display: flex;
+        text-align: center;
+        justify-content: center;
+    }
+}
+
+.section-features {
+    padding: 20rem 0;
+    background-image: linear-gradient(to right bottom,
+            rgba(0, 0, 0, 0.795),
+            rgba(223, 223, 223, 0.788)),
+        url("../../img/background/principal.jpg");
+    background-size: cover;
+
+    transform: skewY(-7deg);
+
+    &>* {
+        transform: skewY(7deg);
+    }
+}
+
+.section-tours {
+    padding: 15rem 0 10rem 0;
+    margin-top: -10em;
+}

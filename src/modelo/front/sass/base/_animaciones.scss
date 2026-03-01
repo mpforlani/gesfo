@@ -1,0 +1,532 @@
+@use "../abstracts/variables" as *;
+@use "../../../../front/sass/abstract/variablesModelo" as *;
+
+@keyframes moveInRigth {
+  0% {
+    opacity: 0;
+    transform: translateX(100px);
+  }
+
+  80% {
+    transform: translateX(-10px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate(0);
+  }
+}
+
+@keyframes moveInLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-100px);
+  }
+
+  80% {
+    transform: translateX(10px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes moveOutLeft {
+  0% {
+    opacity: 1;
+    transform: translateX();
+  }
+
+  50% {
+    transform: translateX(-10px);
+  }
+
+  60% {
+    transform: translateX(-20px);
+  }
+
+  80% {
+    transform: translateX(-40px);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(-100px);
+  }
+}
+
+@keyframes moveInLeftDisaperar {
+  0% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  80% {
+    transform: translateX(10rem);
+  }
+
+  100% {
+    opacity: 0;
+    display: none;
+    transform: translateX(-50rem);
+  }
+}
+
+@keyframes moveInBotton {
+  0% {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+
+  90% {
+    opacity: 1;
+    transform: translateY(-20px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes moveOutBotton {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  30% {
+    opacity: 0.9;
+    transform: translateY(-10px);
+  }
+
+  50% {
+    opacity: 0.7;
+    transform: translateY(20px);
+  }
+
+  70% {
+    opacity: 0.5;
+    transform: translateY(30px);
+  }
+
+  90% {
+    opacity: 0.3;
+    transform: translateY(40px);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(200px);
+  }
+}
+
+@keyframes moveInTop {
+
+  //ESte tiene el 50- tranalate
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -100px);
+  }
+
+  25% {
+    opacity: 0.25;
+    transform: translate(-50%, -50px);
+  }
+
+  50% {
+    opacity: 0.5;
+    transform: translate(-50%, 0px);
+  }
+
+  75% {
+    opacity: 0.75;
+    transform: translate(-50%, 15px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate(-50%, 0px);
+  }
+}
+
+@keyframes moveOutTopH {
+
+  //ESte tiene el 50- tranalate
+  0% {
+    opacity: 1;
+    transform: translate(-50%, 0px);
+  }
+
+  25% {
+    opacity: 0.75;
+    transform: translate(-50%, 15px);
+  }
+
+  50% {
+    opacity: 0.5;
+    transform: translate(-50%, 30px);
+  }
+
+  75% {
+    opacity: 0.25;
+    transform: translate(-50%, 45px);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%, 70px);
+  }
+}
+
+@keyframes moveOutTop {
+  0% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+}
+
+@keyframes moveUpDownCartel {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -150%);
+  }
+
+  30% {
+    opacity: 0.3;
+    transform: translate(-50%, -80%);
+  }
+
+  60% {
+    opacity: 0.7;
+    transform: translate(-50%, -40%);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+@keyframes moveOutDownCartel {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+
+  30% {
+    transform: translate(-50%, -40%);
+    opacity: 0.7;
+  }
+
+  60% {
+    transform: translate(-50%, -80%);
+    opacity: 0.3;
+  }
+
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -150%);
+  }
+}
+
+@keyframes navIzquierda {
+  0% {
+    opacity: 0;
+    transform: translateY(-50rem);
+  }
+
+  80% {
+    transform: translateY(5rem);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes navIzquierdaDef {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes navIzquierdaDefOut {
+  0% {
+    opacity: 1;
+    width: 0.5rem;
+    height: 15%;
+  }
+
+  80% {
+    height: 15%;
+  }
+
+  100% {
+    width: 0.4rem;
+    margin-right: -2rem;
+    height: 15%;
+  }
+}
+
+@keyframes navArribaOut {
+  0% {
+    opacity: 1;
+    background-color: transparent;
+    transform: translateY(0);
+    height: $altoNacSup;
+    width: 100%;
+  }
+
+  30% {
+    opacity: 0.5;
+    background-color: transparent;
+    transform: translateY(0rem);
+    height: 2.7rem;
+    width: 100%;
+  }
+
+  50% {
+    opacity: 0.5;
+    background-color: transparent;
+    transform: translateY(0rem);
+    height: 2.4rem;
+    width: 100%;
+  }
+
+  60% {
+    opacity: 0.5;
+    background-color: transparent;
+    transform: translateY(0rem);
+    height: 2rem;
+    width: 100%;
+  }
+
+  70% {
+    opacity: 0.5;
+    background-color: transparent;
+    transform: translateY(0rem);
+    height: 1.5rem;
+    width: 100%;
+  }
+
+  80% {
+    opacity: 0.5;
+    background-color: transparent;
+    transform: translateY(0rem);
+    height: 1rem;
+    width: 100%;
+  }
+
+  100% {
+    opacity: 0.5;
+    background-color: transparent;
+    transform: translateY(-50rem);
+    height: 0.6rem;
+    width: 100%;
+  }
+}
+
+@keyframes navCompleta {
+  0% {
+    opacity: 0;
+    transform: translateX(-50rem);
+  }
+
+  80% {
+    transform: translateX(5rem);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes indicadores {
+  0% {
+    opacity: 0;
+    transform: translateY(50rem);
+  }
+
+  80% {
+    transform: translateY(-5rem);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes moveInRigthBackButton {
+  0% {
+    transform: translateX();
+  }
+
+  20% {
+    transform: translateX(0.2rem);
+  }
+
+  90% {
+    transform: translateX(-0.2rem);
+  }
+
+  100% {
+    transform: translate(0);
+  }
+}
+
+@keyframes latidoBotonPassword {
+  0% {
+    transform: scale(1);
+    box-shadow: 2px 4px 0 rgba(0, 0, 0, 0.3);
+  }
+
+  50% {
+    transform: scale(1.02);
+    box-shadow: 3px 5px 0 rgba(0, 0, 0, 0.3);
+  }
+
+  100% {
+    transform: scale(1);
+    box-shadow: 2px 4px 0 rgba(0, 0, 0, 0.3);
+  }
+}
+
+@keyframes latidoBotonAbm {
+  0% {
+    transform: scale(1);
+    box-shadow: 0px 0.3rem 0px rgb(114, 109, 109);
+  }
+
+  50% {
+    transform: scale(1.2);
+    box-shadow: 0 0.5rem 0rem rgb(114, 109, 109);
+  }
+
+  100% {
+    transform: scale(1);
+    box-shadow: 0px 0.3rem 0px rgb(114, 109, 109);
+  }
+}
+
+@keyframes latidoBotonFiltro {
+  0% {
+    transform: scale(1);
+    box-shadow: 0px 0.4rem 0px rgba(20, 51, 90, 0.322);
+    background-color: rgb(230, 230, 230);
+  }
+
+  50% {
+    transform: scale(1.1);
+    box-shadow: 0px 0.6rem 0px rgba(20, 51, 90, 0.322);
+    background-color: rgb(230, 230, 230);
+  }
+
+  100% {
+    transform: scale(1);
+    box-shadow: 0px 0.4rem 0px rgba(20, 51, 90, 0.322);
+    background-color: rgb(230, 230, 230);
+  }
+}
+
+@keyframes latidoBotonCartel {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.2);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes latidoCruz {
+  0% {
+    transform: rotate(45deg) scale(1);
+  }
+
+  50% {
+    transform: rotate(45deg) scale(1.2);
+  }
+
+  100% {
+    transform: rotate(45deg) scale(1);
+  }
+}
+
+@keyframes latidoTexto {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.2);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+
+  30% {
+    opacity: 0.3;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+
+  80% {
+    opacity: 0.8;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+
+  30% {
+    opacity: 0.8;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+
+  80% {
+    opacity: 0.3;
+  }
+
+  100% {
+    display: none;
+    opacity: 0;
+  }
+}

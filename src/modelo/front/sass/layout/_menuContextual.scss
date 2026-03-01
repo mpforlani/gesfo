@@ -1,0 +1,47 @@
+//Este es el menu del 2do click en el abm
+#menuContextual {
+
+    #menuContextualTitulo,
+    #menuContextualCuerpoTabla,
+    #menuContextualInput {
+        display: none;
+        position: absolute;
+        border: 1px solid black;
+        background-color: rgb(241, 241, 241);
+        border-radius: 3px;
+        font-family: "Open Sans Condensed", sans-serif;
+        padding: 0 2rem 0 0;
+        z-index: 1500;
+    }
+    
+    ul {
+        list-style: none;
+        list-style-type: none;
+        padding-left: 0;
+        margin-left: 0.5rem;
+
+        li {
+            line-height: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            justify-content: center;
+            font-weight: bold;
+
+            &:hover {
+
+                   background-color: rgb(214, 212, 212);
+
+            }
+
+            img {
+                width: 1em;
+                margin-right: 1em;
+            }
+
+        }
+    }
+
+    #quitarFiltroMenu {
+        border-bottom: 2px solid #bbb;
+    }
+}

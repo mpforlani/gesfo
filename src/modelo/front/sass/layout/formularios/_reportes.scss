@@ -1,0 +1,546 @@
+@use "../../abstracts/variables" as *;
+@use "../../../../../front/sass/abstract/variablesModelo" as *;
+@use "../../abstracts/mixins" as *;
+
+.comandos {
+
+    .comand.tabla {
+
+        display: none;
+        position: relative;
+        flex-direction: row;
+        flex-wrap: wrap;
+        padding: 0;
+
+        &.active {
+            display: flex;
+        }
+
+        &.paddingBotton {
+
+            padding-bottom: 1rem;
+        }
+
+        .divCabecera {
+
+            margin: 0.7rem 0.8rem 0 0.9rem;
+
+            &.fechaTablaReporte {
+
+                p {
+                    font-size: 1rem;
+                }
+
+                input[type="date"] {
+
+                    height: 1.6rem !important;
+                    padding-left: 0.8rem;
+
+                }
+
+                &.chau {
+                    animation: moveOutLeft 0.6s ease-out;
+                    opacity: 0;
+                }
+
+                &.hola {
+                    animation: moveInLeft 0.6s ease-in;
+                    opacity: 1;
+                }
+            }
+
+            &.filtroMultiple .filtroRapido {
+                border: 2px solid #000000;
+                background-color: rgb(255, 255, 255);
+                padding: 0 0.5rem 0 0.5rem;
+                border-radius: 3px;
+                width: 5rem;
+                margin-right: 0.5rem;
+                justify-content: center;
+                text-align: center;
+                align-items: center;
+                align-content: center;
+                box-shadow: 0px 0.4rem 0px rgba(20, 51, 90, 0.322);
+                animation: all 0.2s;
+                font-weight: bold;
+                cursor: pointer;
+                min-width: 6rem;
+                height: 1.5rem;
+                font-size: 0.9em;
+
+                &:hover:not(:active) {
+
+                    box-shadow: 0px 0.4rem 0px rgba(20, 51, 90, 0.322);
+                    background-color: rgb(230, 230, 230);
+                }
+
+                &:active {
+                    box-shadow: 0px 0rem 0px rgb(61, 87, 65);
+                    background-color: rgb(169, 186, 197);
+                    transform: translateY(0.4rem);
+                }
+
+                &.botonActivo {
+                    transform: translateY(0.2rem);
+                    box-shadow: 0px 0px 0px rgb(20, 52, 90);
+                    background-color: rgb(191, 199, 245);
+                    box-shadow: 0px 0.2rem 0px rgba(20, 51, 90, 0.322);
+
+                    &:hover:not(:active) {
+
+                        background-color: rgb(132, 145, 221) !important;
+                    }
+                }
+            }
+
+            &.botones {
+                position: absolute;
+                bottom: 20%;
+                right: 20px;
+            }
+
+            .selecAtributo {
+
+                display: flex;
+                flex-direction: column;
+                position: relative;
+                align-self: center;
+                height: 1.6rem;
+
+                .selectInput {
+
+                    height: 1.6rem;
+
+                    .inputSimulSelec {
+                        padding-left: 1rem;
+                        border-radius: 3px;
+                    }
+                }
+
+                .divInput {
+                    display: none;
+                }
+
+                .spanFlechaAbajo {
+                    margin-top: 0px;
+                }
+
+                .opcionesSelectDiv {
+                    width: 100%;
+                }
+            }
+
+        }
+
+        .mesesPicker {
+
+            font-family: $form-Individual;
+            padding: 0.3rem 0rem 0.3rem 1rem;
+            align-content: center;
+
+            &.oculto {
+                display: none;
+            }
+
+            h3 {
+                margin: 0 0.7rem 0 0;
+                font-size: 1rem !important;
+                align-self: center;
+            }
+
+            input {
+                margin: 0 0.8rem 0 0;
+                height: 1.6rem;
+                padding-left: 1rem;
+            }
+        }
+
+        .primerDiv {
+            margin: 0.5rem 0 0.5rem 1.5rem;
+        }
+
+        span.save {
+            margin-left: 1.5rem;
+        }
+
+        .barraForm {
+            margin: 0.5rem 0 0 0.5rem;
+
+        }
+    }
+}
+
+.tablaReporte {
+
+    background-image: $fondo-formIndividual-local;
+    display: none;
+    border: 1px solid #bbb;
+    border-top: transparent;
+    width: 100%;
+    height: auto;
+    max-height: 100%;
+    flex-wrap: nowrap;
+    margin: 0 2rem 0 0;
+    box-sizing: border-box;
+    overflow-y: auto;
+    overflow-x: auto; // ⬅️ el scroll horizontal DEBE estar acá
+    position: relative;
+
+    &.wrap {
+        flex-wrap: wrap;
+    }
+
+    &.active {
+        display: block;
+
+        &.creado {
+            animation: fadeIn .2s ease-out;
+
+        }
+    }
+
+    &.removiendo {
+        animation: fadeOut .2s ease-out;
+    }
+
+    .tituloTabla {
+        margin: 0 0 0.5rem 2rem;
+
+        h3 {
+            font-family: $letra-pestana;
+            font-size: 1rem;
+
+        }
+    }
+
+    table {
+        margin: 0.7rem 2rem 0.7rem 2rem;
+        min-height: max-content;
+
+        &.trBordes {
+            tr:not(:last-child) {
+                border-bottom: 2px solid #000000;
+            }
+        }
+
+        &.white {
+            border-radius: 6px;
+            border-collapse: separate;
+            border-spacing: 0;
+
+            tbody {
+                border: 2px solid #000000;
+            }
+
+            tr {
+                &:not(.titulosFila):not(.filtros) {
+                    background-color: white;
+
+                }
+
+                &.filtros {
+                    position: sticky;
+                    backdrop-filter: blur(10px);
+                    -webkit-backdrop-filter: blur(10px);
+                    background: rgba(255, 255, 255, 0.3);
+                    z-index: 1000;
+
+                    input {
+                        border: 1px solid #000000;
+                    }
+
+
+                }
+
+                &.titulosFila {
+                    th {
+                        background-color: rgb(3, 3, 56) !important;
+                        color: white;
+
+                    }
+                }
+
+                &:not(.modificado):hover {
+                    background-color: rgb(237, 239, 247) !important;
+
+                }
+
+                td {
+                    &:hover {
+                        background-color: rgb(179, 191, 236) !important;
+                        cursor: pointer;
+                        font-weight: bold;
+                    }
+
+                    &::selection {
+                        background: transparent;
+                        color: inherit;
+                    }
+
+                    &.seleccionada {
+                        background-color: rgb(0, 21, 255);
+                    }
+
+                    &.editableRep {
+                        align-items: center;
+                        display: flex;
+
+                        input {
+                            border: 1px solid #000000;
+                        }
+                    }
+                }
+            }
+        }
+
+        tr {
+            display: flex;
+            width: auto;
+            flex-wrap: nowrap;
+            align-items: center;
+
+            &.titulosFila {
+                position: sticky;
+                top: 0;
+                z-index: 999;
+                backdrop-filter: blur(30px);
+            }
+
+            &.filtros {
+
+                display: none;
+
+
+                &.active {
+                    display: flex;
+                }
+
+                .filtroAgrupador {
+                    display: flex;
+                    margin: 0 0.1rem 0 0.1rem;
+                    width: auto;
+                    min-width: 7rem;
+
+                    div {
+                        margin: 0;
+                        width: 7rem;
+                        padding: 0;
+
+                    }
+                }
+
+                td {
+                    display: flex;
+                    align-items: center;
+                    padding: 0.3rem 0.1rem 0.3rem 0.1rem;
+                }
+            }
+
+            &.filaTotal {
+
+                td {
+                    border-top: 2px solid #000000;
+                    background-color: rgba(255, 255, 255, 0.151);
+                    height: auto;
+
+                    &.total.atributos {
+                        padding-left: 1rem;
+
+                    }
+                }
+            }
+
+            &.tablaCalculada {
+                font-weight: bold;
+
+                td {
+
+                    background-color: rgba(255, 255, 255, 0.151);
+                    height: auto;
+
+                    &.total.atributos {
+                        padding-left: 1rem;
+
+                    }
+                }
+            }
+
+            &.modificado {
+                transition: background-color 0.4s ease;
+                background-color: rgb(166, 192, 236) !important;
+            }
+
+            td,
+            th {
+                min-width: 7rem;
+
+            }
+
+            th {
+                font-size: 1rem;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 0 0.3rem 0 0.3rem;
+                text-align: center;
+
+                &:first-child {
+                    border-top-left-radius: 0.1rem
+                }
+
+                &:last-child {
+                    border-top-right-radius: 0.1rem
+                }
+
+                .th-contenido {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    position: relative;
+                    width: 100%;
+
+                    .iconos {
+                        display: none;
+                        flex-direction: row;
+                        position: absolute;
+                        right: 10px;
+
+
+                        span {
+                            font-size: 1rem;
+                            padding: 0;
+                            font-weight: bold;
+
+                            &:hover {
+                                transform: scale(1.2);
+                                color: rgb(5, 187, 35);
+                                cursor: pointer;
+                            }
+                        }
+
+                        .flechasOrden {
+
+                            display: flex;
+                            flex-direction: column;
+                            justify-content: center;
+
+                            span {
+                                &.arriba {
+                                    margin-bottom: -3px;
+                                }
+
+                                &.abajo {
+                                    margin-top: -3px;
+                                }
+                            }
+                        }
+
+                        .filtro {
+                            background-color: transparent !important;
+                            border-color: transparent !important;
+                            display: flex;
+                            flex-direction: column;
+                            justify-content: center;
+                        }
+                    }
+
+                    &:hover {
+                        span.tit {
+                            overflow: hidden;
+                            white-space: nowrap;
+                            text-overflow: clip;
+
+                            transition: opacity 0.3s ease;
+                            max-width: calc(100% - 80px);
+                        }
+
+
+                        .iconos {
+                            display: flex;
+                        }
+                    }
+                }
+            }
+
+            td {
+                height: -webkit-fill-available;
+                align-content: center;
+                transition: all 0.4s;
+                padding: 0 0.3rem 0 1rem;
+
+                &.totalHorizontal {
+                    font-weight: bold;
+                    background-color: rgba(255, 255, 255, 0.151);
+                }
+
+                &.importeNegativo {
+
+                    color: rgb(128, 19, 19);
+                }
+
+                .selectCont {
+                    margin-top: 0.3rem;
+
+                    .selecSimulado {
+                        .spanFlechaAbajo {
+                            height: 100% !important;
+                            bottom: auto !important;
+                        }
+                    }
+                }
+
+                .item {
+                    position: relative;
+                    padding-left: 14px;
+                    margin: 2px 0;
+
+                    &::before {
+                        content: "•";
+                        position: absolute;
+                        left: 0;
+                        top: 0;
+                        font-size: 1rem;
+                        line-height: 1;
+                    }
+
+                    &:empty {
+                        content: none;
+                    }
+                }
+            }
+        }
+    }
+
+    .barraCalculada {
+
+        height: auto;
+        position: relative;
+        margin: 0.5rem 0 0.5rem 2rem;
+        position: sticky;
+        bottom: 0;
+        left: 2rem;
+        background-color: white;
+        z-index: 9999;
+
+        .datosCalculados {
+
+            display: flex;
+            height: 1.5rem;
+            align-items: center;
+            font-weight: bold;
+
+        }
+    }
+
+    .contenedorTable,
+    .contenedorAtributosFila {
+        //sun tabla complemento ejemplo en resultado estimados de logisticxa
+        width: 100%;
+        padding: 0 1rem 0 1rem;
+
+        th._id,
+        td._id {
+            display: none;
+        }
+    }
+}

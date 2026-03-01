@@ -1,0 +1,193 @@
+@use "../../abstracts/variables" as *;
+@use "../../../../../front/sass/abstract/variablesModelo" as *;
+@use "../../abstracts/mixins" as *;
+
+.tabs_contents_item.tablaDoble {
+  .titulos {
+    width: 100%;
+    padding-left: 7em;
+    margin-top: 1em;
+    color: white;
+    font-family: "Mukta", sans-serif;
+
+    h2 {
+      font-size: 1.8em;
+      margin: 0;
+      padding: 0;
+    }
+
+    h3 {
+      font-size: 1.1em;
+      padding: 0;
+      margin: 0;
+      margin-top: -0.5em;
+    }
+  }
+
+  &[nombre="testing"] {
+
+    th.filaNombre {
+      &:hover {
+        background-color: rgb(17, 128, 50);
+        cursor: pointer;
+      }
+
+      &:active {
+
+        cursor: grabbing;
+      }
+    }
+  }
+
+  .renglon {
+    justify-content: center !important;
+  }
+
+
+  table.tablaDoble {
+    margin: 1rem auto 0 auto;
+    justify-content: center;
+    overflow-y: scroll;
+
+    tr {
+      &.modificado {
+        background-color: rgb(115, 224, 134);
+
+        th,
+        td {
+          background-color: transparent !important;
+        }
+      }
+
+      &.primeraFila th {
+        margin: 0;
+        position: sticky;
+        top: -17px;
+        background: white;
+        /* Asegura que no se vuelva transparente */
+        z-index: 2;
+        font-size: 1rem !important;
+        background-color: rgb(144, 167, 243) !important;
+      }
+
+      &.seleccionado {
+        background-color: rgb(52, 77, 131) !important;
+
+        th,
+        td {
+          background-color: transparent !important;
+          color: red !important;
+          font-weight: bold !important;
+        }
+      }
+
+      th {
+        border-radius: 2px;
+
+        &.filaNombre,
+        &.filtro.tituloTablas {
+          text-align: left;
+          justify-content: flex-start;
+        }
+
+        &.tituloTablas {
+          padding: 0 1.2rem 0 0.4rem;
+          font-size: 0.8rem;
+          font-family: $letra-pestana, sans-serif;
+          background-color: #c5c5e9;
+          width: max-content;
+          padding: 0 1rem 0 1rem;
+        }
+
+        &.filaNombre {
+          text-align: left;
+          font-size: 0.8rem;
+          background-color: #e0e0e0;
+          font-family: $letra-pestana, sans-serif;
+          font-weight: 100;
+          padding: 0 1.2rem 0 0.4rem;
+        }
+
+        &.agrupador {
+          &:hover {
+            cursor: pointer;
+            background-color: rgb(99, 125, 165);
+          }
+        }
+
+        &.boton {
+          input {
+            display: none;
+          }
+        }
+      }
+
+      td {
+        &.de {
+          padding: 0 0.5em;
+          text-align: center;
+          background-color: #e0e0e0;
+
+          div {
+            &[type="boton"] {
+              text-align: center;
+              cursor: pointer;
+              padding: 0 0.5rem 0 0.5rem;
+              background-color: $botoneraTablaSeguridad;
+              width: 10rem;
+              border: 1px solid black;
+
+              &:hover {
+                transform: scale(1.05);
+                background-color: rgb(177, 241, 183);
+              }
+
+              &:active {
+                cursor: grabbing;
+                transform: scale(1);
+                background-color: rgb(243, 226, 130);
+              }
+
+              p {
+                font-size: 0.9rem;
+                font-weight: bold;
+                font-family: $form-Individual;
+              }
+            }
+          }
+        }
+      }
+
+      input[type="checkbox"] {
+        cursor: pointer;
+
+        &:active {
+          cursor: grabbing;
+          transform: scale(1);
+        }
+      }
+    }
+
+    &::-webkit-scrollbar {
+      height: 10px;
+      width: 13px;
+
+      &:hover {
+        transform: scale(2);
+        cursor: pointer;
+      }
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: rgba(24, 11, 11, 0.568);
+      border-radius: 10px;
+
+      &:hover {
+        transform: scale(2);
+        cursor: pointer;
+        background-color: red;
+      }
+    }
+  }
+
+}

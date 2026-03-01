@@ -1,0 +1,83 @@
+@use "../abstracts/variables" as *;
+@use "../../../../front/sass/abstract/variablesModelo" as *;
+
+.composition {
+    position: relative;
+
+    .compositionPhoto {
+
+        width: 55%;
+        box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.4);
+
+        position: absolute;
+        z-index: 10;
+        transition: all 0.2s;
+        outline-offset: 1.3rem;
+
+
+        &-p1 {
+            left: 0;
+            top: -1.6rem;
+
+        }
+
+        &-p2 {
+            right: 2px;
+            top: 1.6rem;
+
+        }
+
+        &-p3 {
+            left: 20%;
+            top: 7rem;
+
+        }
+
+        &:hover {
+            outline: 1rem solid rgba(0, 0, 0, 0.70);
+            transform: scale(1.05) translateY(-3rem);
+            box-shadow: 0 2rem 4rem rgba(0, 0, 0, 0.5);
+            z-index: 20;
+
+        }
+    }
+
+    &:hover &.compositionPhoto:not(:hover) {
+        transform: scale(.95);
+    }
+
+}
+
+//Progress Bar
+.progressBar {
+    width: 25rem;
+    height: 2rem;
+    background-color: black;
+    border-radius: 1.5rem;
+    color: white;
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    transform: translateX(-55%);
+    z-index: 10002;
+    align-items: center;
+
+}
+
+.progressBar::before {
+
+    content: attr(data-label);
+    display: flex;
+    align-items: center;
+    padding-left: 1rem;
+    margin: 0.4rem 0.8rem 0.4rem 0.4rem;
+    height: calc(100% - 0.8rem);
+    width: calc(var(--width, 0) *1%);
+    min-width: 2rem;
+    max-width: calc(100% - 2rem);
+    background-color: rgb(83, 84, 155);
+    border-radius: 1.5rem;
+    font-weight: bold;
+    font-size: 1.2rem;
+
+}

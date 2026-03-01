@@ -1,0 +1,168 @@
+-----------------
+Testing => retomarlo
+relacionar casos => que seria puse eso pero ni idea
+--------------------------------------
+Log
+3 - Perdir cambiar password cada 3 meses
+2 - Password, últimas 5
+1 - Ver Crear usuario unicos que pasa si creo dos usuario con el mismo nombre, igual manera con otras entidad nombre únicos, sobre todo paramétrica
+0 - Ver usuario nuevo lo cargo por script pero despues los permisos.
+--------------------------------------
+Seguridad
+2 - Falta seguridad por días o tiempo
+1 - Ver si abro grupo de seguridad vacio tira error
+0 - Testear seguridad por atributo y seguridad de visualizar none, no va porque cualquiera sacaria eso desde la parte de atras
+--------------------------------------
+instalar mailcow
+instalar mi sitio web y el demo
+responsive
+Ver inteligencia artifical o web simplified
+---------Funciones especificas
+104 - Ver tipo de cambios automaticos
+103 - Reporte resultado Lucho -  Miercoles 03/12 (Versión Beta)
+102 - Filtros Multiples -  Miercoles 03/12
+101 - Cambio seleccion celdas reportes -  Jueves 04/12
+100 - Manipulación celdas tamañao y orden reportes -  Martes 09/12 
+99 - Ver el formato en formulario, el tanto el ancho, como las celdas por reglon
+98 - arreglar formato oculto, que sea lindo priemro cuando se va(alguna transition), y segundo que que tenga en cuenta solo los visibles para los renglones
+97 - Ver si confirmo operación q se esta editando, en otro reigsotro, cierra esa o que hago.
+96 - Cuando muevo fila con la mano las opciones del select me quedan abajo
+95 - Ver de sugerir destinatarios en email, y poner firma 
+94 - Enriquecer cuerpo de email
+93 - Filtros get, ver en la tabla de cheni proque la complemento trae error, ejemplo cajas pones filtros si es get pone en cabecera y en el get comun no tiene cabecera => esto esta pero desprolijo, lo hice yo, chequear si se puede mejorar
+92 - Cración de la tabla con acumuladores, renlong 110 esta raro el filtro eta raro que va a buscar cheni tuvo que poner filtro coleecion
+91 - Ver filtro totales en reportes, que sale corrido cuando pongo filtros en totales de algunos reportes  o de los que tiene totales
+89 - ver los acumuladores total que pasa si modifica el que no es el último.
+88 - Sacar titulos de atributos
+87 - Ver lo de importe siempre tenga dos decimales asi me queda alineado en reportes e impresiones----
+86 - no me andubo anular en salda de stocks
+85 - Ver acumuladores cuando no le mandas mnoneda alternativa porque no funciona con multimoneda
+84 - Ver el TC en moneda base cuando no es multimoneda, en SBc no me sugiere tipo de cambios en tesoreria
+82 - Ver imputacion multiples desde facturacion proveedores
+81 - Ingresar factura a proveedores, centrar el estado
+80 - Ver duplicidad clase en colecciones
+78 - Ver en reportes arreglar el panel negro, porque no anda osea si agarro corrdido el scroll horizontal lo crea mal
+77 - Pagos cta ctte y cobros cta tte ver que se corre el renglon del tc por oculto
+76 - no envia email imrpesiones
+74 - titulo undefined, facturacion a orden salida
+72 - Ver lo de imputación multiples
+71 - No se puede NO crear entidades
+70 - Ver de crear un tilde para abm y otro para indm y otro para crearInd
+66 - ver imputacon un registros del array 
+64 - Ver filtros rápidos entidades kuni
+63 - Pestaña agrupada ????
+61 - El largo de adjuntos, si se estira el formulario no lo cubre todo, estasria bueno si lo cubre
+60 - sacar los desencadeantnes los atributos que no andan
+59 - en cobros que no se pueda cobrar mas que el saldo - PROBAR
+57 - moneda que no aparece por ejemplo en detalle flete signo dolar
+56 - ver moneda en items de pagos esta en la coleccion de moneda
+55 - El autocompletado en slect de colecciones
+54 - Ver deposito que el total es de ambas moneda -- Le dije a cheni poco usado
+53 - Ver como calcular moneda alternativa si no estar cargarda la moneda alternativa
+51 - Ver obtener cotizacioens automaticas de internet y registrarla
+48 - Ver borrar o desinputar
+47 - Arreglar multimoneda, no tiene cheques
+44 - Agregar scroll y maximo de largo chequear cartel de cheques con 20 cheques, que pasa
+43 - Ver lo de de renglones sea por atributos que no estan ocultos
+42 - desinputar cheque repetido
+41 - Ingresar registros que repite por ejmeplo nombre, tira error perono dice porque, es como si se tildaria
+40 - No anda ninguna tipo de adjunto en pagos y corbros verifiar porque puede estar pasando lo msimo en sbc
+39 - arreglar el nombre de tipo de cambio, sacarñp de indice y darle un lugar demtrp de tesoreria
+38 - ver porque busca 4 veces la cotizacon despues
+37 - Refrescar tipo de cambio cuando se ingresa uno nuevo
+36 - revisar abm de cobros, observaciones esta muy a la izquierda, y ver la tipo de cambio que esta raro
+35 - Ver como guarda o muestra el tc en cobros, de minima en la parte de meio de pagos, ver en cabecra tambien
+34 - Ver lo de objeto fusion eso no existe mas ya que fusiono cuando creo
+33 - Ver los de filaAbmEditada y edita registro del abm como hacer para q quede uno
+32 - ver tc en cheques o en todo el circuito que trabaja cheni de sacar el tc en el abm
+31 - Ver formato texto importe tipoPago
+29 - Traer medio de pago en formularioAbm, (ver colecciones en formularioABM)
+28 - Ver en provincia, que se me pone la pestaña arriba, y no entra se corta, mirar bien, ante la duda ir abajo
+27 - Crear algo para cuando abra la entidad espere a que termine asi obtengo el numero de operacion, tipo (Esto en testing)
+26 - Ver como calcula los impuestos la transformacion de factura
+25 - Arreglar los del tab, porque si pongo cartel seguro, me deja tabular a otros lados
+24 - Arreglar impresion, sacar la imagen porque sino todo el tiempo tengo que hacer doble con el print
+23 - Ver lo de abrir muchas pestañas 
+22 - ver de arreglar lo de tab index en coleccion, agregandole coma, para la carga rapida:
+21 - Ver lo del tab index, que pase por adjunto
+20 - Ver text area, enriquecerlo con negrita etc
+19 - hacer por default que la parametricas solo puedan desabilitarse y las transaccionales eliminarse
+18 - actualizao mongo
+17 - actualizar node
+14 - ver filtro y orden igualarlo al de reportes
+13 - Click ruedita cierre pestaña
+11 - ver de arreglar pestanas, para valores grandes
+10 - Sacar reversion rechazo en las aprobaciones.
+8 - Ver lo del historial ver que paso, no marca los cambios y ver regenerar. en colección gemela
+7 - Ver el boton cruz, que no te vuelve atras form individual.
+6 - No dejar cerrar la pestana si esta enviando registro.
+5 - Regenera abm y me tira error al buscar historial.
+4 - Ojo con lo que tiene permisos editar, porque dice seguridad none, entonces podria borrar seguridad, ver como solucionar eso, seria con la que no te deja ver el codigo o como. 
+3 - Ver las imagenes adjuntos el tamaño es cualquiera.
+2 - historias y desencadenantes chequear.
+1 - Ver que por default cantidad da = 1. es para no multiplicar por cero, pero tampoco esta bien que de uno, ver en operaciones y cotizaciones
+0 - Ver los botones y funcionalidades del 2do click.
+
+==> Funcionalidades pequeñas
+-----------------------------------------------------------------------------------------------------------------------------------
+1 - Generar ndc NDd por tipo de cambio.Func
+0 - Multiple orden tablas, de ordenar y filtrar por más de un atributp
+
+==> Funcionalidades pendientes
+-----------------------------------------------------------------------------------------------------------------------------------
+8 - Se podría poner, titulos en atributos y que si el atirbuto toma el titulo por default no ponerlo en abm. mas pa pensar. 
+7 - Ordenar pestanañas con el mouse
+6 - Calcular atributos por renglon de fomra automatica - Hacer un responsivo
+5 - Ver lo que gurda las personalizaciones por compu y por usuario
+4 - Socket pendientes de standar
+3 - Ingreso conjunto de operaciones, ejemplo un usuario esta editando la operacipon 538 y otro mismo usuario esta en esa operaciones y termina pisando lo que hace el ultimo usuario no importa sino trabajan sobre el mismo atributo.
+2 - Crear keyup-Change (para optimizar las operaciones matematicas de los formularios)
+1 - Ver lo idColec, agregar por default en cada coleccion y position, hay tres atributos por default, ver de ponerlo automaticos, agregar en base de datos atributos compartidos, algo asi que funcione por default
+0 - Testing automatico
+
+==> Pendiente CRM
+----------------------------------------------------------------------------------------------------------------------------------
+
+4 - ver ingresos multiples, Rami le piso los datos a Pua
+3 - Orden de pestana. Configurar en el abm, el orden de las parametricas que serían llamadas en las entidades. Saco el orden porque deberia ir automatico en todas las parametricas
+2 - Agregar biblioteca que tiene las mismas caracteristicas que un word, (negrita pegar etc)
+1 - Automatizar ancho en form. Con grid ??.
+0 - ir haciendo desaparecer objeto empresa y reemplazarlo por la que cree
+
+==> Cursos necesarios
+-----------------------------------------------------------------------------------------------------------------------------------
+6 - nest JS
+5 - Breakpoint - debug
+2 - Control de versiones
+
+==> Nota de cursos
+-----------------------------------------------------------------------------------------------------------------------------------
+scss
+1 - Hover, lo pinta gradualmente de derecha a izquierda al menu: Video 79 min 5.2.
+2 - Margin Auto, para que si tengo display flex ni me alagrgue el elemento a derecha sobre las estrellitas. Video 81 min 2.31
+3 - Ver lo de max content para los titulos de las grillas abm, video 103. minuto 4
+
+==> Info
+-----------------------------------------------------------------------------------------------------------------------------------
+Token
+mongo --username martinAdmin
+----------------------------------------------------------------------------------------------------------------
+Ppato@1425Pat
+ssh-keygen -t ed25519 -C "mpforlani@gmail.com"
+ssh root@82.25.70.5
+
+docker exec -it mongo mongosh -u martinAdmin -p Pa@To_1254 --authenticationDatabase admin
+ 
+ //Backup
+ /root/backups/mongo/
+ ////
+ Docker
+docker system prune 
+-------------------------
+1 - docker compose build sbc-gesfin
+2a - docker compose up -d sbc-gesfin 
+2b - docker compose up -d --no-deps sbc-gesfin ==> solo sbc no toco las otras 
+2c - docker compose up -d --force-recreate --no-deps sbc-gesfin ==> solo si cambie variables de entorno
+-------------------
+docker compose logs -f sbc-gesfin
+docker compose logs sbc-gesfin | grep "USER:pato"

@@ -1,0 +1,39 @@
+@use "abstracts/functions";
+@use "abstracts/mixins";
+@use "../../../front/sass/abstract/variablesModelo"; //Este y el proximo va juntos si o si porque en los elementos uso los colores definidos en las variables
+@use "abstracts/variables";
+@use "abstracts/elements";
+
+
+@use "../../../front/sass/abstract/elementsModelo";
+@use "../../../front/sass/layout/formularios/addFormularios";
+
+@use "base/animaciones";
+@use "base/alinWidth";
+@use "base/tipography";
+@use "base/utilities";
+
+@use "componentes/button";
+@use "componentes/card";
+@use "componentes/composition";
+@use "componentes/feature-box";
+
+@use "layout/formularios/formAbm";
+@use "layout/formularios/formularioIndividual";
+@use "layout/formularios/formDobEnt";
+@use "layout/formularios/reportes";
+@use "layout/formularios/testing";
+
+@use "layout/navegacion/navHorizontal";
+@use "layout/navegacion/navIzquierda";
+
+@use "layout/vistaPreviaArchivos";
+@use "layout/menuContextual";
+
+@use "librerias/carteles";
+@use "librerias/logistica";
+@use "librerias/impresion";
+@use "librerias/tablaComplemento";
+
+@use "pages/home";
+@use "pages/paginaPrincipal"

@@ -1,0 +1,106 @@
+@use "../../abstracts/variables" as *;
+@use "../../../../../front/sass/abstract/variablesModelo" as *;
+@use "../../abstracts/mixins" as *;
+
+.comanderaPestana.formularioTesting {
+
+    span.recargar,
+    span.okfPlus {
+        display: none !important;
+    }
+}
+
+.tabs_contents_item {
+
+    &.formularioTesting {
+        background-color: rgba(132, 231, 153, 0.74) !important;
+        background-image: none !important;
+        padding-top: 0;
+
+        input.completadoCartel {
+
+            border-bottom: none !important;
+        }
+    }
+
+    &.formularioTestingEdit {
+        background-color: rgba(83, 124, 236, 0.74) !important;
+        background-image: none !important;
+        padding-top: 0;
+    }
+
+    &.formularioTesting,
+    &.formularioTestingEdit {
+
+        .cabeceraTesting {
+            width: calc(100% + 2rem);
+            font-family: $form-Individual;
+            border-bottom: 1px solid black;
+            background-color: transparent !important;
+            background-image: $fondo-formIndividual-local !important;
+            padding-left: 1rem;
+            margin-left: -1rem;
+            margin-right: -1rem;
+
+            h2 {
+                font-size: 1rem !important;
+            }
+
+            input {
+                height: 1.6rem !important;
+            }
+        }
+
+        .botonDescriptivo {
+            opacity: 0;
+        }
+
+        .testNoActive:not(.notEdit) {
+            &:hover {
+                background-color: rgba(138, 207, 138, 0.575);
+                border-radius: 20px;
+                cursor: pointer;
+
+                input {
+                    opacity: 1;
+                }
+            }
+
+            input,
+            span {
+                opacity: 0;
+            }
+        }
+
+        div.fo.numerador p:not(.autcompletado),
+        input.fecha.valorInicial {
+            display: none;
+        }
+
+        p.autcompletado {
+            font-size: 12px !important;
+            font-weight: bold;
+        }
+
+        .fo.auditoria {
+            display: none !important;
+        }
+    }
+
+    &.formularioTestingEdit {
+        div.fo:not(.notEdit):not(.testNoActive) {
+            &:hover {
+
+                background-color: rgba(192, 63, 63, 0.575);
+                border-radius: 20px;
+                cursor: pointer
+            }
+        }
+
+        td.fo:not(.testNoActive) {
+            background-color: rgba(192, 63, 63, 0.575);
+            border-radius: 20px;
+            cursor: pointer
+        }
+    }
+}

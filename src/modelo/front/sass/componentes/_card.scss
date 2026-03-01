@@ -1,0 +1,148 @@
+.card {
+
+   //FUNCTIONALLITY
+   perspective: 100rem;
+   -moz-perspective: 100rem;
+   position: relative;
+   height: 25rem;
+   
+   &_side {
+      background-color: rgba(255, 255, 255, 0.8); //mismo color que feature box
+      font-size: 2rem;
+      height: 35rem;
+      transition: all .8s ease;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      backface-visibility: hidden;
+      border-radius: 3px;
+      overflow: hidden;
+      box-shadow: 0 1.5rem 4rem rgba(0, 0, 0, 0.15);
+
+      &_front {
+         background-color: rgba(255, 255, 255, 0.8); //mismo color que feature box
+
+
+      }
+
+      &_back {
+
+         transform: rotateY(180deg);
+
+         &_1 {
+            background-image: linear-gradient(to right bottom, rgba(36, 153, 104, 0.8), rgb(156, 187, 223));
+         }
+      }
+   }
+   
+
+   &:hover &_side_front {
+      transform: rotateY(-180deg);
+   }
+
+   &:hover &_side_back {
+      transform: rotateY(0);
+   }
+
+
+   //  FRONT SIDE STYILING
+   &_picture {
+
+      background-size: cover;
+      height: 10rem;
+      background-blend-mode: screen;
+      -webkit-clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+      clip-path: polygon(0 0, 100% 0, 100% 85%, 0 100%);
+
+
+      &_one {
+         background-image: linear-gradient(to right bottom, rgba(36, 153, 104, 0.8), rgb(156, 187, 223));
+
+      }
+
+      &_two {
+         background-image: linear-gradient(to right bottom, rgba(36, 153, 104, 0.8), rgb(156, 187, 223));
+
+      }
+
+      &_tree {
+         background-image: linear-gradient(to right bottom, rgba(36, 153, 104, 0.8), rgb(156, 187, 223));
+
+      }
+   }
+
+   &_heading {
+      font-size: 1.5rem;
+      font-weight: 300;
+      text-transform: uppercase;
+      text-align: right;
+      color: white;
+      position: absolute;
+      top: 2rem;
+      right: 4rem;
+      width: 75%;
+   }
+
+   &_heading-span {
+      padding: 1rem 1.5rem;
+      -webkit-box-decoration-break: clone;
+      box-decoration-break: clone;
+      &._1 {
+
+         background-image: linear-gradient(to right bottom, rgba(36, 153, 104, 0.85), rgba(156, 187, 223, 0.85));
+      }
+   }
+
+   &_details {
+      padding: 2.5rem;
+
+      ul {
+         list-style: none;
+         width: 80%;
+         margin: 0 auto;
+
+         li {
+            text-align: center;
+            font-size: 1rem;
+            padding: 1rem;
+
+            &:not(:last-child) {
+               border-bottom: 1px solid black;
+            }
+         }
+      }
+   }
+
+   //  FRONT SIDE STYILING
+   &_cta {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, 50%);
+      width: 90%;
+        text-align: center;
+
+      .price-box {
+         text-align: center;
+         color: rgb(255, 255, 255);
+         margin-bottom: 5rem;
+
+         .card_price {
+            font-size: 1.5rem;
+            text-transform: uppercase;
+         }
+
+         .card_price_value {
+            font-size: 3rem;
+            font-weight: 100;
+         }
+
+      }
+
+   }
+
+
+
+
+}

@@ -1,0 +1,404 @@
+//Alineacion elementos
+.justificado {
+    text-align: justify;
+}
+
+.textoCentrado {
+    text-align: center !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+.textoDerecho {
+    text-align: right !important;
+    padding-right: 0 !important;
+}
+
+.left {
+    justify-content: flex-start;
+}
+
+.widthWord {
+    width: auto !important;
+}
+
+//Centrado
+.centrado {
+    justify-content: center !important;
+}
+
+.end {
+    justify-content: flex-end !important;
+}
+
+.flex {
+    display: flex !important;
+}
+
+.row {
+    flex-direction: row !important;
+}
+
+.column {
+    flex-direction: column;
+}
+
+.alignEnd {
+    align-items: flex-end;
+}
+
+.alignitemsCenter {
+    align-items: center;
+}
+
+.centroVertical {
+    align-content: center !important;
+}
+
+.verticalEnd {
+    align-content: end;
+}
+
+.verticalAlignInput {
+
+    vertical-align: middle;
+}
+
+//Margin Padding
+.notMargin {
+    margin: 0 !important;
+}
+
+.margin-top-medio {
+    margin-top: 0.5rem !important;
+
+}
+
+.margin-top-uno {
+
+    margin-top: 1rem !important;
+}
+
+.margin-top-dos {
+
+    margin-top: 2rem !important;
+}
+
+.margin-right-ceroTres {
+    margin-right: 0.3rem;
+}
+
+.margin-right-uno {
+    margin-right: 1rem;
+}
+
+.margin-right-dos {
+    margin-right: 2rem;
+}
+
+.margin-right-tres {
+    margin-right: 3rem;
+}
+
+.margin-bot-cero {
+
+    margin-bottom: 0rem !important;
+}
+
+.margin-bot-uno {
+
+    margin-bottom: 1rem !important;
+}
+
+.margin-bot-ceroDos {
+
+    margin-bottom: 0.2rem !important;
+}
+
+.margin-bot-ceroTres {
+
+    margin-bottom: 0.3rem !important;
+}
+
+.margin-left-dos {
+    margin-left: 2rem;
+}
+
+.margin-left-tres {
+    margin-left: 3rem;
+}
+
+//padding
+.notPadding {
+    padding: 0 !important;
+}
+
+.padding-top-ceroDos {
+    padding-top: 0.2rem !important;
+}
+
+.padding-top-med {
+    padding-top: 0.5rem !important;
+}
+
+.padding-top-uno {
+    padding-top: 1rem !important;
+}
+
+.padding-top-dos {
+    padding-top: 2rem !important;
+}
+
+.padding-right-uno {
+    padding-right: 1rem !important;
+}
+
+.padding-right-tres {
+    padding-right: 3rem !important;
+}
+
+.padding-right-cinco {
+    padding-right: 5rem !important;
+}
+
+.padding-bot-ceroDos {
+    padding-bottom: 0.2srem !important;
+}
+
+.padding-bot-med {
+    padding-bottom: 0.5rem !important;
+}
+
+.padding-bot-uno {
+    padding-bottom: 1rem !important;
+}
+
+.padding-bot-dos {
+    padding-bottom: 2rem !important;
+}
+
+.padding-left-med {
+    padding-left: 0.5rem !important;
+}
+
+.padding-left-uno {
+    padding-left: 1rem !important;
+}
+
+.padding-left-dos {
+    padding-left: 2rem !important;
+}
+
+.padding-left-tres {
+    padding-left: 3rem !important;
+}
+
+.borderTopDos {
+    border-top: 3px solid black;
+}
+
+.borderleftDos {
+    border-left: 2px solid black;
+    padding-left: 1rem;
+}
+
+.bordCinco {
+
+    border-radius: 5px;
+}
+
+.noWrap {
+    white-space: nowrap;
+}
+
+.space-between {
+    justify-content: space-between !important;
+}
+
+.letterSpacingCeroTres {
+    letter-spacing: 0.3px;
+}
+
+//ClasesWithd
+[width=dos] {
+    width: 2rem;
+    min-width: 2rem;
+}
+
+[width=tres] {
+    width: 3rem;
+    min-width: 3rem;
+}
+
+[width=cuatroCinco] {
+    width: 4.5rem;
+    min-width: 4.5rem;
+}
+
+[width=cinco] {
+    width: 5rem !important;
+    min-width: 5rem !important;
+}
+
+[width=seis] {
+    width: 6rem;
+    min-width: 6rem;
+}
+
+[width=siete] {
+    width: 7rem !important;
+    min-width: 7rem !important;
+}
+
+[width=ocho] {
+    width: 8rem !important;
+    min-width: 8rem !important;
+}
+
+[width=nueve] {
+    width: 9rem !important;
+    min-width: 9rem !important;
+}
+
+[width=diez],
+.diezWidth {
+    width: 10rem !important;
+    min-width: 10rem !important;
+    max-width: 10rem !important;
+}
+
+[width=once] {
+    width: 11rem !important;
+    min-width: 11rem !important;
+    max-width: 11rem !important;
+}
+
+[width=doce],
+.doceWidth {
+    width: 12rem !important;
+    min-width: 12rem !important;
+    max-width: 12rem !important;
+}
+
+[width=quince] {
+    width: 15rem !important;
+    min-width: 15rem !important;
+    max-width: 15rem !important;
+}
+
+[width=veinte] {
+    width: 20rem !important;
+    min-width: 20rem !important;
+    max-width: 20rem !important;
+}
+
+[width=treinta] {
+    width: 30rem !important;
+    min-width: 30rem !important;
+    max-width: 30rem !important;
+}
+
+[width="10porc"] {
+    width: 10% !important;
+
+}
+
+[width="15porc"] {
+    width: 15% !important;
+
+}
+
+[width="20porc"] {
+    width: 20% !important;
+}
+
+[width="30porc"] {
+    width: 30% !important;
+}
+
+[width="40porc"] {
+    width: 40% !important;
+}
+
+[width="50porc"] {
+    width: 50% !important;
+}
+
+[width="60porc"] {
+    width: 60% !important;
+}
+
+[width="70porc"] {
+    width: 70% !important;
+}
+
+[width="80porc"] {
+    width: 80% !important;
+}
+
+[width="85porc"] {
+    width: 85% !important;
+}
+
+[width="90porc"] {
+    width: 90% !important;
+}
+
+
+[width="100porc"] {
+    width: 100% !important;
+}
+
+.widthDiezPorc {
+    width: 10% !important;
+}
+
+
+.widthVentPorc {
+    width: 20% !important;
+}
+
+.widthTreintaPorc {
+    width: 30% !important;
+}
+
+.widthCuarentaPorc {
+    width: 40% !important;
+}
+
+
+.widthCincoPorcen {
+    width: 50% !important;
+}
+
+.widthCien {
+    width: 100%;
+}
+
+.heightDosRem {
+    height: 2rem;
+}
+
+.heightAuto {
+    height: auto;
+}
+
+.pointer {
+    cursor: pointer;
+}
+
+.heighDiez {
+    height: 10rem !important;
+}
+
+.mayuscula {
+    text-transform: uppercase !important;
+}
+
+.mayusculaPrimerLetra {
+    text-transform: lowercase;
+}
+
+.mayusculaPrimerLetra::first-letter {
+    text-transform: uppercase;
+}

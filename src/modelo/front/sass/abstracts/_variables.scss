@@ -1,0 +1,61 @@
+//font
+$letra-pestana: "Noto Sans JP";
+$form-Individual: "Raleway";
+$pagina-principal: 'Roboto';
+$fuenteNoto: "Noto Sans Khojki", sans-serif;
+$fuenteMenuSup: "Noto Sans Khojki", sans-serif;
+$fuenteMenuIzq: "Noto Sans Khojki", sans-serif;
+//botones
+$botonesHover: linear-gradient(to right bottom, white, green);
+$colorHoverAbm: rgba(255, 255, 255, 0.678);
+//COLORES FONDOS
+$fondo-negro-cortina: rgba(0, 0, 0, 0.493); // que utlizado para formu individual o impresomp cuando quiero tapar el fondo
+$fondo-impresion: #d8d3d3;
+$fondo-formIndividual: #a6a6a6;
+$fondo-rojoDeshabilitado: rgb(163, 68, 68);
+$fondo-pestana-inactiva: rgba(58, 58, 58, 0.288);
+$tabla-activa: rgb(238, 238, 238);
+$abm-desactivado: rgba(206, 200, 211, 0.301);
+$abm-active: rgb(238, 238, 238);
+$fondo-th-tabla: rgb(175, 174, 174);
+$pestana-seleccionada: rgb(161, 159, 159);
+//COLORES ATRIBUTOS
+$letra-desencadenado: rgb(0, 39, 122);
+$celdas-td: rgb(230, 230, 230);
+$colorLoader: rgb(15, 12, 12);
+$bordeDeshabilitado: rgb(3, 0, 161);
+$colorDeshabilitado: rgb(52, 96, 179);
+$color-rojo: red;
+$color-verdePasto: rgb(12, 92, 23);
+
+//Alto contenedores
+$altoNacSup: 3.1rem;
+$marginTopNav: 0.5rem;
+$altoTotalNavSup: calc(#{$altoNacSup} + #{$marginTopNav});
+$altoPantallaSinNaVSup: calc(100dvh - #{$altoTotalNavSup});
+$altoPestana: 1.9rem;
+$altoComandera: 3.7rem;
+$altoComanderaDos: 6rem;
+$altocontenedor: calc(100dvh - #{$marginTopNav} - #{$altoComandera} - #{$altoPestana} - 1rem);
+$altocontenedorDos: calc(100dvh - #{$marginTopNav} - #{$altoComanderaDos} - #{$altoPestana} - 1rem);
+
+//Alturas y ancho
+$alto-input-FormIndividual: 1.5rem;
+$alto-select-FormIndividual: 2rem;
+$alto-td-delete-colec: 1.5rem;
+$ancho-td-delete-colec: 1.5rem;
+$ancho-padding-1delete: 5rem;
+//margin
+$margin-UnDelete: 2.2rem;
+
+//fontSize
+$pestanas: 0.8rem;
+//Impresión
+$widthTotal: 100vw;
+$widthFormImpresion: calc(100vw *.50);
+$heigthFormImpresion: calc(#{$widthFormImpresion} * 1.4);
+$widthFormImpresionHoja: calc(100vw *.50);
+$heigthFormImpresionHoja: calc(#{$widthFormImpresion} * 1.4);
+
+///Color dblclick
+$colordblclick: rgba(131, 226, 135, 0.555);

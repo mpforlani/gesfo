@@ -1,0 +1,1202 @@
+@use "../abstracts/variables" as *;
+@use "../../../../front/sass/abstract/variablesModelo" as *;
+@use "../abstracts/mixins" as *;
+
+#impresionFormulario {
+
+    background-color: $fondo-negro-cortina;
+    box-sizing: border-box;
+    width: 100%;
+    height: 100dvh;
+    font-size: 25px;
+    position: absolute;
+    top: 0;
+    justify-content: center;
+    display: none;
+    margin: 0;
+    padding: 20px;
+    z-index: 10001;
+    cursor: default !important;
+
+    &.show {
+        display: flex;
+        flex-direction: column;
+    }
+
+    &.enEspera {
+
+        cursor: wait !important;
+
+        div {
+            cursor: wait !important;
+        }
+
+        span {
+            color: yellow !important;
+        }
+    }
+
+    .com {
+        display: flex;
+        position: relative;
+        background-image: $fondo-formIndividual-local;
+        justify-content: center;
+        align-items: center;
+        border-radius: 3px 3px 0 0;
+        min-height: 3.5rem;
+        z-index: 10;
+        width: $widthFormImpresion;
+        margin: 0 auto 0 auto;
+
+        div {
+            margin-left: 0.6em;
+            margin-right: 0.6em;
+
+            .cartelErrorForm.noShow {
+                display: none;
+            }
+        }
+
+        .closeForm {
+            display: flex;
+            transform: rotate(45deg);
+            position: absolute;
+            top: 0.5rem;
+            right: 3rem;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            justify-content: center;
+            align-items: center;
+            border-radius: 15px;
+            padding: 0.1rem;
+            width: 2rem;
+            height: 2rem;
+            background-color: $colorFondoBotoneraInd;
+            box-shadow: 0px 0.2rem 0px rgb(114, 109, 109);
+
+        }
+    }
+
+    .com.reporte {
+
+        width: 90vw !important;
+    }
+
+
+}
+
+#visorPdf {
+    position: fixed;
+    inset: 0;
+    z-index: 999999;
+
+    &.oculto {
+        display: none;
+    }
+
+    .pdfModal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, .35);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 16px;
+    }
+
+    .pdfModalInner {
+        position: relative;
+        width: min(1100px, 100%);
+        height: min(90vh, 100%);
+    }
+
+    .pdfFrame {
+        width: 100%;
+        height: 100%;
+        border: 0;
+        border-radius: 14px;
+    }
+
+    .cerrarPdf {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 9999999;
+        width: 36px;
+        height: 36px;
+        border-radius: 999px;
+        border: 0;
+        cursor: pointer;
+    }
+}
+
+#documentoImpresion {
+
+    display: flex;
+    flex-direction: column;
+    width: $widthFormImpresion;
+    margin: 0 auto 0 auto;
+    height: $heigthFormImpresion;
+    background-color: white;
+    position: relative;
+    overflow: scroll;
+    padding: 20px;
+    letter-spacing: 0.3px;
+    word-spacing: 0.5px;
+
+    .alargar {
+        flex: 1;
+        height: 100%;
+    }
+
+    &.altoAutomatico {
+        height: auto !important;
+        padding-bottom: 0 !important;
+        padding-top: 0 !important;
+        margin-bottom: 0 !important;
+        margin-top: 0 !important;
+    }
+
+    &.paddingLeft {
+        padding-left: 35px;
+    }
+
+    &.paddingRight {
+        padding-right: 35px;
+    }
+
+    .cabeceraImpresion {
+        background: linear-gradient(45deg, $colorPrincipal, $colorTerciario);
+        width: 100%;
+        color: #fff;
+        padding: 5px 3px 5px 0px;
+        text-align: right;
+        font-family: Arial, sans-serif;
+        min-height: 3.5rem;
+
+        h1 {
+            margin: 0;
+            font-size: 36px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+    }
+
+    .cabeceraImpresionDelgada {
+        display: flex;
+        align-items: center;
+        width: 100%;
+
+        .tituloCab {
+            background:
+                linear-gradient(90deg,
+                    #0f2f3a 0%,
+                    #2f4f5f 55%,
+                    #cfd3d6 85%,
+                    #ffffff 100%);
+
+
+            color: white;
+            max-height: 35px;
+
+            h1 {
+                margin-left: 3rem;
+                font-weight: 600;
+                font-size: 25px !important;
+            }
+        }
+
+        .imgDiv {
+            display: flex;
+            justify-content: end;
+        }
+    }
+
+    .pieImpresion {
+        min-height: 2em;
+        background: linear-gradient(45deg, $colorTerciario, $colorPrincipal);
+        width: 100%;
+        position: relative;
+    }
+
+    .impresionRow {
+
+        display: flex;
+        font-family: Arial, Helvetica, sans-serif;
+        flex: 0 0 auto;
+        margin-bottom: 0.2rem;
+
+        &.notMargin {
+            margin: 0;
+        }
+
+        &.full {
+            display: grid;
+            grid-template-columns: auto;
+            grid-template-rows: auto;
+        }
+
+        &.medioCol {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: auto;
+
+            .rightContenido {
+                display: flex;
+                justify-content: end;
+
+                &.row {
+                    flex-direction: column;
+                    align-items: flex-end
+                }
+            }
+
+            .centerContenido {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+
+                &.derecha {
+                    transform: translateX(5%);
+                }
+
+                &.izquierda {
+                    transform: translateX(-5%);
+                }
+            }
+        }
+
+        .titDiv {
+            display: flex;
+            flex-wrap: nowrap;
+
+            p {
+                white-space: nowrap;
+            }
+        }
+
+        &.boderBottom {
+            border-bottom: 1px solid var(--colorBorde, #000);
+        }
+
+        .imgDiv {
+
+            &.cuatroRem {
+                height: 4rem;
+            }
+
+            &.cincoRem {
+                height: 5rem;
+            }
+
+            &.seisRem {
+                height: 6rem;
+            }
+
+            &.sieteRem {
+                height: 7rem;
+            }
+
+            &.ochoRem {
+                height: 8rem;
+            }
+
+            img {
+                height: 100%;
+            }
+        }
+
+        .unRenglon {
+            display: flex;
+            flex-wrap: nowrap;
+            flex-direction: row;
+            margin-right: 1rem;
+
+            p {
+                white-space: nowrap;
+
+            }
+        }
+
+        .nowrap {
+            white-space: nowrap;
+        }
+
+        .items {
+            display: flex;
+            align-items: center; // centra vertical
+            height: 100%; // no forzás la altura
+        }
+
+        .itemsTabla {
+            display: flex;
+        }
+
+        .table {
+
+            width: 100%;
+            max-width: 100%;
+            box-sizing: border-box;
+
+            &.totales {
+                width: auto;
+                align-self: flex-end;
+            }
+
+            .tr {
+
+                // ✅ CAMBIO CLAVE: cada fila es grid
+                display: grid;
+                align-items: center;
+                grid-auto-flow: column;
+                grid-auto-columns: 1fr;
+
+
+                &.titulosTable {
+
+                    min-height: 2rem;
+                    background: linear-gradient(90deg, rgb(27, 63, 144), rgb(11, 15, 29));
+                    opacity: .4;
+                    border: none !important;
+                    color: #fff;
+                    border-radius: 5px;
+                    text-align: center;
+                }
+
+                &.filasRegistros.renglonMarcado {
+                    border-bottom: none;
+                    border-bottom: 1px solid rgba(156, 165, 185, 1);
+                }
+
+                .td,
+                .th {
+                    &.centrado {
+                        text-align: center;
+                    }
+                }
+
+                .th {
+
+                    &.celdaTotal {
+                        width: 7rem;
+                    }
+
+                    div {
+                        align-items: center;
+                    }
+                }
+
+                .td {
+
+                    white-space: normal;
+                    word-wrap: break-word;
+                    word-break: break-word;
+                    hyphens: auto;
+                    align-content: flex-start;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+                    font-size: 0.7rem;
+
+                    &.celdaTotal {
+                        width: 10rem;
+                        text-align: right;
+                    }
+
+                    &:not(.textoCentrado) {
+                        padding-left: 1rem;
+                    }
+
+                    &.Dolar::before,
+                    &[moneda="dolar"]::before {
+                        font-size: 0.8rem;
+                        content: "USD  ";
+                    }
+
+                    &.Euro::before,
+                    &[moneda="euro"]::before {
+                        font-size: 0.8rem;
+                        content: "€  ";
+                    }
+
+                    p {
+                        font-size: 0.7rem;
+
+                        &.chico {
+                            font-size: 0.6rem;
+                        }
+                    }
+                }
+            }
+        }
+
+        table {
+
+            width: 100%;
+            border-collapse: collapse !important;
+            border: none !important;
+
+            &.totales {
+                width: auto;
+                align-self: flex-end;
+            }
+
+            tr {
+
+                &.titulosTable {
+
+                    min-height: 2rem;
+                    background: linear-gradient(90deg, rgb(27, 63, 144), rgb(11, 15, 29));
+                    opacity: .4;
+                    border: none !important;
+                    color: #fff;
+                    align-items: center;
+                    border-radius: 50px;
+                    text-align: center;
+
+                    th {
+
+                        padding: 6px 10px !important;
+                        line-height: 1 !important;
+                        height: 34px !important;
+                        vertical-align: middle !important;
+
+
+                    }
+                }
+
+                &.filasRegistros.renglonMarcado {
+
+                    border-bottom: none;
+                    border-bottom: 1px solid rgba(156, 165, 185, 1);
+
+                }
+
+                td,
+                th {
+                    &.centrado {
+                        text-align: center;
+                    }
+                }
+
+                th {
+                    font-weight: bold;
+                    font-size: 0.8rem;
+
+
+                    &:first-child {
+                        border-top-left-radius: 5px;
+                        border-bottom-left-radius: 5px;
+                    }
+
+                    /* el que tiene otro menuReportes abajo NO redondea abajo */
+                    &:last-child {
+                        border-top-right-radius: 5px;
+                        border-bottom-right-radius: 5px;
+                    }
+
+
+                    &.primeraFila {
+                        text-align: left;
+                    }
+
+                    &.celdaTotal {
+                        width: 7rem;
+                    }
+
+                    div {
+                        align-items: center;
+                    }
+
+                }
+
+                td {
+
+                    white-space: normal;
+                    word-wrap: break-word;
+                    word-break: break-word;
+                    hyphens: auto;
+                    align-content: flex-start;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+                    font-size: 0.7rem;
+
+                    &.celdaTotal {
+
+                        width: 10rem;
+                        text-align: right;
+                    }
+
+                    &:not(.textoCentrado) {
+
+                        padding-left: 1rem;
+                    }
+
+                    &.Dolar::before,
+                    &[moneda="dolar"]::before {
+                        font-size: 0.8rem;
+                        content: "USD  ";
+                    }
+
+                    &.Euro::before,
+                    &[moneda="euro"]::before {
+                        font-size: 0.8rem;
+                        content: "€  ";
+                    }
+
+                    p {
+                        font-size: 0.7rem;
+
+                        &.chico {
+                            font-size: 0.6rem;
+                        }
+                    }
+                }
+
+
+            }
+        }
+
+    }
+
+    //Estes es para la descripción que por ejemplo se usa para factura en el reglón 2
+    .tituloNumFecha {
+        .num {
+            display: flex;
+            flex-wrap: wrap;
+        }
+    }
+
+    .auditoriaImpresion {
+        display: grid;
+        height: auto;
+        font-size: 0.8rem;
+        max-height: 1.5rem;
+        margin: 0 1rem 0 1rem;
+        background-color: rgba(223, 217, 217, 0.479);
+        border-radius: 10px;
+
+    }
+
+    .derecha {
+        text-align: right;
+        padding-right: 1rem;
+    }
+}
+
+#documentoImpresion.puppeteer-pdf,
+#documentoImpresion.impresion {
+
+    padding: 0 20px 0 20px;
+    box-sizing: border-box;
+    width: 210mm;
+    height: 297mm;
+    margin: 0;
+    overflow: auto;
+
+    &.html2 {
+        width: auto !important;
+        max-width: none !important;
+        height: auto !important;
+        max-height: none !important;
+    }
+
+    .alargar {
+        flex: 1;
+        height: 100%;
+    }
+
+    .impresionRow {
+
+        .imgDiv {
+
+            &.cuatroRem {
+                height: 70px;
+            }
+
+            &.cincoRem {
+                height: 77px;
+            }
+
+            &.seisRem {
+                height: 120px;
+            }
+
+            &.sieteRem {
+                height: 90px;
+            }
+
+            &.ochoRem {
+                height: 100px;
+
+            }
+        }
+
+        table {
+            border-collapse: separate !important;
+            border-spacing: 0 !important;
+
+            tr {
+
+                th {
+                    font-size: 17px;
+
+                    &.celdaTotal {
+                        width: 120px;
+                    }
+
+                    &:first-child {
+                        border-top-left-radius: 7px;
+                        border-bottom-left-radius: 7px;
+                    }
+
+                    /* el que tiene otro menuReportes abajo NO redondea abajo */
+                    &:last-child {
+                        border-top-right-radius: 7px;
+                        border-bottom-right-radius: 7px;
+                    }
+                }
+
+                td {
+                    font-size: 12px;
+
+                    &.celdaTotal {
+
+                        width: 120px !important;
+                        text-align: right;
+
+                    }
+
+                    &.Dolar::before,
+                    &[moneda="dolar"]::before {
+                        font-size: 12px;
+
+                    }
+
+                    &.Euro::before,
+                    &[moneda="euro"]::before {
+                        font-size: 12px;
+
+                    }
+
+                    h1 {
+                        font-size: 40px;
+                        font-weight: 100;
+                    }
+
+                    h2 {
+                        font-size: 30px;
+                        font-weight: 100;
+                    }
+
+                    h3 {
+                        font-size: 26px;
+                        font-weight: 100;
+                    }
+
+                    h4 {
+                        font-size: 20px;
+                        font-weight: 100;
+
+                    }
+
+                    h5 {
+                        // font-size: 17px !important;
+                        font-size: 16px !important;
+                        font-weight: 100;
+
+                    }
+
+                    h6 {
+                        // font-size: 16px;
+                        font-weight: 100;
+
+                    }
+
+                    p {
+                        //font-size: 16px !important;
+                        font-size: 14px !important;
+                        font-weight: 100;
+
+                    }
+
+                    .fsCeroNueve {
+
+                        font-size: 13.41px !important;
+                        line-height: 15.84px !important;
+                    }
+
+                    .fsUno {
+
+                        font-size: 14.6px !important;
+                        line-height: 17.6px !important;
+                    }
+
+                    .fsOnce {
+
+                        font-size: 16.06px !important;
+                        line-height: 19.36px !important;
+                    }
+
+                    .fsDoce {
+
+                        font-size: 17.52px !important;
+                        line-height: 21.12px !important;
+                    }
+
+                    .fsTrece {
+
+                        font-size: 21.02px !important;
+                        line-height: 25.34px !important;
+                    }
+
+                    .fontSizePtoNueve {
+
+                        font-size: 20px;
+                    }
+
+                    .fontSizeUnoPtoUno {
+
+                        font-size: 26px;
+                    }
+
+                    .paddingTopCeroCinco {
+                        padding-top: 13px;
+                    }
+
+                    .paddingBotceroCinco {
+                        padding-bottom: 13px
+                    }
+
+                    .paddingBotUno {
+                        padding-bottom: 25px;
+                    }
+
+                    .paddingTopUno {
+                        padding-top: 25px;
+                    }
+
+                    .paddingTopBotCeroCinco {
+                        padding-top: 13px;
+                        padding-bottom: 13px;
+                    }
+
+                    .paddingTopBotUno {
+                        padding-top: 25px;
+                        padding-bottom: 25px;
+                    }
+
+                    .marginTopCeroCinco {
+                        margin-top: .05rem;
+                    }
+
+                    .marginTop {
+                        margin-top: 25px;
+                    }
+
+                    .padding-right-tres {
+                        padding-right: 70px;
+                    }
+                }
+            }
+        }
+    }
+
+    .fontSizePtoNueve {
+
+        font-size: 20px;
+    }
+
+    .fontSizeUnoPtoUno {
+
+        font-size: 26px;
+    }
+
+    &.chico05 {
+        font-size: 11px;
+    }
+
+    .paddingTopCeroCinco {
+        padding-top: 13px;
+    }
+
+    .paddingBotceroCinco {
+        padding-bottom: 13px
+    }
+
+    .paddingBotUno {
+        padding-bottom: 25px;
+    }
+
+    .padding-left-tres {
+        padding-left: 70px;
+    }
+
+    .paddingTopUno {
+        padding-top: 25px;
+    }
+
+    .paddingTopBotCeroCinco {
+        padding-top: 13px;
+        padding-bottom: 13px;
+    }
+
+    .paddingTopBotUno {
+        padding-top: 25px;
+        padding-bottom: 25px;
+    }
+
+    .marginTopCeroCinco {
+        margin-top: .05rem;
+    }
+
+    .marginTop {
+        margin-top: 25px;
+    }
+
+    .padding-right-tres {
+        padding-right: 70px;
+    }
+
+}
+
+#documentoImpresion.reporte {
+    width: 90vw !important;
+
+    &.html2 {
+        width: auto !important;
+        max-width: none !important;
+        height: auto !important;
+        max-height: none !important;
+
+    }
+
+    .tablaReporteImp {
+        table {
+
+            tr {
+                display: flex;
+                width: auto;
+                flex-wrap: nowrap;
+                width: max-content;
+
+                &.filtros {
+                    display: none;
+                }
+
+                th,
+                td {
+                    font-family: $letra-pestana;
+                    min-width: 7rem;
+
+                    &.center {
+                        text-align: center;
+                    }
+
+                    div.spanFlechaAbajo {
+                        margin-top: 0.4rem;
+                        height: 0.6rem;
+                    }
+                }
+
+                th {
+
+                    font-size: 1rem;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    padding: 0 0.3rem 0 0.3rem;
+                    text-align: center;
+
+                    .th-contenido {
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        position: relative;
+                        width: 100%;
+
+                        .iconos {
+                            display: none;
+                            flex-direction: row;
+                            position: absolute;
+                            right: 10px;
+
+
+                            span {
+                                font-size: 1rem;
+                                padding: 0;
+                                font-weight: bold;
+
+                                &:hover {
+                                    transform: scale(1.2);
+                                    color: rgb(5, 187, 35);
+                                    cursor: pointer;
+                                }
+                            }
+
+                            .flechasOrden {
+
+                                display: flex;
+                                flex-direction: column;
+                                justify-content: center;
+
+                                span {
+                                    &.arriba {
+                                        margin-bottom: -3px;
+                                    }
+
+                                    &.abajo {
+                                        margin-top: -3px;
+                                    }
+                                }
+                            }
+
+                            .filtro {
+                                background-color: transparent !important;
+                                border-color: transparent !important;
+                                display: flex;
+                                flex-direction: column;
+                                justify-content: center;
+                            }
+                        }
+
+                        &:hover {
+                            span.tit {
+                                overflow: hidden;
+                                white-space: nowrap;
+                                text-overflow: clip;
+
+                                transition: opacity 0.3s ease;
+                                max-width: calc(100% - 80px);
+                            }
+
+
+                            .iconos {
+                                display: flex;
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+    }
+
+    .auditoriaImpresion {
+
+        width: auto !important;
+        padding-left: 10px;
+        display: none;
+
+    }
+}
+
+/////Letras y números
+.fechaStandarImpresion,
+.fechaStandarImpresion p {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 400 !important;
+}
+
+.numeroStandarImpresion,
+.numeroStandarImpresion p {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.2px !important;
+}
+
+@media print {
+
+    @page {
+        size: A4;
+        margin: 0;
+
+    }
+
+    * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+    }
+
+    #documentoImpresion:not(.puppeteer-pdf) {
+
+        height: 297mm;
+        width: 210mm;
+        box-sizing: border-box;
+        overflow: visible !important;
+
+        .impresionRow {
+
+            margin-bottom: 5px;
+
+            .imgDiv {
+                padding-bottom: 2px;
+
+                &.cuatroRem {
+                    height: 70px;
+                }
+
+                &.cincoRem {
+                    height: 77px;
+                }
+
+                &.seisRem {
+                    height: 120px;
+                }
+
+                &.sieteRem {
+                    height: 90px;
+                }
+
+                &.ochoRem {
+                    height: 100px;
+                }
+            }
+
+            table {
+
+                width: 100%;
+                border-collapse: separate;
+
+
+                tr {
+
+                    th {
+
+                        font-size: 17px;
+
+                        &.celdaTotal {
+                            width: 120px;
+                        }
+                    }
+
+                    td {
+
+                        font-size: 12px;
+
+                        &.celdaTotal {
+
+                            width: 120px;
+                            text-align: right;
+                        }
+
+                        &.Dolar::before,
+                        &[moneda="dolar"]::before {
+                            font-size: 12px;
+                            content: "USD  ";
+                        }
+
+                        &.Euro::before,
+                        &[moneda="euro"]::before {
+                            font-size: 12px;
+                            content: "€  ";
+                        }
+
+                        p {
+                            font-size: 11.2px;
+
+                            &.chico {
+                                font-size: 9.6px;
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+
+        .alargar {
+            flex: 1 1 auto;
+            height: auto !important;
+            min-height: 0;
+            /* clave para que flex “ceda” bien */
+
+        }
+
+        //Estes es para la descripción que por ejemplo se usa para factura en el reglón 2
+        .tituloNumFecha {
+            .num {
+                display: flex;
+                flex-wrap: wrap;
+            }
+        }
+
+        .auditoriaImpresion {
+
+            font-size: 12px;
+
+        }
+    }
+
+    .fsCeroNueve {
+
+        font-size: 13.41px !important;
+        line-height: 15.84px !important;
+    }
+
+    .fsUno {
+
+        font-size: 14.6px !important;
+        line-height: 17.6px !important;
+    }
+
+    .fsOnce {
+
+        font-size: 16.06px !important;
+        line-height: 19.36px !important;
+    }
+
+    .fsDoce {
+
+        font-size: 17.52px !important;
+        line-height: 21.12px !important;
+    }
+
+    .paddingTopCeroCinco {
+        padding-top: 13px;
+    }
+
+    .paddingBotceroCinco {
+        padding-bottom: 13px
+    }
+
+    .paddingBotUno {
+        padding-bottom: 25px;
+    }
+
+    /*.padding-left-tres {
+        padding-left: 70px;
+    }*/
+
+    .paddingTopUno {
+        padding-top: 25px;
+    }
+
+    .paddingTopBotCeroCinco {
+        padding-top: 13px;
+        padding-bottom: 13px;
+    }
+
+    .paddingTopBotUno {
+        padding-top: 25px;
+        padding-bottom: 25px;
+    }
+
+    .marginTopCeroCinco {
+        margin-top: .05rem;
+    }
+
+    .marginTop {
+        margin-top: 25px;
+    }
+
+    .padding-right-tres {
+        padding-right: 70px;
+    }
+}

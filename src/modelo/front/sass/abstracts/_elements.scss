@@ -1,0 +1,646 @@
+@use "variables" as *;
+@use "../../../../front/sass/abstract/variablesModelo" as *;
+
+.selectCont {
+    display: flex;
+    align-items: center;
+    position: relative;
+    width: 100%;
+    box-sizing: border-box;
+    border-radius: 3px 3px 0 0;
+    font-family: $form-Individual;
+    font-size: 0.9rem;
+    font-weight: bold;
+
+
+    &:hover {
+        cursor: pointer;
+    }
+
+
+    .selecSimulado {
+        display: flex;
+        position: relative;
+        width: 100%;
+        height: 100%;
+
+        .selectInput {
+            width: 100%;
+            height: 100%;
+
+            input:disabled {
+
+                &~.spanFlechaAbajo span {
+                    display: none;
+                }
+            }
+        }
+
+        .spanFlechaAbajo {
+            background-color: transparent;
+            height: 1.62rem;
+            box-sizing: border-box;
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            cursor: default;
+            display: flex;
+            align-items: center;
+            pointer-events: none;
+
+        }
+
+        input:not(.textoCentrado) {
+            border-radius: 3px;
+
+            cursor: default;
+            padding: 0 0 0 2rem;
+            text-align: left !important;
+
+            &:focus {
+                outline: revert;
+                // caret-color: transparent;
+            }
+
+            &.actualizado {
+                background-color: rgba(0, 255, 0, 0.158) !important;
+                transition: background-color 1s ease;
+            }
+        }
+    }
+
+    &.active {
+        .agrandarLista {
+
+            opacity: 1;
+
+            &:hover {
+                cursor: pointer;
+            }
+        }
+    }
+
+    .agrandarLista {
+        position: absolute;
+        font-size: 1.7rem;
+        font-weight: 300;
+        right: -15px;
+        opacity: 0;
+
+    }
+}
+
+.opcionesSelectDiv {
+    //Esto no esta dentro de SelectCont, porque el absolute esta fuera
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    background-color: rgb(255, 255, 255);
+    top: 100%;
+    padding: 0.3rem 0 0.5rem 0;
+    border-top: 1px solid black;
+    border-radius: 0px 0px 3px 3px;
+    font-family: $form-Individual;
+    font-size: 0.8rem;
+    font-weight: 700;
+    width: 100%;
+    z-index: 10000;
+    text-align: left;
+    overflow-x: hidden;
+    overflow-y: hidden;
+
+    &.opuesto {
+        border-bottom: 1px solid black;
+        border-top: none;
+    }
+
+    &.anulaScroll {
+        height: min-content;
+        overflow-y: auto;
+    }
+
+    &.scroll:not(.anulaScroll) {
+        height: 200px;
+        overflow-y: scroll;
+    }
+
+    &.oculto {
+        display: none;
+    }
+
+    .opciones {
+
+        box-sizing: border-box;
+        background-image: linear-gradient(120deg, white 0%, white 50%, $colorPrincipal 50%);
+        background-size: 200%;
+        transition: all .2s;
+
+        &.seleccionado {
+            background-image: linear-gradient(120deg, white 0%, white 50%, rgb(20, 61, 35) 50%);
+
+            background-position: 100%;
+
+            p {
+
+                color: white !important;
+            }
+
+            &:hover {
+                background-image: linear-gradient(120deg, white 0%, white 50%, $colorPrincipal 50%);
+            }
+        }
+
+        &.primeroVacio {
+            min-height: 20px;
+        }
+
+        &[value="Verde"] {
+            p::before {
+                background-color: green;
+
+            }
+        }
+
+        &[value="Blanco"] {
+            p::before {
+                background-color: white;
+                border: 1px solid black;
+                width: calc(0.9rem - 1px);
+                height: calc(0.9rem - 1px);
+
+            }
+        }
+
+        &[value="Azul"] {
+            p::before {
+                background-color: blue;
+
+            }
+        }
+
+        &[value="Amarillo"] {
+            p::before {
+                background-color: yellow;
+
+            }
+        }
+
+        p {
+            color: $colorPrincipal;
+            padding: 3px 0 3px 0;
+            margin-left: 1rem;
+
+            &::before {
+                content: "";
+                display: inline-block;
+                width: .9rem;
+                height: .9rem;
+                margin-right: 8px;
+                border-radius: 2px;
+                vertical-align: middle;
+            }
+
+        }
+
+        &.hoverFlecha {
+            background-position: 100%;
+            background-image: linear-gradient(120deg, white 0%, white 50%, rgb(63, 127, 187) 50%);
+
+            p {
+                color: white;
+                transform: translateX(15px) scale(1.1);
+
+            }
+        }
+
+        &:hover {
+            cursor: pointer;
+            background-position: 100%;
+
+            p {
+                color: white;
+                transform: translateX(15px) scale(1.1);
+
+
+            }
+
+            &:active {
+
+                cursor: grabbing;
+                background-image: linear-gradient(120deg, white 0%, white 50%, rgb(46, 121, 74) 50%);
+                background-position: 100%;
+
+                p {
+                    transform: translateX(-3px) scale(1.1);
+                    color: rgb(255, 255, 255);
+                }
+            }
+        }
+
+
+    }
+
+    .agrupador {
+        h5 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            padding-left: 0.3rem;
+            display: flex;
+
+            &:hover {
+                background-color: rgb(146, 206, 146);
+            }
+        }
+
+        &.cerrado {
+            div.opciones {
+                display: none;
+            }
+        }
+    }
+
+
+}
+
+optgroup {
+    margin: 0;
+    padding: 0;
+    text-align: left;
+}
+
+option.opciones {
+    border: 2px solid rgb(0, 0, 0);
+    padding: 0 1rem 0 10rem;
+    margin: 0 1rem 0 1re;
+    text-align: left;
+    white-space: nowrap;
+}
+
+input {
+    color: rgb(0, 0, 0);
+    width: 100%;
+    box-sizing: border-box;
+    font-weight: bold;
+    padding: 0 0 0 0.2rem;
+    margin: 0;
+    border: none;
+    border-radius: 3px;
+
+    &.rojoNegativo {
+        color: rgb(104, 8, 8);
+        font-weight: bold;
+        background-color: rgb(223, 166, 166);
+    }
+
+    &.verdePositivo {
+        color: rgb(1, 82, 19);
+        font-weight: bold;
+        background-color: rgb(145, 224, 172);
+    }
+
+    &.formatoNumero {
+        text-align: center;
+        padding-left: 0 !important;
+    }
+
+    &.conectarIzquierda {
+        border-left: none;
+    }
+
+    &.formColec.textarea {
+        white-space: pre-wrap;
+    }
+
+    &[soloLec=true] {
+        background-color: #8f8c8cab;
+        pointer-events: none;
+    }
+
+    &.conectarDerecha {
+        border-right: none;
+    }
+
+    &[deshacerRead="true"] {
+        background-color: #b3baffa6;
+    }
+
+    &.transparente:not(:disabled),
+    &.transparenteformt:not(:disabled) {
+        background-color: transparent !important;
+
+        &.requerido {
+            border: none !important;
+
+            &.validado {
+                border: none !important;
+
+            }
+        }
+    }
+
+    &:read-only {
+        background-color: #8f8c8cab;
+
+        &.transparente:not(:disabled),
+        &.transparenteformt:not(:disabled) {
+            background-color: #ebd9d9ab;
+            border: 2px solid rgb(120, 121, 184);
+
+        }
+    }
+
+    &.soloLectura:not([disabled]) {
+        //Le agrego el disable dporque sino eldblclick del formulario funciona para desbloquear porque el evento cae sobre el td
+        pointer-events: none;
+        user-select: none;
+        background-color: #8f8c8cab;
+    }
+
+    &:disabled {
+        opacity: 1;
+        background-color: white;
+    }
+
+    &.confirmar {
+        background-color: rgb(183, 222, 228);
+    }
+
+    &.oculto {
+        display: none !important;
+    }
+
+    &.name,
+    &.surname,
+    &.rubro {
+        text-align: left;
+        padding-right: 1rem;
+        padding-left: 0.5rem;
+    }
+
+    &.fecha,
+    &.letra,
+    &.letraNumero,
+    &.tipoCambio,
+    &[class*="importe"],
+    &[class*="impuesto"] {
+        text-align: center;
+        padding: 0 !important;
+    }
+
+    &.adjunto,
+    .adjuntoColccion {
+        background-color: rgb(90, 137, 190);
+        display: none;
+        opacity: 0;
+        border-radius: 3px;
+    }
+
+    &.autocompletado {
+        transition-property: background;
+        transition-duration: 4s;
+        background: rgb(161, 250, 183)
+    }
+
+    &.username {
+        padding: 0;
+        text-align: center;
+    }
+
+    &.center,
+    &.textoCentrado {
+        text-align: center !important;
+    }
+
+    &.requeridoESpecial,
+    &.requerido:not(.transparente),
+    &.requerido:not(.transparenteformt) {
+        border-bottom: 4px solid rgb(241, 0, 0);
+
+        &:focus {
+            outline: none;
+            border-bottom: 4px solid rgb(241, 0, 0);
+        }
+
+        &.validado:not(.transparente):not(:disabled):not(:read-only),
+        &.validado:not(.transparente):not(:disabled):not(:read-only):focus,
+        &.validado:not(.transparenteformt):not(:disabled):not(:read-only),
+        &.validado:not(.transparenteformt):not(:disabled):not(:read-only):focus {
+            border-bottom: 4px solid rgb(0, 241, 100);
+        }
+
+        &:disabled {
+            border-bottom: none;
+        }
+    }
+
+    &.date {
+        padding-right: 0;
+    }
+
+    &.horaMinutos {
+        text-align: center;
+        padding-left: 0 !important;
+    }
+
+    &:read-only:focus {
+        background-color: #8f8c8cab;
+    }
+
+    &[type="checkbox"] {
+        width: 1rem;
+        border-radius: 3px;
+    }
+}
+
+textarea {
+    border-radius: 3px;
+    padding: 0 0 0 0.8rem;
+    margin: 0;
+    background-color: rgb(255, 255, 255);
+    border: transparent;
+    box-sizing: border-box;
+    color: rgb(0, 0, 0);
+    font-family: $letra-pestana, sans-serif;
+    font-size: 1rem;
+    overflow-y: hidden;
+    resize: none; // Prevent resizing with the cursor
+    width: 100%; // Ensure it takes full width
+    height: auto; // Adjust height automatically to content
+    min-width: 100%; // Minimum width to respect initial width
+    min-height: 1.6rem; // Set an initial height to respect
+
+    &.siempreContent {
+        field-sizing: content;
+        height: auto !important;
+    }
+
+    &:focus {
+        field-sizing: content;
+        height: auto !important;
+    }
+
+    &.requerido {
+        border-bottom: 4px solid rgb(241, 0, 0);
+
+        &:focus {
+            outline: none;
+            border-bottom: 4px solid rgb(241, 0, 0);
+        }
+
+        &.validado:not(:disabled):not(:read-only),
+        &.validado:not(:disabled):not(:read-only):focus {
+            border-bottom: 4px solid rgb(0, 241, 100);
+        }
+
+        &:disabled {
+            border-bottom: none;
+        }
+    }
+
+    &.ajustable {
+        field-sizing: content;
+        height: auto !important;
+    }
+
+    &.soloLectura:not([disabled]) {
+        pointer-events: none;
+        user-select: none;
+        background-color: #8f8c8cab;
+    }
+}
+
+div.textoDiv {
+
+    p {
+        text-align: left;
+        font-size: 1.1rem;
+        padding: 0.3rem;
+        border-radius: 10px;
+    }
+}
+
+td.anidado,
+.td.anidado,
+.celda.anidado {
+    position: relative;
+}
+
+.sel option.false,
+.renglon option.opciones.false {
+    background-color: rgb(255, 159, 159);
+}
+
+div.opcionesSelect {
+    overflow: visible;
+    position: absolute;
+    background-color: rgb(255, 255, 255);
+    height: max-content;
+    z-index: 15000;
+    border: 1px solid black;
+    padding: 0.3rem 1rem 0.3rem 1rem;
+
+    .opcionesAgrupador {
+
+
+        p {
+            font-weight: bold;
+            font-size: 0.8rem;
+            position: relative;
+            text-align: left;
+
+            &:hover {
+                cursor: pointer;
+                background-color: rgb(56, 116, 206);
+                color: white;
+            }
+
+            span {
+                position: absolute;
+            }
+
+        }
+
+        .opciones {
+            font-size: 0.8rem;
+            padding-left: 0.8rem;
+            font-weight: 300;
+            text-align: left;
+            white-space: nowrap;
+
+            &:hover {
+
+
+                cursor: pointer;
+                background-color: rgb(56, 116, 206);
+                color: white;
+
+            }
+        }
+
+    }
+}
+
+h1 {
+    font-size: 1.4rem;
+}
+
+h2 {
+    font-size: 1.3rem;
+
+}
+
+h3 {
+    font-size: 1.2rem;
+}
+
+h4 {
+    font-size: 1.1rem;
+
+}
+
+h5 {
+    font-size: 1rem;
+
+}
+
+h6 {
+    font-size: 0.9rem;
+
+}
+
+p {
+    font-size: 0.8rem;
+
+}
+
+span.ojito {
+    cursor: pointer;
+}
+
+//Estos son los atributos modificados por el historial
+td.atributosVerdes input,
+td.atributosVerdes select {
+    background-color: rgb(175, 221, 185);
+}
+
+td.atributosAzules input,
+td.atributosAzules select {
+    background-color: rgb(143, 167, 212);
+}
+
+div.fo.atributosAzules,
+div.foColec.atributosAzules {
+
+    input {
+        background-color: rgb(143, 167, 212);
+    }
+}
+
+div.fo.atributosVerdes,
+div.foColec.atributosVerdes {
+
+    input {
+        background-color: rgb(175, 221, 185);
+    }
+}

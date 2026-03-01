@@ -1,0 +1,11 @@
+node_modules/
+test-results/
+.env
+planilla pato.xlsx
+scripts/
+src/uploads
+src/front/uploads
+src/gesfin/front/uploads
+file
+front/css/style.css.map
+tmp

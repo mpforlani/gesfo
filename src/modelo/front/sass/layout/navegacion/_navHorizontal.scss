@@ -1,0 +1,430 @@
+@use "../../abstracts/variables" as *;
+@use "../../../../../front/sass/abstract/variablesModelo" as *;
+@use "../../abstracts/mixins" as *;
+
+.navegacionSupHomeLog {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    font-family: $fuenteMenuSup;
+    margin-top: $marginTopNav;
+    border-radius: 5px;
+    animation: navIzquierda .8s ease-out;
+    color: $ColorMenuSup;
+    height: $altoNacSup;
+
+    &.oculto {
+        height: 0.4rem;
+        //   animation: navArribaOut .8s ease-out;
+        background-color: white;
+        margin: 0;
+        width: 20%;
+        margin-top: 0.2rem;
+
+        div {
+            opacity: 0;
+        }
+    }
+
+    .primeraParteNavegacion {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+        align-items: flex-start;
+
+        .contenedorLogo {
+            height: 100%;
+            display: flex;
+            align-items: center;
+
+            .logoGesfin {
+                @include logosGesfin
+            }
+        }
+    }
+
+    .medio {
+
+        justify-items: center;
+        margin-left: 5rem;
+        align-items: center;
+        position: relative;
+        display: flex;
+
+        &:not(.unico):hover .opcionesEmpresas {
+            display: block;
+        }
+
+        .tituloEmpresa {
+            display: flex;
+            align-items: center;
+            font-size: 1.4rem;
+            cursor: pointer;
+        }
+
+        .opcionesEmpresas {
+            display: none;
+            z-index: 100005;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            border-radius: 5px;
+            border: 2px solid $ColorMenuSup;
+            background-color: rgb(255, 255, 255);
+            width: 10rem;
+            color: rgba(0, 0, 0, 0.582);
+
+            &.show {
+                display: block;
+            }
+
+            .opcion {
+                padding: 0.2rem 0.5rem;
+                align-content: center;
+                align-items: center;
+                cursor: pointer;
+                background-color: rgb(255, 255, 255);
+
+                &:hover {
+                    font-weight: bold;
+                    border-radius: 5px;
+                    transform: scale(1.2);
+                }
+
+                &:active {
+                    font-weight: bold;
+                    border-radius: 5px;
+                    background-color: $colorPrincipal;
+                    transform: scale(1.2);
+                    color: white;
+                    cursor: grabbing;
+                }
+            }
+        }
+
+        .trianguloAbajo {
+            background-color: $ColorMenuSup;
+            width: 0.8rem;
+            height: 0.8rem;
+            margin-top: 0.5rem;
+            margin-left: 0.6rem;
+            @include tringuloAbajo
+        }
+
+        .logoEmpresa {
+            margin-left: 2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: end;
+
+            img {
+                height: 2rem;
+            }
+        }
+    }
+
+    .ultimaParte {
+        display: flex;
+        flex-wrap: nowrap;
+        margin: 0 0.5rem 0 0;
+        align-items: center;
+
+        .spanes {
+
+            display: flex;
+            align-items: center;
+
+            .spanDiv {
+                display: flex;
+                align-items: center;
+                position: relative;
+
+                &.campana {
+
+                    &.active {
+                        .pendientes {
+                            display: none;
+                        }
+
+                        .notificacionesCampana {
+                            display: block;
+                            z-index: 100005;
+
+                            .itemCampanita {
+
+                                color: black;
+                                display: flex;
+                                cursor: pointer;
+                                width: 100%;
+                                padding: 2px;
+
+
+                                &.consultado {
+
+
+                                    span.pendiente {
+                                        display: none;
+                                        color: red;
+                                    }
+
+                                    span.check {
+                                        display: flex;
+                                        color: rgb(23, 245, 23);
+                                    }
+                                }
+
+                                &.pendiente {
+
+                                    font-weight: bold;
+
+                                    span.pendiente {
+                                        display: flex;
+                                        color: red;
+                                    }
+
+                                    span.check {
+                                        display: none;
+                                        color: green;
+                                    }
+                                }
+
+                                &:hover {
+                                    background-color: rgb(213, 213, 235);
+                                }
+                            }
+                        }
+                    }
+
+                    .pendientes {
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        background-color: red;
+                        height: 1.2rem;
+                        width: 1.2rem;
+                        border-radius: 50%;
+                        position: absolute;
+                        top: 20px;
+                        right: 2px;
+                        color: white;
+                        font-weight: bold;
+                        font-size: 0.7rem;
+
+                        p {
+                            margin: 0 !important;
+                            padding: 0 !important;
+                            line-height: 1 !important;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                        }
+                    }
+
+                    .notificacionesCampana {
+                        display: none;
+                        background-color: rgb(255, 255, 255);
+                        position: absolute;
+                        width: 25rem;
+                        height: auto;
+                        padding: 0.5rem;
+                        top: 100%;
+                        right: -8rem;
+                        border: 3px solid black;
+                        border-radius: 4px;
+
+
+                    }
+                }
+
+                .material-symbols-outlined {
+                    margin-right: 0.5rem;
+                    font-size: 30px !important;
+
+                    &.campana {
+                        font-variation-settings:
+                            'FILL' 0,
+                            'wght' 300,
+                            'GRAD' 0,
+                            'opsz' 24
+                    }
+
+                    &.user {
+
+
+                        font-variation-settings: 'FILL' 0,
+                            'wght' 300,
+                            'GRAD' 0,
+                            'opsz' 24;
+
+                    }
+
+
+                }
+
+                &:not(.active):hover {
+                    cursor: pointer;
+
+                    span {
+                        transform: scale(1.2);
+                    }
+
+                    .pendientes {
+                        transform: scale(1.2);
+                    }
+
+                }
+
+                &:active {
+
+                    span {
+                        transform: scale(0.9);
+                        cursor: grabbing;
+                    }
+
+
+                }
+            }
+        }
+
+        div.nav {
+
+            display: flex;
+            flex-wrap: nowrap;
+            align-items: center;
+            position: relative;
+
+            &:hover ul.men {
+
+                display: flex !important;
+            }
+
+            div.ul.men-prin {
+                display: flex;
+                flex-wrap: wrap;
+                margin: 0;
+                padding: 0;
+                align-items: center;
+                height: auto;
+                margin-bottom: 0.5rem;
+
+                div.nombreUsuario {
+
+                    font-family: $fuenteMenuSup;
+                    font-weight: 400;
+                    font-style: normal;
+
+                    h3 {
+                        font-size: 1.8rem;
+                        font-family: $fuenteMenuSup;
+                        font-weight: 400;
+                        font-style: normal;
+                    }
+
+                    &:hover {
+
+                        h3 {
+                            letter-spacing: 2px;
+
+                        }
+                    }
+                }
+
+                .trianguloAbajo {
+                    background-color: $ColorMenuSup;
+                    width: 0.8rem;
+                    height: 0.8rem;
+                    margin-top: 0.5rem;
+                    margin-left: 0.6rem;
+                    @include tringuloAbajo
+                }
+            }
+
+            .menu {
+                margin-top: 0%;
+                margin-right: 5%;
+                margin-bottom: 0%;
+            }
+
+            .men-prin {
+                cursor: pointer;
+                z-index: 1000;
+                list-style: none;
+                margin-right: 1.5rem;
+
+                .men {
+                    list-style: none;
+                    display: none;
+                    list-style: none;
+                    flex-direction: column;
+                    animation: fadeIn 0.3s forwards;
+                    position: absolute;
+                    top: 90%;
+                    right: 5px;
+                    border: 2px solid rgb(255, 255, 255);
+                    border-radius: 10px 10px 10px 10px;
+                    padding: 1rem;
+                    background-color: $fondoUnoMenuDesplegable;
+                    z-index: 1000;
+
+
+                    @keyframes fadeIn {
+                        from {
+                            transform: translateY(-200px) scale(0.5);
+                        }
+
+                        to {
+                            transform: translateY(0) scale(1);
+                        }
+                    }
+
+                    a,
+                    li {
+                        text-decoration: none;
+                        font-size: 1rem;
+                        margin-bottom: 2%;
+                        display: flex;
+                        flex-wrap: nowrap;
+                        width: auto;
+                        white-space: nowrap;
+                        color: $ColorMenuSup;
+
+                        &:hover {
+
+                            cursor: pointer;
+                            transform: scale(1.1);
+                        }
+
+                        &.oculto {
+                            display: none;
+                        }
+
+                        &[visualizar="false"] {
+
+                            display: none;
+                        }
+
+                    }
+                }
+            }
+
+            div.ul.men {
+
+                margin-top: 0.8rem;
+                width: auto;
+
+                div.li {
+                    display: flex;
+                    flex-wrap: nowrap;
+                    width: auto;
+                    white-space: nowrap;
+
+                    &.noneSee {
+                        display: none;
+                    }
+                }
+
+
+            }
+        }
+    }
+}

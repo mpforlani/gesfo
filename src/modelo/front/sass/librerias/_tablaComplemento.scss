@@ -1,0 +1,135 @@
+@use "../abstracts/variables" as *;
+@use "../../../../front/sass/abstract/variablesModelo" as *;
+@use "../abstracts/mixins" as *;
+
+.tablaComplemento {
+
+  @include errorCartel;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: max-content;
+  max-width: 90%;
+  height: max-content;
+  overflow: auto;
+  color: black;
+  font-family: $letra-pestana;
+  font-size: 0.8rem;
+  padding: 0.5rem 0 0.5rem 0;
+  margin-bottom: 1rem;
+
+
+  .primerRenglon {
+    display: flex;
+    flex-direction: row;
+    min-height: 2rem;
+    padding-right: 3rem;
+    width: 100%;
+    justify-content: end;
+    position: relative;
+
+    .closeForm {
+      display: flex;
+      transform: rotate(45deg);
+      font-size: 1.2rem;
+      position: absolute;
+      top: 0.2rem;
+      right: 0.7rem;
+      color: black;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .okEnviar {
+      cursor: pointer;
+      font-weight: bold;
+      position: absolute;
+      right: 5px;
+      display: flex;
+
+      span {
+        font-size: 2rem;
+      }
+
+
+      &:hover {
+        transform: scale(1.2);
+      }
+
+      &:active {
+        transform: scale(1.2);
+        cursor: grabbing;
+      }
+    }
+
+    .cartelInformativo {
+
+      position: absolute !important;
+      top: 2rem;
+      right: -5rem;
+      left: auto;
+
+    }
+  }
+
+  table {
+    margin-top: 10px;
+    border-collapse: collapse;
+
+    tr {
+      &.modificado {
+        background-color: rgb(115, 224, 134) !important;
+      }
+
+      &.filtroTodo {
+        border-bottom: 2px solid black;
+
+        th {
+          font-weight: bold;
+          padding: 0;
+
+          input[type="checkbox"] {
+            display: block;
+            margin: auto;
+          }
+        }
+      }
+
+      &.titulos {
+        color: black;
+
+        th {
+          text-align: center;
+          padding: 0;
+          font-weight: bold;
+          min-width: 5rem;
+        }
+      }
+
+      &.coleccion {
+        background-color: #ccdcf1;
+      }
+
+      td {
+        input[type="checkbox"] {
+          display: block;
+          margin: auto;
+        }
+      }
+
+      th {
+        text-align: left;
+        font-size: 0.8rem;
+        font-family: "Noto Sans JP", sans-serif;
+        font-weight: 100;
+        padding: 0 1.2rem 0 0.4rem;
+      }
+    }
+  }
+}
+
+.detalleAviso {
+  @include errorCartel;
+  width: min-content;
+}

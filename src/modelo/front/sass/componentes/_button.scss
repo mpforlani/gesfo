@@ -1,0 +1,342 @@
+@use "../abstracts/variables" as *;
+@use "../../../../front/sass/abstract/variablesModelo" as *;
+
+.btnText {
+
+    &:link,
+    &:visited {
+        font-size: 1.2rem;
+        color: rgb(255, 255, 255);
+        display: inline-block;
+        text-decoration: none;
+        border-bottom: 1px solid rgb(131, 127, 127);
+        padding: 0.3rem;
+        transition: all .2s;
+
+    }
+
+    &:hover {
+        background-color: rgb(85, 83, 83);
+        color: white;
+        box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.158);
+        transform: translateY(-2px);
+        border-radius: 10px;
+
+    }
+
+    &:active {
+        box-shadow: 0 1rem 1rem rgba(0, 0, 0, 0.158);
+        transform: translateY(0px);
+    }
+}
+
+//Botones Google Icon
+.material-symbols-outlined {
+    font-size: 1.5rem;
+    //Botones google icons
+    font-variation-settings:
+        'FILL' 0,
+        'wght' 400,
+        'GRAD' 0,
+        'opsz' 48
+}
+
+.comand.formularioPestana .material-symbols-outlined.botones {
+    background-color: $colorFondoBotoneraInd;
+}
+
+.ayudaVideo .barraForm .material-symbols-outlined.botones {
+    background-color: $colorFondoBotoneraInd;
+    margin-top: 0.3rem;
+}
+
+.material-symbols-outlined.botonColeccion {
+
+    font-size: 1.7rem;
+    cursor: pointer;
+    border-radius: 20px;
+
+    &:hover {
+
+        transform: scale(1.4);
+        background-image: $botonesHover;
+        color: transparent;
+        background-clip: text;
+    }
+
+    &:active {
+        transform: scale(1.1);
+        color: rgb(241, 77, 77);
+        cursor: grabbing;
+        box-shadow: 0px 0.1rem 0px rgba(20, 51, 90, 0.322);
+    }
+
+    font-variation-settings: 'FILL' 0,
+    'wght' 400,
+    'GRAD' 0,
+    'opsz' 40
+}
+
+//Boton aprobacion
+.botonApobacion {
+
+    display: flex;
+    background-color: rgba(255, 255, 255, 0.767);
+    box-sizing: border-box;
+    border: 1px solid#726d6d;
+    padding: 0.2rem 1rem 0.2rem 1rem;
+    margin: 0 0.3rem 0 0rem;
+    justify-content: center;
+    text-align: center;
+    align-items: center;
+    align-content: center;
+    font-weight: bold;
+    font-family: "Ubuntu Condensed", sans-serif;
+    border-radius: 3px;
+    overflow: visible;
+    height: 1.3rem;
+    font-size: 0.9em;
+    box-shadow: 0.1rem 0.3rem 0px #726d6d;
+
+    p {
+        white-space: nowrap;
+    }
+}
+
+///////////////////////////////////
+//Botones abm y form individual
+.barraForm {
+    display: flex;
+    justify-content: center;
+    align-items: end;
+    align-content: end;
+    background: transparent;
+    margin-right: 0.8rem;
+    width: 2rem;
+    height: 2rem;
+    animation: all 0.2s;
+    animation: moveInBotton .3s ease-out;
+    transition: all .2s;
+
+    &.oculto,
+    &.ocultoRecargar,
+    &.ocultoImpresion,
+    &.ocultoTipo {
+        display: none;
+    }
+
+    &:hover:not(:active) {
+
+        .material-symbols-outlined.botones {
+
+            background-color: $colorHoverAbm;
+            color: $colorPrincipal;
+            outline: none;
+            animation: latidoBotonAbm 1s infinite;
+        }
+    }
+
+    &:active {
+
+        .material-symbols-outlined.botones {
+            transform: scale(0.9);
+            color: rgb(241, 77, 77);
+            cursor: grabbing;
+            box-shadow: 0px 0.1rem 0px rgba(20, 51, 90, 0.322);
+        }
+    }
+
+    &:focus {
+
+        .material-symbols-outlined.botones {
+
+            outline: none;
+            animation: latido 1s infinite;
+
+        }
+    }
+
+    .material-symbols-outlined.botones {
+
+        font-size: 1.7rem;
+        cursor: pointer;
+        border-radius: 20px;
+        box-shadow: 0px 0.3rem 0px rgb(114, 109, 109);
+
+        padding: 0.2rem;
+
+
+        font-variation-settings: 'FILL' 0,
+            'wght' 700,
+            'GRAD' 0,
+            'opsz' 48
+    }
+}
+
+.comanderaPestana:not(.enEspera):not(.enEsperaImpresion),
+.cabeceraFormIndividual:not(.enEspera):not(.enEsperaImpresion) {
+
+    .material-symbols-outlined.botones {
+
+        &:hover {
+
+            transform: scale(1.4);
+            background-image: $botonesHover;
+            color: transparent;
+            background-clip: text;
+
+        }
+
+        &:active {
+            transform: scale(1.1);
+            color: rgb(241, 77, 77);
+            cursor: grabbing;
+            box-shadow: 0px 0.1rem 0px rgba(20, 51, 90, 0.322);
+        }
+    }
+}
+
+.comanderaPestana.enEspera,
+.comanderaPestana.enEsperaImpresion {
+    cursor: wait !important;
+
+    span {
+        background-color: yellow !important;
+
+        &:hover {
+            cursor: wait !important;
+            background-color: yellow !important;
+        }
+    }
+}
+
+.comanderaPestana:not(.enEspera),
+.comandos {
+
+    .botonApobacion {
+
+        &:hover {
+            cursor: pointer;
+            background-color: rgb(255, 255, 255);
+
+        }
+
+        &:active {
+            box-shadow: 0px 0.1rem 0px #726d6d;
+            transform: translateY(0.4rem);
+            cursor: grabbing;
+
+        }
+    }
+}
+
+.comanderaPestana.enEspera {
+
+    .botonApobacion {
+        background-color: yellow;
+
+
+    }
+}
+
+///Botones filtro rápido
+#filtroRapido {
+    margin-left: 3em;
+    display: flex;
+    border-radius: 0.5em;
+    margin-bottom: 0;
+
+    .muestraAtributo,
+    .opcionFiltroRapido {
+        display: flex;
+        background-color: transparent;
+        border: 1px solid rgba(20, 51, 90, 0.322);
+        padding: 0.2rem 0.2rem 0.2rem 0.2rem;
+        margin: 0 0.1rem 0 0.1rem;
+        justify-content: center;
+        font-weight: bold;
+        font-family: "Ubuntu Condensed", sans-serif;
+        align-content: center;
+        text-align: center;
+        border-radius: 3px;
+        min-width: 6rem;
+        height: 1.5rem;
+        font-size: 0.9em;
+        cursor: pointer;
+        box-shadow: 0px 0.4rem 0px rgba(20, 51, 90, 0.322);
+        animation: all 0.2s;
+
+        &:hover:not(:active) {
+
+            animation: latidoBotonFiltro 1s infinite;
+        }
+
+        &:active {
+            box-shadow: 0px 0rem 0px rgb(61, 87, 65);
+            background-color: rgb(169, 186, 197);
+            transform: translateY(0.4rem);
+
+        }
+    }
+
+    .muestraAtributo.botonActivo,
+    .opcionFiltroRapido.botonActivo {
+        transform: translateY(0.2rem);
+        box-shadow: 0px 0px 0px rgb(20, 52, 90);
+        background-color: rgb(191, 199, 245);
+        box-shadow: 0px 0.2rem 0px rgba(20, 51, 90, 0.322);
+
+        &:hover:not(:active) {
+
+            background-color: rgb(132, 145, 221) !important;
+        }
+
+    }
+}
+
+.botonesCabecera {
+
+    .botonInd {
+        display: flex;
+        background-color: transparent;
+        border: 1px solid rgba(20, 51, 90, 0.322);
+        padding: 0.2rem 0.2rem 0.2rem 0.2rem;
+        margin: 0 0.1rem 0 0.1rem;
+        justify-content: center;
+        font-weight: bold;
+        font-family: "Ubuntu Condensed", sans-serif;
+        align-content: center;
+        text-align: center;
+        border-radius: 3px;
+        min-width: 6rem;
+        height: 1.5rem;
+        font-size: 0.9em;
+        cursor: pointer;
+        box-shadow: 0px 0.4rem 0px rgba(20, 51, 90, 0.322);
+        animation: all 0.2s;
+
+        &:hover:not(:active) {
+
+            box-shadow: 0px 0.4rem 0px rgba(20, 51, 90, 0.322);
+            background-color: rgb(230, 230, 230);
+        }
+
+        &:active {
+            box-shadow: 0px 0rem 0px rgb(61, 87, 65);
+            background-color: rgb(169, 186, 197);
+            transform: translateY(0.4rem);
+        }
+
+        &.botonActivo {
+            transform: translateY(0.2rem);
+            box-shadow: 0px 0px 0px rgb(20, 52, 90);
+            background-color: rgb(191, 199, 245);
+            box-shadow: 0px 0.2rem 0px rgba(20, 51, 90, 0.322);
+
+            &:hover:not(:active) {
+
+                background-color: rgb(132, 145, 221) !important;
+            }
+        }
+    }
+}
