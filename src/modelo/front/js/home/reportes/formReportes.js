@@ -112,7 +112,7 @@ async function cabeceraAtributoParametrica(objeto, numeroForm) {
 
     for (const pest of objeto.cabeceraCont.parametrica) {
 
-        cabecera += `<div class="selecAtributo row interSans ${pest.clases || ""}"><p class="fsOnce centroVertical margin-right-ceroTres">${pest.titulo}:</p>`
+        cabecera += `<div class="primerDiv selecAtributo row interSans ${pest.clases || ""}"><p class="fsOnce centroVertical margin-right-ceroTres">${pest.titulo}:</p>`
         cabecera += await cargarPestanasCabecera(objeto, pest.atributo)
         cabecera += `</div>`;
     }
@@ -127,7 +127,7 @@ async function cabeceraAtributoParametricaDef(objeto, numeroForm) {
 
     for (const pest of Object.values(objeto.cabeceraCont.parametricaDef)) {
 
-        cabecera += `<div class="selecAtributo row interSans ${pest.nombre}" type="${pest.type}"><p class="fsOnce centroVertical margin-right-ceroTres">${pest.titulo}:</p>`
+        cabecera += `<div class="primerDiv selecAtributo row interSans ${pest.nombre}" type="${pest.type}"><p class="fsOnce centroVertical margin-right-ceroTres">${pest.titulo}:</p>`
         cabecera += pestanaCabeceraInformePrevalores(objeto, numeroForm, pest, { select: "function" })
         cabecera += `</div>`;
 
@@ -379,196 +379,174 @@ function administrarAtributoTabla(objeto, numeroForm, mo) {
                 return (className.match(/\boculto\S*/g) || []).join(' ');
             });
             $(`#t${numeroForm} td.filtro input`).val("")
+            $(`#t${numeroForm} .busquedasColumna`).each((_, columna) => {
+                $(`.filtroCampo`, columna).slice(1).remove();
+            });
         }
 
         $(e.target).parents('table').find('tr.filtros').toggleClass('active');
 
     }
-    const filtros = (e) => {
+    const normalizarTexto = (v) => (v ?? "").toString().toLowerCase().trim();
+    const parseFechaReporte = (valor) => {
+        const texto = (valor ?? "").toString().trim();
+        if (!texto) return null;
 
-        let valorBuscado = $(e.target).val().toLowerCase();
-        let primerCaracter = valorBuscado.slice(0, 1);
-        const tabla = $(e.target).closest("table");
+        const match = texto.match(/\d{1,2}[/-]\d{1,2}[/-]\d{2,4}|\d{4}-\d{1,2}-\d{1,2}/);
+        if (!match) return null;
 
-        let registros = $(`tr:not(.filaTotal):not(.titulosFila):not(.filtros)`, tabla);
+        const fechaTexto = match[0];
+        let dia, mes, anio;
 
-        let filtrado = $(e.target).attr(`atributo`);
-
-        if (primerCaracter == ">") {
-
-            let tipoFiltrado = $(e.target).attr("type")
-            if (valorBuscado.includes("<")) {
-                let indice = valorBuscado.indexOf("<");
-
-                switch (tipoFiltrado) {
-                    case `fecha`:
-                        let mayorQueFa = valorBuscado.slice(1, indice).split(`/`);
-                        let menorQueFa = valorBuscado.slice(indice + 1).split(`/`);
-                        let mayorQueFecha = new Date(mayorQueFa[1] + `/` + mayorQueFa[0] + `/` + mayorQueFa[2])
-                        let menorQueFecha = new Date(menorQueFa[1] + `/` + menorQueFa[0] + `/` + menorQueFa[2])
-
-
-                        $.each(registros, (indice, value) => {
-
-                            let valorFila = $(value).children(`td.${filtrado}`).text().split(`/`);
-                            let valorFilaFecha = new Date(valorFila[1] + `/` + valorFila[0] + `/` + valorFila[2])
-                            if (valorFilaFecha > mayorQueFecha && valorFilaFecha < menorQueFecha) {
-                                $(value).removeClass(`oculto${filtrado}`);
-                            } else {
-                                $(value).addClass(`oculto${filtrado}`);
-                            }
-                        });
-                        break;
-                    case `importe`:
-
-                        let mayorQueNumero = parseFloat(valorBuscado.slice(1, indice));
-                        let menorQueNumero = parseFloat(valorBuscado.slice(indice + 1));
-
-                        $.each(registros, (indice, value) => {
-                            let valorFilaNumero = parseFloat(stringANumero($(`td.${filtrado}`, value).text()));;
-
-                            if (valorFilaNumero > mayorQueNumero && valorFilaNumero < menorQueNumero) {
-                                $(value).removeClass(`oculto${filtrado}`);
-                            } else {
-                                $(value).addClass(`oculto${filtrado}`);
-                            }
-                        });
-                        break;
-                }
-            } else {
-
-                switch (tipoFiltrado) {
-                    case `fecha`:
-
-                        let valorBuscadoMenorFecha = valorBuscado.slice(1).split(`/`);
-                        let valorBuscadoMenorFechaDef = new Date(valorBuscadoMenorFecha[1] + `/` + valorBuscadoMenorFecha[0] + `/` + valorBuscadoMenorFecha[2])
-
-                        $.each(registros, (indice, value) => {
-                            let valorFilaFecha = $(value).children(`td.${filtrado}`).text().split(`/`);
-                            let valorfilaFechaDef = new Date(valorFilaFecha[1] + `/` + valorFilaFecha[0] + `/` + valorFilaFecha[2])
-
-                            if (valorfilaFechaDef > valorBuscadoMenorFechaDef) {
-                                $(value).removeClass(`oculto${filtrado}`);
-                            } else {
-                                $(value).addClass(`oculto${filtrado}`);
-                            }
-                        });
-                        break;
-                    case `importe`:
-                        let valorBuscadoMenorNumero = parseFloat(valorBuscado.slice(1));
-
-                        $.each(registros, (indice, value) => {
-                            let valorFilaNumero = parseFloat(stringANumero($(`td.${filtrado}`, value).text()));
-
-                            if (valorFilaNumero > valorBuscadoMenorNumero) {
-                                $(value).removeClass(`oculto${filtrado}`);
-                            } else {
-                                $(value).addClass(`oculto${filtrado}`);
-                            }
-                        });
-
-                        break;
-                }
-            }
-        } else if (primerCaracter == "<") {
-
-            let tipoFiltrado = $(e.target).attr("type")
-
-            if (valorBuscado.includes(">")) {
-                let indice = valorBuscado.indexOf(">");
-
-                switch (tipoFiltrado) {
-                    case `fecha`:
-                        let mayorQueFecha = Date.parse(valorBuscado.slice(1, indice));
-                        let menorQueFecha = Date.parse(valorBuscado.slice(indice + 1));
-
-                        $.each(registros, (indice, value) => {
-                            let valorFilaFecha = Date.parse(
-                                $(value).children(`td.${filtrado}`).text().toLowerCase()
-                            );
-
-                            if (
-                                valorFilaFecha < mayorQueFecha &&
-                                valorFilaFecha > menorQueFecha
-                            ) {
-                                $(value).removeClass(`oculto${filtrado}`);
-                            } else {
-                                $(value).addClass(`oculto${filtrado}`);
-                            }
-                        });
-                        break;
-                    case `importe`:
-
-                        let mayorQueNumero = parseFloat(valorBuscado.slice(1, indice));
-                        let menorQueNumero = parseFloat(valorBuscado.slice(indice + 1));
-
-                        $.each(registros, (indice, value) => {
-
-                            let valorFilaNumero = parseFloat(stringANumero($(`td.${filtrado}`, value).text()));
-
-                            if (valorFilaNumero < mayorQueNumero && valorFilaNumero > menorQueNumero) {
-                                $(value).removeClass(`oculto${filtrado}`);
-                            } else {
-                                $(value).addClass(`oculto${filtrado}`);
-                            }
-                        });
-                        break;
-
-                }
-            } else {
-                switch (tipoFiltrado) {
-                    case `fecha`:
-                        let valorBuscadoMenorFecha = Date.parse(valorBuscado.slice(1));
-
-                        $.each(registros, (indice, value) => {
-                            let valorFilaFecha = Date.parse(
-                                $(value).children(`td.${filtrado}`).text().toLowerCase()
-                            );
-
-                            if (valorFilaFecha < valorBuscadoMenorFecha) {
-                                $(value).removeClass(`oculto${filtrado}`);
-                            } else {
-                                $(value).addClass(`oculto${filtrado}`);
-                            }
-                        });
-                        break;
-                    case `importe`:
-
-                        let valorBuscadoMenorNumero = parseFloat(valorBuscado.slice(1));
-
-                        $.each(registros, (indice, value) => {
-                            let valorFilaNumero = parseFloat(stringANumero($(`td.${filtrado}`, value).text()));
-
-                            if (valorFilaNumero < valorBuscadoMenorNumero) {
-                                $(value).removeClass(`oculto${filtrado}`);
-                            } else {
-                                $(value).addClass(`oculto${filtrado}`);
-                            }
-                        });
-                        break;
-                }
-            }
+        if (/^\d{4}-\d{1,2}-\d{1,2}$/.test(fechaTexto)) {
+            [anio, mes, dia] = fechaTexto.split("-").map(Number);
         } else {
-
-            $.each(registros, (indice, value) => {
-
-                let valorFila = $(`td.${filtrado}`, value).text()?.toLowerCase();
-
-                if (valorFila.includes(valorBuscado)) {
-
-                    $(value).removeClass(`oculto${filtrado}`);
-                } else {
-                    $(value).addClass(`oculto${filtrado}`);
-                }
-            })
+            [dia, mes, anio] = fechaTexto.split(/[/-]/).map(Number);
+            if (anio < 100) anio += 2000;
         }
+
+        const fecha = new Date(anio, mes - 1, dia);
+        if (
+            Number.isNaN(fecha.getTime()) ||
+            fecha.getFullYear() !== anio ||
+            fecha.getMonth() !== (mes - 1) ||
+            fecha.getDate() !== dia
+        ) return null;
+
+        return fecha.getTime();
+    };
+    const esTipoNumerico = (tipo) => ["importe", "numero", "cantidad", "numerador", "numeradorCompuesto"].includes(tipo);
+    const comparable = (valor, tipo) => {
+        if (tipo === "fecha" || tipo === "fechaHora") return parseFechaReporte(valor);
+        if (esTipoNumerico(tipo)) {
+            const num = parseFloat(stringANumero(valor));
+            return Number.isNaN(num) ? null : num;
+        }
+        return null;
+    };
+    const coincideConTermino = (termino, fila, filtrado, tipoFiltrado) => {
+        const buscado = normalizarTexto(termino);
+        const primerCaracter = buscado.slice(0, 1);
+        const textoFila = $(`td.${filtrado}`, fila).text() || "";
+        const textoFilaNormalizado = normalizarTexto(textoFila);
+
+        if (buscado === "vacio") return textoFilaNormalizado === "";
+        if (buscado === "!vacio") return textoFilaNormalizado !== "";
+
+        if (primerCaracter === ">" || primerCaracter === "<") {
+            const separador = primerCaracter === ">" ? "<" : ">";
+            const valorFilaComp = comparable(textoFila, tipoFiltrado);
+            if (valorFilaComp == null) return false;
+
+            if (buscado.includes(separador)) {
+                const indiceSep = buscado.indexOf(separador);
+                const valA = comparable(buscado.slice(1, indiceSep), tipoFiltrado);
+                const valB = comparable(buscado.slice(indiceSep + 1), tipoFiltrado);
+                if (valA == null || valB == null) return false;
+
+                if (primerCaracter === ">") return valorFilaComp > valA && valorFilaComp < valB;
+                return valorFilaComp < valA && valorFilaComp > valB;
+            }
+
+            const valUnico = comparable(buscado.slice(1), tipoFiltrado);
+            if (valUnico == null) return false;
+
+            if (primerCaracter === ">") return valorFilaComp > valUnico;
+            return valorFilaComp < valUnico;
+        }
+
+        return textoFilaNormalizado.includes(buscado);
+    };
+    const crearCampoFiltro = (inputBase) => {
+        const input = $(inputBase).clone(false);
+        const campo = $(`<div class="filtroCampo"></div>`);
+        const botonEliminar = $(`<span class="material-symbols-outlined deleteFiltroCampo" title="Eliminar campo">delete</span>`);
+        campo.append(input).append(botonEliminar);
+        return campo;
+    };
+    const inicializarFiltrosDinamicos = () => {
+        $(`#t${numeroForm} tr.filtros td.filtro`).each((_, td) => {
+            const tdFiltro = $(td);
+            let columna = tdFiltro.children(".busquedasColumna");
+            if (!columna.length) {
+                const inputs = tdFiltro.children("input.filtro");
+                if (!inputs.length) return;
+                columna = $(`<div class="busquedasColumna"></div>`);
+                inputs.each((__, input) => {
+                    columna.append(crearCampoFiltro(input));
+                });
+                inputs.remove();
+                tdFiltro.prepend(columna);
+            }
+        });
+    };
+    const filtros = (e) => {
+        const inputActual = $(e.target);
+        const tdFiltro = inputActual.closest("td.filtro");
+        const tabla = inputActual.closest("table");
+        const registros = $(`tr:not(.filaTotal):not(.titulosFila):not(.filtros)`, tabla);
+        const filtrado = tdFiltro.attr("atributo") || inputActual.attr("atributo");
+        const tipoFiltrado = inputActual.attr("type");
+        const terminos = $(`input.filtro`, tdFiltro)
+            .map((_, input) => ($(input).val() ?? "").toString().trim())
+            .get()
+            .filter((v) => v !== "");
+
+        if (terminos.length === 0) {
+            $.each(registros, (_, fila) => {
+                $(fila).removeClass(`oculto${filtrado}`);
+            });
+            return;
+        }
+
+        $.each(registros, (_, fila) => {
+            const coincide = terminos.some((termino) => coincideConTermino(termino, fila, filtrado, tipoFiltrado));
+            if (coincide) $(fila).removeClass(`oculto${filtrado}`);
+            else $(fila).addClass(`oculto${filtrado}`);
+        });
     }
 
+    inicializarFiltrosDinamicos();
     $(`#t${numeroForm}`).on("click", `.flechasOrden span.arriba:not(.active)`, ordenarAscendente)
     $(`#t${numeroForm}`).on("click", `.flechasOrden span.abajo:not(.active)`, ordenarDescendente)
     $(`#t${numeroForm}`).on("click", `.flechasOrden span.active`, quitarActive)
-    $(`#t${numeroForm}`).on("click", `.filtro span`, filaFiltroOculto)
+    $(`#t${numeroForm}`).off("click.filtroRep", `th .iconos .filtro span.filtro`)
+    $(`#t${numeroForm}`).on("click.filtroRep", `th .iconos .filtro span.filtro`, filaFiltroOculto)
     $(`#t${numeroForm}`).on("input", `tr.filtros input`, filtros)
+    $(`#t${numeroForm}`).off("dblclick.filtroRep", `tr.filtros td.filtro`)
+    $(`#t${numeroForm}`).on("dblclick.filtroRep", `tr.filtros td.filtro`, (e) => {
+        if ($(e.target).closest(".deleteFiltroCampo, .ojito").length > 0) return;
+
+        const tdFiltro = $(e.currentTarget);
+        const columna = tdFiltro.children(".busquedasColumna").first();
+        if (!columna.length) return;
+
+        const inputBase = columna.find("input.filtro").first();
+        if (!inputBase.length) return;
+
+        const nuevoCampo = crearCampoFiltro(inputBase);
+        const nuevoInput = $("input.filtro", nuevoCampo);
+        nuevoInput.val("");
+        columna.append(nuevoCampo);
+        nuevoInput.trigger("focus");
+    });
+    $(`#t${numeroForm}`).off("click.filtroRep", `.deleteFiltroCampo`)
+    $(`#t${numeroForm}`).on("click.filtroRep", `.deleteFiltroCampo`, (e) => {
+        e.stopPropagation();
+
+        const campo = $(e.currentTarget).closest(".filtroCampo");
+        const tdFiltro = campo.closest("td.filtro");
+        const columna = campo.closest(".busquedasColumna");
+        const cantidadCampos = columna.children(".filtroCampo").length;
+
+        if (cantidadCampos <= 1) {
+            $("input.filtro", campo).val("").trigger("input");
+            return;
+        }
+
+        campo.remove();
+        $("input.filtro", tdFiltro).first().trigger("input");
+    });
 
     $(`#t${numeroForm} th.${objeto?.ordenDefault?.[0]?.nombre} .flechasOrden span.${objeto?.ordenDefault?.[1]}`).trigger("click")
     $(`#t${numeroForm}`).data("orden-ready", true);
@@ -769,23 +747,32 @@ function asgregarStickyDiv(objeto, numeroForm, div) {
 function valorParametrica(objeto, numeroForm, data, atributo, datoBuscado, multiplicador, nuevoAtributo) {
     $.each(data, (indice, value) => {
         let unidadMedida = value.unidadesMedida;
-
+        console.log(data)
+        console.log(datoBuscado)
         let atribut = consultaPestanas[atributo][value[atributo]];
+        console.log(atribut)
         let unidades = atribut?.["unidadesMedida"] || [];
         let precios = atribut?.[datoBuscado] || [];
+        let monedas = atribut?.["monedaCostos"] || [];
+
         let index = unidades.indexOf(unidadMedida);
         let buscado = index >= 0 ? precios[index] : precios[0] || 0;
+        let moneda = index >= 0 ? monedas[index] : monedas[0] || "";
         if (multiplicador == "totalHorizontal") {
-            value[nuevoAtributo] = value?.[multiplicador] * buscado;
+            value["monedaCostos"] = moneda;
+            value[nuevoAtributo] = (value?.[multiplicador] || 0) * buscado;
+
         } else {
             $.each(value.periodos, (ind, val) => {
+                val["monedaCostos"] = moneda;
                 let cantidad = val?.[multiplicador]
                 val[nuevoAtributo] = cantidad * buscado;
+
             })
         }
 
     });
-
+    console.log(data)
     return data;
 }
 function totalVerticalManual(objeto, numeroForm, tabla) {

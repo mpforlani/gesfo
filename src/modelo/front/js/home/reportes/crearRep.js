@@ -168,8 +168,9 @@ async function crearCuerpoReporte(objeto, numeroForm) {
             }
 
             let objetoGr = objetoTab.group
-            Object.assign(detalleFiltroAtributos.cabecera, detalleFiltroAtributosFuncion.cabecera)
-            Object.assign(detalleFiltroAtributos.coleccion, detalleFiltroAtributosFuncion.coleccion)
+
+            Object.assign(detalleFiltroAtributos.cabecera || {}, detalleFiltroAtributosFuncion.cabecera || {})
+            Object.assign(detalleFiltroAtributos.coleccion || {}, detalleFiltroAtributosFuncion.coleccion || {})
             //ESto lo hago para dalr atributo libre y poder usar funciones en funcion
             const filtros = `&filtros=${JSON.stringify(detalleFiltroAtributos)}`
             const objetoBusqueda = `&objetoGroup=${JSON.stringify(objetoGr || {})}`

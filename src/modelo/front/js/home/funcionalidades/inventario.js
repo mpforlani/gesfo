@@ -231,31 +231,60 @@ let variablesModeloInventarios = {
         },
         desencadenaColeccion: {
             movimientoStock: {
-                type: "directo",
+                type: "condicionSegunFuncion",
                 coleccionOrigen: movimientoStock,
-                identificador: "movimientoStock",
-                eliminarDesencadenate: ["producto"],//Si cambia este atributo se elimina el desencadenate
+                identificador: "entradaInventario",
                 destino: "stock",
-                nombre: "Entradas stock",
-                destino: "stock",
-                atributosColeccion: {
-                    funcion: {
-                        marca: [buscarAtributosParamentricos, "marca", "producto"]
+                nombre: "EntradaInventario",
+                funcionCondicion: [tipoOperacion],
+                opciones: {
+                    entrada: {
+                        destino: "stock",
+                        identificador: "entrada",
+                        nombre: "Entrada",
+                        atributosColeccion: {
+                            funcion: {
+                                marca: [buscarAtributosParamentricos, "marca", "producto"]
+                            },
+                            valorFijo: {
+                                estado: "Ingresado",
+                                estadoFacturacion: "Pendiente",
+                            },
+                            cambiarAtributos: {
+                                disponibles: "cantidad"
+                            },
+                            grabarEnOrigen: { Número: "numerador" },
+                            grabarEnOrigenColeccion: { Número: "numerador" },
+                            grabarEnDestino: { Número: "numerador" },
+                        },
+                        grabarEnDestino: { Número: "numerador" },
+                        grabarEnOrigenColeccion: { Número: "numerador" }, //se pone primer el atributo en el origen segundo en el destino
+
                     },
-                    valorFijo: {
-                        estado: "Ingresado",
-                        estadoFacturacion: "Pendiente",
-                    },
-                    cambiarAtributos: {
-                        disponibles: "cantidad"
-                    },
-                    grabarEnOrigen: { Número: "numerador" },
-                    grabarEnOrigenColeccion: { Número: "numerador" },
-                    grabarEnDestino: { Número: "numerador" },
+                    ajuste: {
+                        destino: "stock",
+                        identificador: "ajuste",
+                        nombre: "Ajustes",
+                        atributosColeccion: {
+                            funcion: {
+                                marca: [buscarAtributosParamentricos, "marca", "producto"]
+                            },
+                            valorFijo: {
+                                estado: "Ajuste",
+                                estadoFacturacion: "Ajuste",
+                            },
+                            cambiarAtributos: {
+                                disponibles: "cantidad"
+                            },
+                            grabarEnOrigen: { Número: "numerador" },
+                            grabarEnOrigenColeccion: { Número: "numerador" },
+                            grabarEnDestino: { Número: "numerador" },
+                        },
+                        grabarEnDestino: { Número: "numerador" },
+                        grabarEnOrigenColeccion: { Número: "numerador" }, //se pone primer el atributo en el origen segundo en el destino
+                    }
                 },
-                grabarEnDestino: { Número: "numerador" },
-                grabarEnOrigenColeccion: { Número: "numerador" }, //se pone primer el atributo en el origen segundo en el destino
-            },
+            }
         },
         pest: `Ingreso stock`,
         accion: `entradaInventario`,
@@ -437,7 +466,11 @@ let variablesModeloInventarios = {
                                 estado: "Ajuste",
                                 estadoFacturacion: "Ajuste",
                             },
+<<<<<<< HEAD
                             cambiarAtributos: {
+=======
+                            cambiarAtributosYSigno: {
+>>>>>>> f84d82783fa3e4092b64354e40e8a12a4aa68a3d
                                 disponibles: "cantidad"
                             },
                             grabarEnOrigen: { Número: "numerador" },

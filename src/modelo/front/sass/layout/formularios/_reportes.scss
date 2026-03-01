@@ -149,7 +149,7 @@
             }
 
             input {
-                margin: 0 0.8rem 0 0;
+                margin: 0.2rem 0.8rem 0 0;
                 height: 1.6rem;
                 padding-left: 1rem;
             }
@@ -331,8 +331,35 @@
 
                 td {
                     display: flex;
-                    align-items: center;
+                    align-items: flex-start;
                     padding: 0.3rem 0.1rem 0.3rem 0.1rem;
+
+                    .busquedasColumna {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 0.2rem;
+                        width: 100%;
+
+                        .filtroCampo {
+                            display: flex;
+                            align-items: center;
+                            gap: 0.2rem;
+                            width: 100%;
+
+                            input.filtro {
+                                width: 100%;
+                                min-width: 0;
+                            }
+
+                            .deleteFiltroCampo {
+                                font-size: 0.9rem;
+                                line-height: 1;
+                                cursor: pointer;
+                                color: rgb(90, 90, 90);
+                                user-select: none;
+                            }
+                        }
+                    }
                 }
             }
 

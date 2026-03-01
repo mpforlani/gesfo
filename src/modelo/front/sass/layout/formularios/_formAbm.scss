@@ -597,6 +597,34 @@
 
         .filtro .filtroClass {
             display: flex;
+            align-items: flex-start;
+            gap: 0.2rem;
+
+            .busquedasColumna {
+                display: flex;
+                flex-direction: column;
+                gap: 0.2rem;
+                width: 100%;
+
+                .filtroCampo {
+                    display: flex;
+                    align-items: center;
+                    gap: 0.2rem;
+
+                    input.busqueda {
+                        width: 100%;
+                        min-width: 0;
+                    }
+
+                    .deleteFiltroCampo {
+                        font-size: 0.9rem;
+                        line-height: 1;
+                        cursor: pointer;
+                        color: rgb(90, 90, 90);
+                        user-select: none;
+                    }
+                }
+            }
 
             p {
                 font-size: 1rem;
@@ -604,7 +632,7 @@
                 cursor: pointer;
                 color: rgb(0, 0, 0);
                 font-weight: bolder;
-                margin: 0 0.2rem 0 0.2rem;
+                margin: 0.15rem 0.2rem 0 0.2rem;
             }
         }
 

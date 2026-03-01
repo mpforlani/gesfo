@@ -864,7 +864,7 @@ const costosProducto = {
     proveedor: P({ nombre: "proveedor" }),
     cantidadCostos: N({ nombre: "cantidadCostos" }),
     unidadesMedidaCostos: P({ nombre: "unidadesMedidaCostos", origen: "unidadesMedida" }),
-    monedaCostos: P({ nombre: "monedacostos", origen: "moneda", width: "diez" }),
+    monedaCostos: P({ nombre: "monedaCostos", origen: "moneda", width: "diez" }),
     costoInventario: I({ nombre: "costoInventario" }),
 
   },

@@ -368,7 +368,7 @@ function agrupadoMes(objeto, numeroForm, nombreTab, objetoRep) {
     tabla += "</div>";
     let mesTitulosFiltro = mesActual
     let anoTitulosFiltro = anoActual
-
+    let mesAnoTitulosFiltro = mesAno(anoTitulosFiltro, mesTitulosFiltro)
     for (let x = 0; x < mesesTotales; x++) {
 
         mesTitulosFiltro == 0 ? (mesTitulosFiltro = 12, anoTitulosFiltro--) : ""
@@ -427,7 +427,7 @@ function agrupadoMes(objeto, numeroForm, nombreTab, objetoRep) {
         for (let x = 0; x < mesesTotales; x++) {
 
             mesActualAtributo == 0 ? (mesActualAtributo = 12, anoActualAtributo--) : ""
-            mesAnoActualAtributos = `${anoActualAtributo}${mesActualAtributo}`
+            mesAnoActualAtributos = mesAno(anoActualAtributo, mesActualAtributo)
 
             tabla += `<td class="td mesItems compuesto ${mesesTitulo[mesActualAtributo]} textoCentrado" mesAno="${mesAnoActualAtributos}" ${complemento || ""} colum="${colum}">`
 
@@ -493,7 +493,7 @@ function agrupadoMes(objeto, numeroForm, nombreTab, objetoRep) {
         for (let x = 0; x < mesesTotales; x++) {
 
             mesTitulos == 0 ? (mesTitulos = 12, anoTitulos--) : ""
-            mesAnoTitulos = `${anoTitulos}${mesTitulos}`
+            mesAnoTitulos = mesAno(anoTitulos, mesTitulos)
 
             let total = totalVertical.find(e => e.periodo == mesAnoTitulos) || {}
 

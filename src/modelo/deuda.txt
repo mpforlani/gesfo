@@ -20,7 +20,6 @@ Ver inteligencia artifical o web simplified
 ---------Funciones especificas
 104 - Ver tipo de cambios automaticos
 103 - Reporte resultado Lucho -  Miercoles 03/12 (Versión Beta)
-102 - Filtros Multiples -  Miercoles 03/12
 101 - Cambio seleccion celdas reportes -  Jueves 04/12
 100 - Manipulación celdas tamañao y orden reportes -  Martes 09/12 
 99 - Ver el formato en formulario, el tanto el ancho, como las celdas por reglon
@@ -166,3 +165,9 @@ docker system prune
 -------------------
 docker compose logs -f sbc-gesfin
 docker compose logs sbc-gesfin | grep "USER:pato"
+
+orden de recepcion, agregar stastus de recepcion => 3 perfectos 
+desconsolidado => 
+Consololidacion de pallets
+Cliente generear codigo 
+reporte 
