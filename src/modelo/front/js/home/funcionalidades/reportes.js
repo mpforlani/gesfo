@@ -66,7 +66,13 @@ let variablesModeloReportes = {
                         periodo: {
                             $concat: [
                                 { $toString: { $year: "$fecha" } },
-                                { $toString: { $month: "$fecha" } }
+                                {
+                                    $cond: [
+                                        { $lt: [{ $month: "$fecha" }, 10] },
+                                        { $concat: ["0", { $toString: { $month: "$fecha" } }] },
+                                        { $toString: { $month: "$fecha" } }
+                                    ]
+                                }
 
                             ]
                         }
@@ -141,7 +147,13 @@ let variablesModeloReportes = {
                         periodo: {
                             $concat: [
                                 { $toString: { $year: "$fecha" } },
-                                { $toString: { $month: "$fecha" } }
+                                {
+                                    $cond: [
+                                        { $lt: [{ $month: "$fecha" }, 10] },
+                                        { $concat: ["0", { $toString: { $month: "$fecha" } }] },
+                                        { $toString: { $month: "$fecha" } }
+                                    ]
+                                }
 
                             ]
                         }
@@ -244,7 +256,13 @@ let variablesModeloReportes = {
                         periodo: {
                             $concat: [
                                 { $toString: { $year: "$fecha" } },
-                                { $toString: { $month: "$fecha" } }
+                                {
+                                    $cond: [
+                                        { $lt: [{ $month: "$fecha" }, 10] },
+                                        { $concat: ["0", { $toString: { $month: "$fecha" } }] },
+                                        { $toString: { $month: "$fecha" } }
+                                    ]
+                                }
 
                             ]
                         }
@@ -806,7 +824,13 @@ let variablesModeloReportes = {
                         periodo: {
                             $concat: [
                                 { $toString: { $year: "$fecha" } },
-                                { $toString: { $month: "$fecha" } }
+                                {
+                                    $cond: [
+                                        { $lt: [{ $month: "$fecha" }, 10] },
+                                        { $concat: ["0", { $toString: { $month: "$fecha" } }] },
+                                        { $toString: { $month: "$fecha" } }
+                                    ]
+                                }
 
                             ]
                         }

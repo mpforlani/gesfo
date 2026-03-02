@@ -122,6 +122,7 @@ function crearTabla(numeroForm, objeto, consulta) {//Dicionario
     removeProgressBarHeightDiv(objeto, numeroForm)
     let alto = $(`#t${numeroForm} .tr.tituloTablas`).height()
     $(`#t${numeroForm} .tr.filtro`).css({ "top": `${alto}px` })
+    inicializarResizeTablaAbm(numeroForm, objeto)
 
     $.each(objeto.ocultroAtributosSeguridad, (indice, value) => {
 
@@ -314,8 +315,8 @@ function reCrearTabla(numeroForm, objeto) {//Dicionario
 
                         tabla += `<div class="th tituloTablas ${widthTitlesD[indice]?.nombre} ${filtro[indice]}" type=${widthTitlesD[indice].type} filtro="${filtro[indice]}" style="order:${indice}" ${widthObject[widthTitlesD[indice]?.width] || ""} ${ocultoOject[widthTitlesD[indice]?.oculto] || ""}><div class="th-contenido"><span class="tit">${[value]}</span><div class="iconos">${flechasOrden}${filtroIcon}</div></div></div>`;
                     });
-                    tabla += `<div class="th tituloTablas date" type:"date" filtro="date" style="order:9998" width="doce">Auditoria</div>`;
-                    tabla += `<div class="th tituloTablas username" type:"texto" filtro=username style="order:9999" width="doce" >Autor</div>`;
+                    tabla += `<div class="th tituloTablas date" type="date" filtro="date" style="order:9998" width="doce"><div class="th-contenido"><span class="tit">Auditoria</span><div class="iconos">${flechasOrden}${filtroIcon}</div></div></div>`;
+                    tabla += `<div class="th tituloTablas username" type="texto" filtro="username" style="order:9999" width="doce"><div class="th-contenido"><span class="tit">Autor</span><div class="iconos">${flechasOrden}${filtroIcon}</div></div></div>`;
                     tabla += `</div>`;
                     tabla += `<div class="tr filtro">`;
                     $.each(filtro, function (indice, value) {
@@ -359,6 +360,7 @@ function reCrearTabla(numeroForm, objeto) {//Dicionario
 
             let alto = $(`#t${numeroForm} .tr.tituloTablas`).height()
             $(`#t${numeroForm} .tr.filtro`).css({ "top": `${alto}px` })
+            inicializarResizeTablaAbm(numeroForm, objeto)
 
 
             $(`#t${numeroForm}`).css(`max-height`, heightTabla(numeroForm))
@@ -3270,6 +3272,667 @@ function adjuntoCeldaAbm(objeto, numeroForm) {
 
             }
         }
+    })
+}
+const resizeTablaAbmState = {}
+const sortableColumnasAbm = {}
+const sortableFilasAbm = {}
+const resizeCookiePrefixAbm = "gf_resize_abm_v1"
+function hashResizeAbm(texto) {
+
+    let hash = 5381
+    const str = `${texto || ""}`
+    for (let i = 0; i < str.length; i++) {
+        hash = ((hash << 5) + hash) + str.charCodeAt(i)
+    }
+    return (hash >>> 0).toString(36)
+}
+function sanitizarColIdAbm(texto) {
+
+    const limpio = `${texto || "col"}`
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, "_")
+        .replace(/[^a-z0-9_-]/g, "")
+    return limpio || "col"
+}
+function normalizarOrdenDesdeCookieAbm(valor) {
+
+    if (Array.isArray(valor)) {
+        return valor.map((v) => `${v}`).filter((v) => v !== "")
+    }
+
+    if (valor && typeof valor === "object") {
+        return Object.entries(valor)
+            .sort((a, b) => (parseInt(a[1], 10) || 0) - (parseInt(b[1], 10) || 0))
+            .map(([colId]) => `${colId}`)
+            .filter((v) => v !== "")
+    }
+
+    if (typeof valor === "string") {
+        return valor
+            .split(",")
+            .map((v) => v.trim())
+            .filter((v) => v !== "")
+    }
+
+    return []
+}
+function esReferenciaOrdenNumericaAbm(ref) {
+
+    if (typeof ref === "number") return Number.isFinite(ref)
+    if (typeof ref !== "string") return false
+
+    const texto = ref.trim()
+    if (texto === "") return false
+    return /^-?\d+$/.test(texto)
+}
+function esHeaderReordenableAbm(th) {
+
+    if (!th?.length) return false
+    if (th.hasClass("logicoAprobacion")) return false
+    if (th.hasClass("oculto") || th.hasClass("ocultoSeguridad") || th.hasClass("ocultoSiempre")) return false
+    if (th.attr("oculto") === "true") return false
+    return th.is(":visible")
+}
+function obtenerHeadersReordenablesAbm(numeroForm) {
+
+    return $(`#t${numeroForm} .tr.tituloTablas .th.tituloTablas`).filter((_, el) => esHeaderReordenableAbm($(el)))
+}
+function obtenerDeviceResizeIdAbm() {
+
+    const key = "gesfin_device_resize_id"
+    try {
+        let id = localStorage.getItem(key)
+        if (!id) {
+            id = `dv_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`
+            localStorage.setItem(key, id)
+        }
+        return id
+    } catch (error) {
+        return `ua_${hashResizeAbm(navigator.userAgent || "sin_ua")}`
+    }
+}
+function nombreCookieResizeAbm(scopeKey) {
+
+    return `${resizeCookiePrefixAbm}_${hashResizeAbm(scopeKey)}`
+}
+function setCookieResizeAbm(nombre, valor, dias = 365) {
+
+    const ms = dias * 24 * 60 * 60 * 1000
+    const expires = new Date(Date.now() + ms).toUTCString()
+    document.cookie = `${nombre}=${encodeURIComponent(valor)}; expires=${expires}; path=/; SameSite=Lax`
+}
+function getCookieResizeAbm(nombre) {
+
+    const nombreEq = `${nombre}=`
+    const partes = document.cookie.split(";")
+
+    for (const parte of partes) {
+        const c = parte.trim()
+        if (c.indexOf(nombreEq) === 0) {
+            return decodeURIComponent(c.substring(nombreEq.length))
+        }
+    }
+    return ""
+}
+function getScopeResizeAbm(objeto) {
+
+    const usuario = usu || "anonimo"
+    const dispositivo = obtenerDeviceResizeIdAbm()
+    const empresa = empresaSeleccionada?._id || "sin_empresa"
+    const entidad = objeto?.nombre || objeto?.accion || "abm"
+    return `${usuario}|${dispositivo}|${empresa}|${entidad}`
+}
+function cargarResizeCookieAbm(scopeKey) {
+
+    try {
+        const nombre = nombreCookieResizeAbm(scopeKey)
+        const valor = getCookieResizeAbm(nombre)
+        if (!valor) return { columnas: {}, orden: [], filas: [] }
+
+        const parseado = JSON.parse(valor)
+        const ordenCookie = normalizarOrdenDesdeCookieAbm(
+            parseado?.orden ??
+            parseado?.order ??
+            parseado?.columnas?.orden
+        )
+        const filasCookie = normalizarOrdenDesdeCookieAbm(
+            parseado?.filas ??
+            parseado?.rows ??
+            parseado?.rowOrder
+        )
+
+        return {
+            columnas: (typeof parseado?.columnas === "object" && !Array.isArray(parseado?.columnas)) ? parseado.columnas : {},
+            orden: ordenCookie,
+            filas: filasCookie
+        }
+    } catch (error) {
+        return { columnas: {}, orden: [], filas: [] }
+    }
+}
+function guardarResizeCookieAbm(state) {
+
+    if (!state?.scopeKey) return
+    const nombre = nombreCookieResizeAbm(state.scopeKey)
+    const payload = JSON.stringify({
+        columnas: state.columnas || {},
+        orden: Array.isArray(state.orden) ? state.orden : [],
+        filas: Array.isArray(state.filas) ? state.filas : []
+    })
+    setCookieResizeAbm(nombre, payload, 365)
+}
+function getResizeStateAbm(numeroForm, objeto) {
+
+    if (!resizeTablaAbmState[numeroForm]) {
+        const scopeKey = getScopeResizeAbm(objeto)
+        const persistido = cargarResizeCookieAbm(scopeKey)
+        resizeTablaAbmState[numeroForm] = {
+            scopeKey,
+            columnas: persistido.columnas || {},
+            orden: persistido.orden || [],
+            filas: persistido.filas || []
+        }
+    }
+    return resizeTablaAbmState[numeroForm]
+}
+function obtenerOrdenColumnaAbm(elemento) {
+
+    const ordenCss = parseInt(elemento.css("order"), 10)
+    if (!Number.isNaN(ordenCss)) return ordenCss
+
+    const style = elemento.attr("style") || ""
+    const match = style.match(/order\s*:\s*(-?\d+)/i)
+    return match ? parseInt(match[1], 10) : null
+}
+function seleccionarColumnaPorOrdenAbm(numeroForm, orden) {
+
+    return $(
+        `#t${numeroForm} .th.tituloTablas,
+         #t${numeroForm} .td,
+         #t${numeroForm} .celda,
+         #t${numeroForm} .inputTd`
+    ).filter((_, el) => obtenerOrdenColumnaAbm($(el)) === orden)
+}
+function seleccionarColumnaPorRefAbm(numeroForm, referencia) {
+
+    if (!esReferenciaOrdenNumericaAbm(referencia)) {
+        const porId = $(`#t${numeroForm} [data-col-id="${referencia}"]`)
+        if (porId.length) return porId
+    }
+
+    const orden = parseInt(referencia, 10)
+    if (Number.isNaN(orden)) return $()
+    return seleccionarColumnaPorOrdenAbm(numeroForm, orden)
+}
+function aplicarAnchoColumnaAbm(numeroForm, referenciaColumna, anchoPx) {
+
+    const ancho = Math.max(80, Math.round(anchoPx))
+    const columna = seleccionarColumnaPorRefAbm(numeroForm, referenciaColumna)
+    if (!columna.length) return
+
+    columna.each((_, el) => {
+        el.style.setProperty("width", `${ancho}px`, "important")
+        el.style.setProperty("min-width", `${ancho}px`, "important")
+        el.style.setProperty("max-width", `${ancho}px`, "important")
+        el.style.setProperty("flex", `0 0 ${ancho}px`, "important")
+    })
+}
+function obtenerAnchoInicialColumnaAbm(th) {
+
+    if (!th?.length) return 120
+
+    const el = th.get(0)
+    const styles = window.getComputedStyle(el)
+    const maxWidth = parseFloat(styles.maxWidth)
+    if (!Number.isNaN(maxWidth) && Number.isFinite(maxWidth) && maxWidth > 0) return maxWidth
+
+    const width = parseFloat(styles.width)
+    if (!Number.isNaN(width) && Number.isFinite(width) && width > 0) return width
+
+    return th.outerWidth() || 120
+}
+function aplicarAlturaFilaAbm(fila, altoPx) {
+
+    const alto = Math.max(28, Math.round(altoPx))
+    fila.css({
+        height: `${alto}px`,
+        "min-height": `${alto}px`
+    })
+
+    fila.children(".celda, .td, .inputTd").css({
+        height: `${alto}px`,
+        "min-height": `${alto}px`
+    })
+}
+function asignarColIdsAbm(numeroForm) {
+
+    const headers = $(`#t${numeroForm} .tr.tituloTablas .th.tituloTablas`)
+    if (!headers.length) return
+
+    const usados = new Set()
+    headers.each((indice, header) => {
+        const th = $(header)
+        const orden = obtenerOrdenColumnaAbm(th)
+        if (orden == null) return
+
+        let colId = th.attr("data-col-id")
+        if (!colId) {
+            const refAtributo = th.attr("filtro") || th.attr("type") || `col_${indice}`
+            const baseId = sanitizarColIdAbm(refAtributo)
+            colId = `${baseId}_${orden}`
+
+            let intento = 1
+            while (usados.has(colId)) {
+                colId = `${baseId}_${orden}_${intento}`
+                intento++
+            }
+        }
+
+        usados.add(colId)
+        th.attr("data-col-id", colId)
+        seleccionarColumnaPorOrdenAbm(numeroForm, orden).attr("data-col-id", colId)
+    })
+}
+function normalizarOrdenColIdsAbm(ordenGuardado, colIdsActuales) {
+
+    const actualesSet = new Set(colIdsActuales)
+    const orden = []
+
+    if (Array.isArray(ordenGuardado)) {
+        for (const colId of ordenGuardado) {
+            if (!actualesSet.has(colId)) continue
+            if (orden.includes(colId)) continue
+            orden.push(colId)
+        }
+    }
+
+    for (const colId of colIdsActuales) {
+        if (!orden.includes(colId)) orden.push(colId)
+    }
+
+    return orden
+}
+function aplicarOrdenColumnasAbm(numeroForm, ordenGuardado) {
+
+    const headers = obtenerHeadersReordenablesAbm(numeroForm)
+    if (!headers.length) return []
+
+    const colIdsActuales = headers
+        .map((_, header) => $(header).attr("data-col-id"))
+        .get()
+        .filter((colId) => !!colId)
+    if (!colIdsActuales.length) return []
+
+    const ordenFinal = normalizarOrdenColIdsAbm(ordenGuardado, colIdsActuales)
+    const slotsOrden = headers
+        .map((_, header) => obtenerOrdenColumnaAbm($(header)))
+        .get()
+        .filter((valor) => Number.isFinite(valor))
+        .sort((a, b) => a - b)
+
+    ordenFinal.forEach((colId, indice) => {
+        const nuevoOrden = Number.isFinite(slotsOrden[indice]) ? slotsOrden[indice] : indice
+        $(`#t${numeroForm} [data-col-id="${colId}"]`).each((_, celda) => {
+            celda.style.setProperty("order", `${nuevoOrden}`)
+        })
+    })
+
+    return ordenFinal
+}
+function restaurarOrdenColumnasAbm(numeroForm, objeto) {
+
+    const state = getResizeStateAbm(numeroForm, objeto)
+    const ordenAplicado = aplicarOrdenColumnasAbm(numeroForm, state.orden)
+    state.orden = ordenAplicado
+}
+function normalizarRowIdAbm(valor, indice) {
+
+    const base = sanitizarColIdAbm(valor || `fila_${indice}`)
+    const hash = hashResizeAbm(valor || `fila_${indice}`).slice(0, 8)
+    return `row_${base}_${hash}`
+}
+function obtenerFilaIdAbm(fila, indice) {
+
+    const filaJq = $(fila)
+    const existente = filaJq.attr("data-row-id")
+    if (existente) return existente
+
+    const celdaId = filaJq.children(".celda._id").first()
+    const idInput = celdaId.find("input").val()
+    const idTexto = celdaId.text()?.trim()
+    const idRegistro = idInput || idTexto || filaJq.attr("idregistro") || filaJq.attr("fila")
+
+    return normalizarRowIdAbm(idRegistro, indice)
+}
+function obtenerFilasReordenablesAbm(numeroForm) {
+
+    return $(`#t${numeroForm} .table .tr.fila`).filter((_, fila) => $(fila).is(":visible"))
+}
+function asignarRowIdsAbm(numeroForm) {
+
+    const filas = $(`#t${numeroForm} .table .tr.fila`)
+    const usados = new Set()
+
+    filas.each((indice, fila) => {
+        let rowId = obtenerFilaIdAbm(fila, indice)
+        if (!rowId) return
+
+        let intento = 1
+        while (usados.has(rowId)) {
+            rowId = `${rowId}_${intento}`
+            intento++
+        }
+
+        usados.add(rowId)
+        $(fila).attr("data-row-id", rowId)
+    })
+}
+function normalizarOrdenFilasAbm(ordenGuardado, rowIdsActuales) {
+
+    const actualesSet = new Set(rowIdsActuales)
+    const orden = []
+
+    if (Array.isArray(ordenGuardado)) {
+        for (const rowId of ordenGuardado) {
+            if (!actualesSet.has(rowId)) continue
+            if (orden.includes(rowId)) continue
+            orden.push(rowId)
+        }
+    }
+
+    for (const rowId of rowIdsActuales) {
+        if (!orden.includes(rowId)) orden.push(rowId)
+    }
+
+    return orden
+}
+function aplicarOrdenFilasAbm(numeroForm, ordenGuardado) {
+
+    const tabla = $(`#t${numeroForm} .table`)
+    if (!tabla.length) return []
+
+    const filas = tabla.children(".tr.fila")
+    if (!filas.length) return []
+
+    const rowIdsActuales = filas
+        .map((_, fila) => $(fila).attr("data-row-id"))
+        .get()
+        .filter((rowId) => !!rowId)
+    if (!rowIdsActuales.length) return []
+
+    const ordenFinal = normalizarOrdenFilasAbm(ordenGuardado, rowIdsActuales)
+    const hayOrdenGuardado = Array.isArray(ordenGuardado) && ordenGuardado.length > 0
+    if (!hayOrdenGuardado) return ordenFinal
+
+    const mapaFilas = {}
+    filas.each((_, fila) => {
+        const rowId = $(fila).attr("data-row-id")
+        if (!rowId) return
+        ; (mapaFilas[rowId] ??= []).push(fila)
+    })
+
+    const ordenadas = []
+    const usadas = new Set()
+    ordenFinal.forEach((rowId) => {
+        const grupo = mapaFilas[rowId] || []
+        grupo.forEach((fila) => {
+            ordenadas.push(fila)
+            usadas.add(fila)
+        })
+    })
+
+    const restantes = filas.toArray().filter((fila) => !usadas.has(fila))
+    const filasFinales = [...ordenadas, ...restantes]
+    const primeraInput = tabla.children(".tr.input").first()
+
+    if (primeraInput.length) primeraInput.before(filasFinales)
+    else tabla.append(filasFinales)
+
+    return ordenFinal
+}
+function restaurarOrdenFilasAbm(numeroForm, objeto) {
+
+    const state = getResizeStateAbm(numeroForm, objeto)
+    const ordenAplicado = aplicarOrdenFilasAbm(numeroForm, state.filas)
+    state.filas = ordenAplicado
+}
+function insertarHandlesResizeAbm(numeroForm) {
+
+    const tabla = $(`#t${numeroForm}`)
+    if (!tabla.length) return
+
+    tabla.find(`.tr.tituloTablas .th.tituloTablas`).each((_, header) => {
+        const th = $(header)
+        const contenido = th.children(".th-contenido").first()
+
+        if (!th.children(".resize-col-handle").length) {
+            th.append(`<span class="resize-col-handle" title="Arrastrar para cambiar ancho"></span>`)
+        }
+        if (contenido.length && esHeaderReordenableAbm(th) && !contenido.children(".reorder-col-handle").length) {
+            contenido.prepend(`<span class="reorder-col-handle" title="Arrastrar para cambiar orden"></span>`)
+        }
+    })
+
+    tabla.find(`.tr.fila, .tr.input`).each((_, fila) => {
+        const tr = $(fila)
+        if (!tr.children(".resize-row-handle").length) {
+            tr.append(`<span class="resize-row-handle" title="Arrastrar para cambiar alto"></span>`)
+        }
+        if (tr.hasClass("fila") && !tr.children(".reorder-row-handle").length) {
+            tr.append(`<span class="reorder-row-handle" title="Arrastrar para cambiar orden de fila"></span>`)
+        }
+    })
+}
+function restaurarResizeColumnasAbm(numeroForm, objeto) {
+
+    const state = getResizeStateAbm(numeroForm, objeto)
+    const columnas = state?.columnas || {}
+    $.each(columnas, (referenciaColumna, ancho) => {
+        aplicarAnchoColumnaAbm(numeroForm, referenciaColumna, ancho)
+    })
+}
+function limpiarPreviewDropAbm(numeroForm) {
+
+    $(`#t${numeroForm} .drop-preview-before, #t${numeroForm} .drop-preview-after`).removeClass("drop-preview-before drop-preview-after")
+}
+function marcarPreviewDropAbm(numeroForm, evt, tipo) {
+
+    limpiarPreviewDropAbm(numeroForm)
+    const related = $(evt?.related)
+    if (!related.length) return
+
+    if (tipo === "columna" && !related.hasClass("th")) return
+    if (tipo === "fila" && !related.hasClass("fila")) return
+
+    related.addClass(evt?.willInsertAfter ? "drop-preview-after" : "drop-preview-before")
+}
+function inicializarReordenamientoColumnasAbm(numeroForm, objeto) {
+
+    const filaTitulos = document.querySelector(`#t${numeroForm} .tr.tituloTablas`)
+    if (!filaTitulos) return
+
+    if (sortableColumnasAbm[numeroForm]?.destroy) {
+        sortableColumnasAbm[numeroForm].destroy()
+    }
+
+    const headersReordenables = obtenerHeadersReordenablesAbm(numeroForm)
+    if (headersReordenables.length < 2) {
+        delete sortableColumnasAbm[numeroForm]
+        return
+    }
+
+    const state = getResizeStateAbm(numeroForm, objeto)
+    sortableColumnasAbm[numeroForm] = new Sortable(filaTitulos, {
+        animation: 120,
+        draggable: ".th.tituloTablas:not(.logicoAprobacion):not(.oculto):not(.ocultoSeguridad):not(.ocultoSiempre):not([oculto='true'])",
+        handle: ".reorder-col-handle",
+        filter: ".resize-col-handle",
+        preventOnFilter: false,
+        direction: "horizontal",
+        swapThreshold: 0.35,
+        invertSwap: true,
+        ghostClass: "sortable-ghost-item",
+        chosenClass: "sortable-chosen-item",
+        dragClass: "sortable-drag-item",
+        onStart: () => {
+            $(`#t${numeroForm}`).addClass("reordering-col")
+            limpiarPreviewDropAbm(numeroForm)
+        },
+        onMove: (evt) => {
+            marcarPreviewDropAbm(numeroForm, evt, "columna")
+            return true
+        },
+        onEnd: () => {
+            const nuevaSecuencia = $(filaTitulos)
+                .children(".th.tituloTablas")
+                .filter((_, header) => esHeaderReordenableAbm($(header)))
+                .map((_, header) => $(header).attr("data-col-id"))
+                .get()
+                .filter((colId) => !!colId)
+
+            state.orden = aplicarOrdenColumnasAbm(numeroForm, nuevaSecuencia)
+            guardarResizeCookieAbm(state)
+            limpiarPreviewDropAbm(numeroForm)
+            $(`#t${numeroForm}`).removeClass("reordering-col")
+        }
+    })
+}
+function inicializarReordenamientoFilasAbm(numeroForm, objeto) {
+
+    const contenedorFilas = document.querySelector(`#t${numeroForm} .table`)
+    if (!contenedorFilas) return
+
+    if (sortableFilasAbm[numeroForm]?.destroy) {
+        sortableFilasAbm[numeroForm].destroy()
+    }
+
+    const filasReordenables = obtenerFilasReordenablesAbm(numeroForm)
+    if (filasReordenables.length < 2) {
+        delete sortableFilasAbm[numeroForm]
+        return
+    }
+
+    const state = getResizeStateAbm(numeroForm, objeto)
+    sortableFilasAbm[numeroForm] = new Sortable(contenedorFilas, {
+        animation: 120,
+        draggable: ".tr.fila[data-row-id]",
+        handle: ".reorder-row-handle",
+        filter: ".resize-row-handle",
+        preventOnFilter: false,
+        direction: "vertical",
+        swapThreshold: 0.35,
+        invertSwap: true,
+        ghostClass: "sortable-ghost-item",
+        chosenClass: "sortable-chosen-item",
+        dragClass: "sortable-drag-item",
+        onStart: () => {
+            $(`#t${numeroForm}`).addClass("reordering-row")
+            limpiarPreviewDropAbm(numeroForm)
+        },
+        onMove: (evt) => {
+            marcarPreviewDropAbm(numeroForm, evt, "fila")
+            return true
+        },
+        onEnd: () => {
+            const ordenActual = $(contenedorFilas)
+                .children(".tr.fila[data-row-id]")
+                .map((_, fila) => $(fila).attr("data-row-id"))
+                .get()
+                .filter((rowId) => !!rowId)
+
+            state.filas = aplicarOrdenFilasAbm(numeroForm, ordenActual)
+            guardarResizeCookieAbm(state)
+            limpiarPreviewDropAbm(numeroForm)
+            $(`#t${numeroForm}`).removeClass("reordering-row")
+        }
+    })
+}
+function inicializarResizeTablaAbm(numeroForm, objeto) {
+
+    const tabla = $(`#t${numeroForm}`)
+    if (!tabla.length) return
+
+    insertarHandlesResizeAbm(numeroForm)
+    asignarColIdsAbm(numeroForm)
+    asignarRowIdsAbm(numeroForm)
+    restaurarOrdenColumnasAbm(numeroForm, objeto)
+    restaurarOrdenFilasAbm(numeroForm, objeto)
+    restaurarResizeColumnasAbm(numeroForm, objeto)
+    inicializarReordenamientoColumnasAbm(numeroForm, objeto)
+    inicializarReordenamientoFilasAbm(numeroForm, objeto)
+
+    tabla.off(".resizeAbm")
+    $(document).off(`.resizeAbm${numeroForm}`)
+
+    const state = getResizeStateAbm(numeroForm, objeto)
+    let drag = null
+
+    const terminarDrag = () => {
+        drag = null
+        tabla.removeClass("resizing-col resizing-row")
+        document.body.style.cursor = ""
+    }
+
+    tabla.on("mousedown.resizeAbm", ".resize-col-handle", (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+
+        const th = $(e.currentTarget).closest(".th.tituloTablas")
+        const referenciaColumna = th.attr("data-col-id") || obtenerOrdenColumnaAbm(th)
+        if (referenciaColumna == null) return
+
+        drag = {
+            tipo: "columna",
+            numeroForm,
+            referenciaColumna,
+            start: e.pageX,
+            sizeInicial: obtenerAnchoInicialColumnaAbm(th)
+        }
+        tabla.addClass("resizing-col")
+        document.body.style.cursor = "col-resize"
+    })
+
+    tabla.on("mousedown.resizeAbm", ".resize-row-handle", (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+
+        const fila = $(e.currentTarget).closest(".tr")
+        if (!fila.length) return
+
+        drag = {
+            tipo: "fila",
+            fila,
+            start: e.pageY,
+            sizeInicial: fila.outerHeight() || 32
+        }
+        tabla.addClass("resizing-row")
+        document.body.style.cursor = "row-resize"
+    })
+
+    $(document).on(`mousemove.resizeAbm${numeroForm}`, (e) => {
+        if (!drag) return
+        e.preventDefault()
+
+        if (drag.tipo === "columna") {
+            const nuevoAncho = drag.sizeInicial + (e.pageX - drag.start)
+            aplicarAnchoColumnaAbm(drag.numeroForm, drag.referenciaColumna, nuevoAncho)
+            state.columnas[drag.referenciaColumna] = Math.max(80, Math.round(nuevoAncho))
+            return
+        }
+
+        const nuevoAlto = drag.sizeInicial + (e.pageY - drag.start)
+        aplicarAlturaFilaAbm(drag.fila, nuevoAlto)
+    })
+
+    $(document).on(`mouseup.resizeAbm${numeroForm}`, () => {
+        if (!drag) return
+
+        if (drag.tipo === "columna") {
+            guardarResizeCookieAbm(state)
+        }
+        terminarDrag()
     })
 }
 function sorteableAbm(objeto, numeroForm) {

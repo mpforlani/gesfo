@@ -35,6 +35,7 @@ let variablesModelo = {
     subCategoriaProducto: variablesModeloInventarios.subCategoriaProducto,
     almacen: variablesModeloInventarios.almacen,
     marca: variablesModeloInventarios.marca,
+    ubicaciones: variablesModeloInventarios.ubicaciones,
     entradaInventario: variablesModeloInventarios.entradaInventario,
     salidaInventario: variablesModeloInventarios.salidaInventario,
     operacionStock: variablesModeloInventarios.operacionStock,
@@ -151,4 +152,7 @@ let variablesFusionadas = {
 
 
 }
+
+
+
 

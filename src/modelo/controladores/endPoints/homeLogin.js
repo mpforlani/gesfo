@@ -124,7 +124,6 @@ router.get('/home', asegurarAutenticado, async (req, res) => {
         { userNombre: req.user.name, username: req.user.usernameUser, userPermisos: req.user.grupoSeguridad });
 
 });
-
 router.get('/api/user', (req, res) => {
     res.json({
         nombre: req.user.name,

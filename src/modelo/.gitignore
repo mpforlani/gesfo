@@ -1,3 +1,9 @@
+node_modules/
+src/.env
+gesFin.docx
+scripts/
+src/uploads/
+src/mainTree/front/uploads/
 front/css/style.css
 front/css/style.css.map
 .env.testing

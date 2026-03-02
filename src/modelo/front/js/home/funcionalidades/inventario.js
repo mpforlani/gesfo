@@ -76,6 +76,7 @@ let variablesModeloInventarios = {
                 NS("numerador"),
                 FH(),
                 P({ nombre: "almacen", clase: "requerido" }),
+                P({ nombre: "ubicaciones", clase: "requerido" }),
                 PPE({ nombre: "operacionStock", opciones: ["Entrada", "Ajuste"], clase: "requerido" }),
                 P({ nombre: "proveedor", clase: "requerido" }),
                 T({ nombre: "remito", clase: "requerido textoCentrado" }),
@@ -83,7 +84,7 @@ let variablesModeloInventarios = {
                 TF("observaciones"),
                 adjunto,
             ],
-            titulos: ["Número", "Fecha", "Almacen", "Operación", "Proveedor", "Remito Proveedor", `movimientoStock`, "Observaciones", "Adjunto"],
+            titulos: ["Número", "Fecha", "Almacen", "Ubicacion", "Operación", "Proveedor", "Remito Proveedor", `movimientoStock`, "Observaciones", "Adjunto"],
             cabeceraAbm: {
                 select: [
                     {
@@ -306,7 +307,7 @@ let variablesModeloInventarios = {
                 TF("observaciones"),
                 adjunto
             ],
-            titulos: ["Número", "Fecha", "Almacen", "Operación", "Cliente", "movimientoStock", "Observaciones", "Adjunto"],
+            titulos: ["Número", "Fecha", "Almacen", "Operaci�n", "Cliente", "movimientoStock", "Observaciones", "Adjunto"],
             cabeceraAbm: {
                 select: [
                     {
@@ -640,6 +641,18 @@ let variablesModeloInventarios = {
         accion: `almacen`,
         type: "parametrica"
     },
+    ubicaciones: {
+        atributos: {
+            names: [T({ nombre: "name", clase: "requerido" }), P({ nombre: "almacen", clase: "requerido" }), TA("observacionesCompleto"), habilitado],
+            titulos: ["Nombre", "Almacen", "Descripcion"],
+            eliminar: false,
+            deshabilitar: true,
+        },
+        key: "name",
+        pest: `Ubicaciones`,
+        accion: `ubicaciones`,
+        type: "parametrica"
+    },
     marca: {
         atributos: {
             names: [T({ nombre: "name", clase: "requerido" }), TA("observacionesCompleto"), habilitado],
@@ -709,3 +722,11 @@ let variablesModeloInventarios = {
         type: "parametrica"
     }
 }
+
+
+
+
+
+
+
+

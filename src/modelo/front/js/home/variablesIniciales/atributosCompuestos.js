@@ -825,6 +825,17 @@ const movimientoStock = {
   },
   titulosComponentes: ["Cantidad", "Unidad", "Producto", "Fecha vencimiento", "Codigo", "Estado", "Disponibles", "Salidas", "Descripción", "idComprobante"],
 };
+const movimientoUbicaciones = {
+  titulos: `Movimiento Ubicaciones`,
+  nombre: `movimientoUbicaciones`,
+  type: `coleccionInd`,
+  componentes: {
+    ubicacionOrigen: P({ nombre: "ubicacionOrigen", origen: "ubicaciones", clase: "requerido" }),
+    producto: P({ nombre: "producto", clase: "requerido" }),
+    ubicacionDestino: P({ nombre: "ubicacionDestino", origen: "ubicaciones", clase: "requerido" }),
+  },
+  titulosComponentes: ["Ubicacion origen", "Producto", "Ubicacion destino"],
+};
 const costosInventarios = {
   titulos: `Lista de precios`,
   nombre: `costosInventarios`,
@@ -1078,3 +1089,5 @@ const tiposComprobante = {
     notaCredito: 203
   }
 }
+
+

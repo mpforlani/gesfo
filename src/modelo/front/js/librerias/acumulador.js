@@ -89,7 +89,7 @@ function acumuladorUpdate(acum, fileEnviar, objeto) {
     acumulador.agrupadores.name = acum.nombre
     let ano = obtenerAno(respuesta.fecha)
     let mes = obtenerMes(respuesta.fecha)
-    acumulador.agrupadores.periodo = `${ano}${mes}`
+    acumulador.agrupadores.periodo = `${ano}${String(mes).padStart(2, "0")}`
     acumulador.agrupadores.entidad = objeto.accion
     acumulador.date = respuesta.date
     acumulador.username = respuesta.username
@@ -109,7 +109,7 @@ function acumuladorUpdate(acum, fileEnviar, objeto) {
     acumulador.agrupadores.empresa = empresaSeleccionada?._id || ""
     let anoActual = obtenerAno(new Date())
     let mesActual = obtenerMes(new Date())
-    let periodoActual = `${anoActual}${mesActual}`
+    let periodoActual = `${anoActual}${String(mesActual).padStart(2, "0")}`
 
     $.ajax({
         type: "put",
@@ -160,7 +160,7 @@ function acumuladorUpdateEdit(acum, fileEnviar, objeto) {
     acumuladorAnterior.agrupadores.name = acum.nombre
     let anoAnterior = obtenerAno(respuestaAnterior.fecha)
     let mesAnterior = obtenerMes(respuestaAnterior.fecha)
-    acumuladorAnterior.agrupadores.periodo = `${anoAnterior}${mesAnterior}`
+    acumuladorAnterior.agrupadores.periodo = `${anoAnterior}${String(mesAnterior).padStart(2, "0")}`
     acumuladorAnterior.agrupadores.entidad = objeto.accion
     acumuladorAnterior.date = respuestaAnterior.date
     acumuladorAnterior.username = respuestaAnterior.username
@@ -173,13 +173,13 @@ function acumuladorUpdateEdit(acum, fileEnviar, objeto) {
     acumulador.agrupadores.name = acum.nombre
     let ano = obtenerAno(ultimaRespuesta.fecha)
     let mes = obtenerMes(ultimaRespuesta.fecha)
-    acumulador.agrupadores.periodo = `${ano}${mes}`
+    acumulador.agrupadores.periodo = `${ano}${String(mes).padStart(2, "0")}`
     acumulador.agrupadores.entidad = objeto.accion
     acumulador.date = ultimaRespuesta.date
     acumulador.username = ultimaRespuesta.username
     let anoActual = obtenerAno(new Date())
     let mesActual = obtenerMes(new Date())
-    let periodoActual = `${anoActual}${mesActual}`
+    let periodoActual = `${anoActual}${String(mesActual).padStart(2, "0")}`
 
     let change = ""
 
@@ -306,13 +306,13 @@ function acumuladorUpdateDelete(acum, fileEnviar, objeto) {
     acumulador.agrupadores.name = acum.nombre
     let ano = obtenerAno(respuesta.fecha)
     let mes = obtenerMes(respuesta.fecha)
-    acumulador.agrupadores.periodo = `${ano}${mes}`
+    acumulador.agrupadores.periodo = `${ano}${String(mes).padStart(2, "0")}`
     acumulador.date = respuesta.date
     acumulador._id = respuesta._id
     acumulador.username = respuesta.username
     let anoActual = obtenerAno(new Date())
     let mesActual = obtenerMes(new Date())
-    let periodoActual = `${anoActual}${mesActual}`
+    let periodoActual = `${anoActual}${String(mesActual).padStart(2, "0")}`
     $.each(acum.atributosSuma, (indice, value) => {
 
         acumulador.atributosNoRequeridos[indice] = (respuesta[value.nombre || value]) * -1

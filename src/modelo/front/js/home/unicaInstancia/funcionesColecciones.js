@@ -1366,7 +1366,7 @@ function consultaStock(objeto, numeroForm) {
         }
         let anoActual = obtenerAno(new Date());
         let mesActual = obtenerMes(new Date());
-        let periodoActual = `${anoActual}${mesActual}`;
+        let periodoActual = `${anoActual}${String(mesActual).padStart(2, "0")}`;
         console.log(periodoActual)
         detalleFiltroAtributos.periodo = periodoActual;
         detalleFiltroAtributos.name = "Existencias";

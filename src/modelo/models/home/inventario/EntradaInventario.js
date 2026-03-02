@@ -10,6 +10,12 @@ const EntradaInventarioSchema = new Schema({
         sparse: true,
         default: ""
     },
+    ubicaciones: {
+        type: String,
+        ref: "ubicaciones",
+        sparse: true,
+        default: ""
+    },
     operacionStock: { type: String },
     proveedor: {
         type: String,

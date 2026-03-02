@@ -241,6 +241,767 @@ function cabeceraSimple(objeto, numeroForm) {
     cab.appendTo('#comandera');
 
 }
+const resizeTablaReportesState = {}
+const sortableColumnasReportes = {}
+const sortableFilasReportes = {}
+const resizeCookiePrefixReportes = "gf_resize_rep_v1"
+function hashResizeReporte(texto) {
+
+    let hash = 5381
+    const str = `${texto || ""}`
+    for (let i = 0; i < str.length; i++) {
+        hash = ((hash << 5) + hash) + str.charCodeAt(i)
+    }
+    return (hash >>> 0).toString(36)
+}
+function sanitizarColIdReporte(texto) {
+
+    const limpio = `${texto || "col"}`
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, "_")
+        .replace(/[^a-z0-9_-]/g, "")
+    return limpio || "col"
+}
+function normalizarOrdenDesdeCookieReporte(valor) {
+
+    if (Array.isArray(valor)) {
+        return valor.map((v) => `${v}`).filter((v) => v !== "")
+    }
+
+    if (valor && typeof valor === "object") {
+        return Object.entries(valor)
+            .sort((a, b) => (parseInt(a[1], 10) || 0) - (parseInt(b[1], 10) || 0))
+            .map(([colId]) => `${colId}`)
+            .filter((v) => v !== "")
+    }
+
+    if (typeof valor === "string") {
+        return valor
+            .split(",")
+            .map((v) => v.trim())
+            .filter((v) => v !== "")
+    }
+
+    return []
+}
+function esReferenciaIndiceReporte(ref) {
+
+    if (typeof ref === "number") return Number.isFinite(ref)
+    if (typeof ref !== "string") return false
+
+    const texto = ref.trim()
+    if (texto === "") return false
+
+    return /^-?\d+$/.test(texto)
+}
+function esHeaderDraggeableReporte(th) {
+
+    if (!th?.length) return false
+    if (th.hasClass("_id") || th.hasClass("oculto") || th.hasClass("transparent")) return false
+    if (th.attr("oculto") === "true") return false
+    return th.is(":visible")
+}
+function normalizarRowIdReporte(valor, indice) {
+
+    const base = sanitizarColIdReporte(valor || `fila_${indice}`)
+    const hash = hashResizeReporte(valor || `fila_${indice}`).slice(0, 8)
+    return `row_${base}_${hash}`
+}
+function esFilaDraggeableReporte(tr) {
+
+    if (!tr?.length) return false
+    if (tr.hasClass("titulosFila") || tr.hasClass("segunFilaTitulos") || tr.hasClass("filtros") || tr.hasClass("filaTotal")) return false
+    return tr.is(":visible")
+}
+function normalizarTablaStateReporte(rawState) {
+
+    if (!rawState || typeof rawState !== "object" || Array.isArray(rawState)) {
+        return { columnas: {}, orden: [], filas: [] }
+    }
+
+    if (rawState.columnas !== undefined || rawState.orden !== undefined || rawState.filas !== undefined) {
+        return {
+            columnas: (typeof rawState.columnas === "object" && !Array.isArray(rawState.columnas)) ? rawState.columnas : {},
+            orden: normalizarOrdenDesdeCookieReporte(
+                rawState?.orden ??
+                rawState?.order ??
+                rawState?.columnas?.orden
+            ),
+            filas: normalizarOrdenDesdeCookieReporte(
+                rawState?.filas ??
+                rawState?.rows ??
+                rawState?.rowOrder
+            )
+        }
+    }
+
+    return {
+        columnas: rawState,
+        orden: [],
+        filas: []
+    }
+}
+function getTableStateReporte(state, tableKey) {
+
+    const normalizado = normalizarTablaStateReporte(state?.tablas?.[tableKey])
+    state.tablas[tableKey] = normalizado
+    return normalizado
+}
+function obtenerDeviceResizeIdReporte() {
+
+    const key = "gesfin_device_resize_id"
+    try {
+        let id = localStorage.getItem(key)
+        if (!id) {
+            id = `dv_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 10)}`
+            localStorage.setItem(key, id)
+        }
+        return id
+    } catch (error) {
+        return `ua_${hashResizeReporte(navigator.userAgent || "sin_ua")}`
+    }
+}
+function nombreCookieResizeReporte(scopeKey) {
+
+    return `${resizeCookiePrefixReportes}_${hashResizeReporte(scopeKey)}`
+}
+function setCookieResizeReporte(nombre, valor, dias = 365) {
+
+    const ms = dias * 24 * 60 * 60 * 1000
+    const expires = new Date(Date.now() + ms).toUTCString()
+    document.cookie = `${nombre}=${encodeURIComponent(valor)}; expires=${expires}; path=/; SameSite=Lax`
+}
+function getCookieResizeReporte(nombre) {
+
+    const nombreEq = `${nombre}=`
+    const partes = document.cookie.split(";")
+
+    for (const parte of partes) {
+        const c = parte.trim()
+        if (c.indexOf(nombreEq) === 0) {
+            return decodeURIComponent(c.substring(nombreEq.length))
+        }
+    }
+    return ""
+}
+function getScopeResizeReporte(objeto) {
+
+    const usuario = usu || "anonimo"
+    const dispositivo = obtenerDeviceResizeIdReporte()
+    const empresa = empresaSeleccionada?._id || "sin_empresa"
+    const reporte = objeto?.nombre || objeto?.accion || objeto?.pest || "reporte"
+
+    return `${usuario}|${dispositivo}|${empresa}|${reporte}`
+}
+function cargarResizeCookieReporte(scopeKey) {
+
+    try {
+        const nombre = nombreCookieResizeReporte(scopeKey)
+        const valor = getCookieResizeReporte(nombre)
+        if (!valor) return { tablas: {} }
+
+        const parseado = JSON.parse(valor)
+        const tablasParseadas = {}
+        const tablasRaw = parseado?.tablas || {}
+
+        $.each(tablasRaw, (tableKey, tableState) => {
+            tablasParseadas[tableKey] = normalizarTablaStateReporte(tableState)
+        })
+
+        return { tablas: tablasParseadas }
+    } catch (error) {
+        return { tablas: {} }
+    }
+}
+function guardarResizeCookieReporte(state) {
+
+    if (!state?.scopeKey) return
+    const nombre = nombreCookieResizeReporte(state.scopeKey)
+    const payload = JSON.stringify({ tablas: state.tablas || {} })
+    setCookieResizeReporte(nombre, payload, 365)
+}
+function getResizeStateReportes(numeroForm, objeto) {
+
+    if (!resizeTablaReportesState[numeroForm]) {
+        const scopeKey = getScopeResizeReporte(objeto)
+        const persistido = cargarResizeCookieReporte(scopeKey)
+
+        resizeTablaReportesState[numeroForm] = {
+            scopeKey,
+            tablas: persistido.tablas || {}
+        }
+    }
+    return resizeTablaReportesState[numeroForm]
+}
+function obtenerFilaTitulosReporte(tabla) {
+
+    const filaTitulos = tabla.find("tr.titulosFila").first()
+    if (filaTitulos.length) return filaTitulos
+    return tabla.find("tr").first()
+}
+function asignarColIdsTablaReporte(tabla) {
+
+    const filaTitulos = obtenerFilaTitulosReporte(tabla)
+    if (!filaTitulos.length) return
+
+    const headers = filaTitulos.children("th, td")
+    if (!headers.length) return
+
+    const usados = new Set()
+    const mapaIndices = []
+
+    headers.each((indice, header) => {
+        const th = $(header)
+        let colId = th.attr("data-col-id")
+
+        if (!colId) {
+            const refAtributo = th.attr("atributo") || th.attr("colum") || `col_${indice}`
+            const baseId = sanitizarColIdReporte(refAtributo)
+            colId = `${baseId}_${indice}`
+            let intento = 1
+            while (usados.has(colId)) {
+                colId = `${baseId}_${indice}_${intento}`
+                intento++
+            }
+        }
+
+        usados.add(colId)
+        th.attr("data-col-id", colId)
+        mapaIndices[indice] = colId
+    })
+
+    tabla.find("tr").each((_, fila) => {
+        $(fila).children("th, td").each((indice, celda) => {
+            const celdaJq = $(celda)
+            if (celdaJq.attr("data-col-id")) return
+            const colId = mapaIndices[indice]
+            if (!colId) return
+            celdaJq.attr("data-col-id", colId)
+        })
+    })
+}
+function obtenerFilaIdReporte(tr, indice) {
+
+    const fila = $(tr)
+    const existente = fila.attr("data-row-id")
+    if (existente) return existente
+
+    const celdaId = fila.children("td._id, th._id").first()
+    const idInput = celdaId.find("input").val()
+    const idTexto = celdaId.text()?.trim()
+    const atributoFila = fila.attr("fila") || fila.attr("idregistro")
+
+    if (idInput || idTexto || atributoFila) {
+        return normalizarRowIdReporte(idInput || idTexto || atributoFila, indice)
+    }
+
+    const resumenFila = fila.children("td, th").slice(0, 5).map((_, celda) => $(celda).text().trim()).get().join("|")
+    return normalizarRowIdReporte(resumenFila || `fila_${indice}`, indice)
+}
+function asignarRowIdsTablaReporte(tabla) {
+
+    const filas = tabla.children("tr").filter((_, tr) => esFilaDraggeableReporte($(tr)))
+    const usados = new Set()
+
+    filas.each((indice, tr) => {
+        let rowId = obtenerFilaIdReporte(tr, indice)
+        if (!rowId) return
+
+        let intento = 1
+        while (usados.has(rowId)) {
+            rowId = `${rowId}_${intento}`
+            intento++
+        }
+
+        usados.add(rowId)
+        $(tr).attr("data-row-id", rowId)
+    })
+}
+function obtenerOrdenHeadersDragReporte(tabla) {
+
+    const filaTitulos = obtenerFilaTitulosReporte(tabla)
+    if (!filaTitulos.length) return []
+
+    return filaTitulos
+        .children("th, td")
+        .filter((_, header) => esHeaderDraggeableReporte($(header)))
+        .map((_, header) => $(header).attr("data-col-id"))
+        .get()
+        .filter((colId) => !!colId)
+}
+function obtenerOrdenFilasDragReporte(tabla) {
+
+    return tabla
+        .children("tr")
+        .filter((_, tr) => esFilaDraggeableReporte($(tr)))
+        .map((_, tr) => $(tr).attr("data-row-id"))
+        .get()
+        .filter((rowId) => !!rowId)
+}
+function normalizarOrdenColIdsReporte(ordenGuardado, colIdsActuales) {
+
+    const actualesSet = new Set(colIdsActuales)
+    const orden = []
+
+    if (Array.isArray(ordenGuardado)) {
+        for (const colId of ordenGuardado) {
+            if (!actualesSet.has(colId)) continue
+            if (orden.includes(colId)) continue
+            orden.push(colId)
+        }
+    }
+
+    for (const colId of colIdsActuales) {
+        if (!orden.includes(colId)) orden.push(colId)
+    }
+
+    return orden
+}
+function normalizarOrdenFilasReporte(ordenGuardado, rowIdsActuales) {
+
+    const actualesSet = new Set(rowIdsActuales)
+    const orden = []
+
+    if (Array.isArray(ordenGuardado)) {
+        for (const rowId of ordenGuardado) {
+            if (!actualesSet.has(rowId)) continue
+            if (orden.includes(rowId)) continue
+            orden.push(rowId)
+        }
+    }
+
+    for (const rowId of rowIdsActuales) {
+        if (!orden.includes(rowId)) orden.push(rowId)
+    }
+
+    return orden
+}
+function aplicarOrdenTablaReporte(tabla, ordenGuardado) {
+
+    asignarColIdsTablaReporte(tabla)
+    const colIdsActuales = obtenerOrdenHeadersDragReporte(tabla)
+    if (!colIdsActuales.length) return []
+
+    const hayOrdenGuardado = Array.isArray(ordenGuardado) && ordenGuardado.length > 0
+    const ordenFinal = normalizarOrdenColIdsReporte(ordenGuardado, colIdsActuales)
+    if (!hayOrdenGuardado) return ordenFinal
+
+    const idsOrdenados = new Set(ordenFinal)
+    tabla.find("tr").each((_, fila) => {
+        const tr = $(fila)
+        const celdas = tr.children("th, td").toArray()
+        if (!celdas.length) return
+
+        const porId = {}
+        celdas.forEach((celda) => {
+            const colId = celda.getAttribute("data-col-id")
+            if (!colId) return
+            ; (porId[colId] ??= []).push(celda)
+        })
+
+        const usadas = new Set()
+        const ordenadas = []
+        ordenFinal.forEach((colId) => {
+            const grupo = porId[colId] || []
+            grupo.forEach((celda) => {
+                ordenadas.push(celda)
+                usadas.add(celda)
+            })
+        })
+
+        const restantes = celdas.filter((celda) => {
+            const colId = celda.getAttribute("data-col-id")
+            if (!colId) return true
+            if (!idsOrdenados.has(colId)) return true
+            return !usadas.has(celda)
+        })
+
+        tr.append([...ordenadas, ...restantes])
+    })
+
+    return ordenFinal
+}
+function aplicarOrdenFilasTablaReporte(tabla, ordenGuardado) {
+
+    asignarRowIdsTablaReporte(tabla)
+    const filasActuales = tabla.children("tr").filter((_, tr) => esFilaDraggeableReporte($(tr)))
+    if (!filasActuales.length) return []
+
+    const rowIdsActuales = filasActuales
+        .map((_, fila) => $(fila).attr("data-row-id"))
+        .get()
+        .filter((rowId) => !!rowId)
+    if (!rowIdsActuales.length) return []
+
+    const ordenFinal = normalizarOrdenFilasReporte(ordenGuardado, rowIdsActuales)
+    const hayOrdenGuardado = Array.isArray(ordenGuardado) && ordenGuardado.length > 0
+    if (!hayOrdenGuardado) return ordenFinal
+
+    const mapaFilas = {}
+    filasActuales.each((_, fila) => {
+        const rowId = $(fila).attr("data-row-id")
+        if (!rowId) return
+        ; (mapaFilas[rowId] ??= []).push(fila)
+    })
+
+    const ordenadas = []
+    const usadas = new Set()
+    ordenFinal.forEach((rowId) => {
+        const grupo = mapaFilas[rowId] || []
+        grupo.forEach((fila) => {
+            ordenadas.push(fila)
+            usadas.add(fila)
+        })
+    })
+
+    const restantes = filasActuales.toArray().filter((fila) => !usadas.has(fila))
+    const filasFinales = [...ordenadas, ...restantes]
+    const filaTotal = tabla.children("tr.filaTotal").first()
+
+    if (filaTotal.length) filaTotal.before(filasFinales)
+    else tabla.append(filasFinales)
+
+    return ordenFinal
+}
+function obtenerAnchoInicialColumnaReporte(th) {
+
+    if (!th?.length) return 120
+
+    const el = th.get(0)
+    const styles = window.getComputedStyle(el)
+    const maxWidth = parseFloat(styles.maxWidth)
+    if (!Number.isNaN(maxWidth) && Number.isFinite(maxWidth) && maxWidth > 0) return maxWidth
+
+    const width = parseFloat(styles.width)
+    if (!Number.isNaN(width) && Number.isFinite(width) && width > 0) return width
+
+    return th.outerWidth() || 120
+}
+function aplicarAnchoColumnaReporte(tabla, referenciaColumna, anchoPx) {
+
+    const ancho = Math.max(80, Math.round(anchoPx))
+    let columnas = $()
+
+    if (!esReferenciaIndiceReporte(referenciaColumna)) {
+        columnas = tabla.find(`[data-col-id="${referenciaColumna}"]`)
+    }
+
+    if (!columnas.length && esReferenciaIndiceReporte(referenciaColumna)) {
+        const indiceColumna = parseInt(referenciaColumna, 10)
+        tabla.find("tr").each((_, fila) => {
+            const celda = $(fila).children("th, td").eq(indiceColumna)
+            if (!celda.length) return
+            columnas = columnas.add(celda)
+        })
+    }
+
+    if (!columnas.length) return
+
+    columnas.each((_, celda) => {
+        celda.style.setProperty("width", `${ancho}px`, "important")
+        celda.style.setProperty("min-width", `${ancho}px`, "important")
+        celda.style.setProperty("max-width", `${ancho}px`, "important")
+        celda.style.setProperty("flex", `0 0 ${ancho}px`, "important")
+    })
+}
+function aplicarAlturaFilaReporte(fila, altoPx) {
+
+    const alto = Math.max(28, Math.round(altoPx))
+    const elFila = fila.get(0)
+    if (elFila) {
+        elFila.style.setProperty("height", `${alto}px`, "important")
+        elFila.style.setProperty("min-height", `${alto}px`, "important")
+    }
+
+    fila.children("th, td").each((_, celda) => {
+        celda.style.setProperty("height", `${alto}px`, "important")
+        celda.style.setProperty("min-height", `${alto}px`, "important")
+    })
+}
+function getResizeTableKey(table, index) {
+
+    return table.attr("tablaref") || `index_${index}`
+}
+function insertarHandlesResizeReportes(numeroForm) {
+
+    const contenedor = $(`#t${numeroForm}`)
+    if (!contenedor.length) return
+
+    contenedor.find("table").each((indiceTabla, t) => {
+        const tabla = $(t)
+        tabla.attr("data-resize-key", getResizeTableKey(tabla, indiceTabla))
+        asignarColIdsTablaReporte(tabla)
+        asignarRowIdsTablaReporte(tabla)
+
+        const filaTitulos = obtenerFilaTitulosReporte(tabla)
+        const headers = filaTitulos.children("th, td")
+        headers.each((_, header) => {
+            const th = $(header)
+            let contenido = th.children(".th-contenido").first()
+
+            if (!contenido.length) {
+                const envoltorio = $(`<div class="th-contenido"></div>`)
+                th.contents().each((__, nodo) => {
+                    if (nodo.nodeType === 1 && $(nodo).hasClass("resize-col-handle")) return
+                    envoltorio.append(nodo)
+                })
+                th.append(envoltorio)
+                contenido = envoltorio
+            }
+
+            if (!th.children(".resize-col-handle").length) {
+                th.append(`<span class="resize-col-handle" title="Arrastrar para cambiar ancho"></span>`)
+            }
+            if (contenido.length && esHeaderDraggeableReporte(th) && !contenido.children(".reorder-col-handle").length) {
+                contenido.prepend(`<span class="reorder-col-handle" title="Arrastrar para cambiar orden"></span>`)
+            }
+        })
+
+        tabla.find("tr").not(".titulosFila, .segunFilaTitulos, .filtros").each((_, fila) => {
+            const tr = $(fila)
+            if (!tr.children(".resize-row-handle").length) {
+                tr.append(`<span class="resize-row-handle" title="Arrastrar para cambiar alto"></span>`)
+            }
+            if (esFilaDraggeableReporte(tr) && tr.attr("data-row-id") && !tr.children(".reorder-row-handle").length) {
+                tr.append(`<span class="reorder-row-handle" title="Arrastrar para cambiar orden de fila"></span>`)
+            }
+        })
+    })
+}
+function restaurarResizeReportes(numeroForm, objeto) {
+
+    const state = getResizeStateReportes(numeroForm, objeto)
+    const contenedor = $(`#t${numeroForm}`)
+
+    contenedor.find("table").each((_, t) => {
+        const tabla = $(t)
+        const key = tabla.attr("data-resize-key")
+        if (!key) return
+
+        const tableState = getTableStateReporte(state, key)
+        tableState.orden = aplicarOrdenTablaReporte(tabla, tableState.orden)
+        tableState.filas = aplicarOrdenFilasTablaReporte(tabla, tableState.filas)
+
+        $.each(tableState.columnas, (referenciaColumna, ancho) => {
+            aplicarAnchoColumnaReporte(tabla, referenciaColumna, ancho)
+        })
+    })
+}
+function limpiarPreviewDropReporte(numeroForm) {
+
+    $(`#t${numeroForm} .drop-preview-before, #t${numeroForm} .drop-preview-after`).removeClass("drop-preview-before drop-preview-after")
+}
+function marcarPreviewDropReporte(numeroForm, evt, tipo) {
+
+    limpiarPreviewDropReporte(numeroForm)
+    const related = $(evt?.related)
+    if (!related.length) return
+
+    if (tipo === "columna" && related.closest("tr.titulosFila").length === 0) return
+    if (tipo === "fila" && !esFilaDraggeableReporte(related)) return
+
+    related.addClass(evt?.willInsertAfter ? "drop-preview-after" : "drop-preview-before")
+}
+function inicializarReordenamientoColumnasReportes(numeroForm, objeto) {
+
+    const contenedor = $(`#t${numeroForm}`)
+    const state = getResizeStateReportes(numeroForm, objeto)
+    sortableColumnasReportes[numeroForm] = sortableColumnasReportes[numeroForm] || {}
+
+    contenedor.find("table").each((_, t) => {
+        const tabla = $(t)
+        const tableKey = tabla.attr("data-resize-key")
+        if (!tableKey) return
+
+        const filaTitulos = obtenerFilaTitulosReporte(tabla)
+        if (!filaTitulos.length) return
+
+        if (sortableColumnasReportes[numeroForm]?.[tableKey]?.destroy) {
+            sortableColumnasReportes[numeroForm][tableKey].destroy()
+        }
+
+        const headersDrag = filaTitulos
+            .children("th, td")
+            .filter((_, header) => esHeaderDraggeableReporte($(header)))
+
+        if (headersDrag.length < 2) {
+            delete sortableColumnasReportes[numeroForm][tableKey]
+            return
+        }
+
+        sortableColumnasReportes[numeroForm][tableKey] = new Sortable(filaTitulos.get(0), {
+            animation: 120,
+            draggable: "th:not(._id):not(.oculto):not(.transparent):not([oculto='true'])",
+            handle: ".reorder-col-handle",
+            filter: ".resize-col-handle",
+            preventOnFilter: false,
+            direction: "horizontal",
+            swapThreshold: 0.35,
+            invertSwap: true,
+            ghostClass: "sortable-ghost-item",
+            chosenClass: "sortable-chosen-item",
+            dragClass: "sortable-drag-item",
+            onStart: () => {
+                contenedor.addClass("reordering-col")
+                limpiarPreviewDropReporte(numeroForm)
+            },
+            onMove: (evt) => {
+                marcarPreviewDropReporte(numeroForm, evt, "columna")
+                return true
+            },
+            onEnd: () => {
+                const tableState = getTableStateReporte(state, tableKey)
+                const ordenActual = obtenerOrdenHeadersDragReporte(tabla)
+                tableState.orden = aplicarOrdenTablaReporte(tabla, ordenActual)
+                guardarResizeCookieReporte(state)
+                limpiarPreviewDropReporte(numeroForm)
+                contenedor.removeClass("reordering-col")
+            }
+        })
+    })
+}
+function inicializarReordenamientoFilasReportes(numeroForm, objeto) {
+
+    const contenedor = $(`#t${numeroForm}`)
+    const state = getResizeStateReportes(numeroForm, objeto)
+    sortableFilasReportes[numeroForm] = sortableFilasReportes[numeroForm] || {}
+
+    contenedor.find("table").each((_, t) => {
+        const tabla = $(t)
+        const tableKey = tabla.attr("data-resize-key")
+        if (!tableKey) return
+
+        if (sortableFilasReportes[numeroForm]?.[tableKey]?.destroy) {
+            sortableFilasReportes[numeroForm][tableKey].destroy()
+        }
+
+        const filasDrag = tabla.children("tr").filter((_, tr) => esFilaDraggeableReporte($(tr)) && !!$(tr).attr("data-row-id"))
+        if (filasDrag.length < 2) {
+            delete sortableFilasReportes[numeroForm][tableKey]
+            return
+        }
+
+        sortableFilasReportes[numeroForm][tableKey] = new Sortable(tabla.get(0), {
+            animation: 120,
+            draggable: "tr[data-row-id]:not(.titulosFila):not(.segunFilaTitulos):not(.filtros):not(.filaTotal)",
+            handle: ".reorder-row-handle",
+            filter: ".resize-row-handle",
+            preventOnFilter: false,
+            direction: "vertical",
+            swapThreshold: 0.35,
+            invertSwap: true,
+            ghostClass: "sortable-ghost-item",
+            chosenClass: "sortable-chosen-item",
+            dragClass: "sortable-drag-item",
+            onStart: () => {
+                contenedor.addClass("reordering-row")
+                limpiarPreviewDropReporte(numeroForm)
+            },
+            onMove: (evt) => {
+                marcarPreviewDropReporte(numeroForm, evt, "fila")
+                return true
+            },
+            onEnd: () => {
+                const tableState = getTableStateReporte(state, tableKey)
+                const ordenActual = obtenerOrdenFilasDragReporte(tabla)
+                tableState.filas = aplicarOrdenFilasTablaReporte(tabla, ordenActual)
+                guardarResizeCookieReporte(state)
+                limpiarPreviewDropReporte(numeroForm)
+                contenedor.removeClass("reordering-row")
+            }
+        })
+    })
+}
+function inicializarResizeTablaReportes(numeroForm, objeto) {
+
+    const contenedor = $(`#t${numeroForm}`)
+    if (!contenedor.length) return
+
+    insertarHandlesResizeReportes(numeroForm)
+    restaurarResizeReportes(numeroForm, objeto)
+    inicializarReordenamientoColumnasReportes(numeroForm, objeto)
+    inicializarReordenamientoFilasReportes(numeroForm, objeto)
+
+    contenedor.off(".resizeRep")
+    $(document).off(`.resizeRep${numeroForm}`)
+
+    const state = getResizeStateReportes(numeroForm, objeto)
+    let drag = null
+
+    const terminarDrag = () => {
+        drag = null
+        contenedor.removeClass("resizing-col resizing-row")
+        document.body.style.cursor = ""
+    }
+
+    contenedor.on("mousedown.resizeRep", ".resize-col-handle", (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+
+        const th = $(e.currentTarget).closest("th, td")
+        const tabla = th.closest("table")
+        if (!th.length || !tabla.length) return
+
+        const tableKey = tabla.attr("data-resize-key")
+        if (!tableKey) return
+
+        const referenciaColumna = th.attr("data-col-id") || th.index()
+        drag = {
+            tipo: "columna",
+            tabla,
+            tableKey,
+            referenciaColumna,
+            start: e.pageX,
+            sizeInicial: obtenerAnchoInicialColumnaReporte(th)
+        }
+        contenedor.addClass("resizing-col")
+        document.body.style.cursor = "col-resize"
+    })
+
+    contenedor.on("mousedown.resizeRep", ".resize-row-handle", (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+
+        const fila = $(e.currentTarget).closest("tr")
+        if (!fila.length) return
+
+        drag = {
+            tipo: "fila",
+            fila,
+            start: e.pageY,
+            sizeInicial: fila.outerHeight() || 32
+        }
+        contenedor.addClass("resizing-row")
+        document.body.style.cursor = "row-resize"
+    })
+
+    $(document).on(`mousemove.resizeRep${numeroForm}`, (e) => {
+        if (!drag) return
+        e.preventDefault()
+
+        if (drag.tipo === "columna") {
+            const nuevoAncho = drag.sizeInicial + (e.pageX - drag.start)
+            aplicarAnchoColumnaReporte(drag.tabla, drag.referenciaColumna, nuevoAncho)
+
+            const tableState = getTableStateReporte(state, drag.tableKey)
+            tableState.columnas[drag.referenciaColumna] = Math.max(80, Math.round(nuevoAncho))
+            return
+        }
+
+        const nuevoAlto = drag.sizeInicial + (e.pageY - drag.start)
+        aplicarAlturaFilaReporte(drag.fila, nuevoAlto)
+    })
+
+    $(document).on(`mouseup.resizeRep${numeroForm}`, () => {
+        if (!drag) return
+
+        if (drag.tipo === "columna") {
+            guardarResizeCookieReporte(state)
+        }
+        terminarDrag()
+    })
+}
 ////Funciones base
 function administrarAtributoTabla(objeto, numeroForm, mo) {
 
@@ -580,6 +1341,7 @@ function administrarAtributoTabla(objeto, numeroForm, mo) {
     $(`#t${numeroForm}`).data("orden-ready", true);
     let alto = $(`#t${numeroForm} tr.titulosFila`).height()
     $(`#t${numeroForm} tr.filtros`).css({ "top": `${alto}px` })
+    inicializarResizeTablaReportes(numeroForm, objeto)
 
 
 }

@@ -13,6 +13,55 @@ const mesesTitulo = {
     12: "Dic",
 
 }
+
+function normalizarMonedaReporte(moneda) {
+
+    if (!moneda) return "";
+
+    return moneda
+        .toString()
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+}
+
+function aplicarMonedaSegunFilaReporte(tablaCreada) {
+
+    if (!tablaCreada?.length) return;
+
+    const filas = $("tr.fila, tr.itemsTabla", tablaCreada);
+
+    $.each(filas, (_, fila) => {
+
+        const filaActual = $(fila);
+        const celdaMoneda = $("td[atributo='monedaComp'], td[atributo='moneda'], td.monedaComp, td.moneda", filaActual).first();
+        const monedaNormalizada = normalizarMonedaReporte(celdaMoneda.text());
+
+        if (!monedaNormalizada) return;
+
+        $("td[type='importe'], td[type='numero'], td.saldo", filaActual).attr("moneda", monedaNormalizada);
+
+        $("td.mesItems div[type='importe'], td.mesItems div[type='numero'], td.anteriores div[type='importe'], td.totalHorizontal div[type='importe'], td.totalHorizontal div[type='numero'], td.total div[type='importe'], td.total div[type='numero']", filaActual)
+            .attr("moneda", monedaNormalizada);
+    });
+}
+
+function obtenerMonedaTotalTablaReporte(objeto, numeroForm, nombreTab) {
+
+    const filtroMoneda =
+        objeto?.filtros?.cabecera?.monedaComp ||
+        objeto?.filtros?.cabecera?.moneda;
+
+    if (Array.isArray(filtroMoneda)) {
+        const monedaFiltrada = filtroMoneda[2] || filtroMoneda[1] || "";
+        const monedaNormalizada = normalizarMonedaReporte(monedaFiltrada);
+        if (monedaNormalizada) return monedaNormalizada;
+    }
+
+    const primerRegistro = consultaGet?.[numeroForm]?.[nombreTab]?.[0] || {};
+    return normalizarMonedaReporte(primerRegistro?.monedaComp || primerRegistro?.moneda || "");
+}
 //Tipo de reportes
 function agrupadorSubAgrupadorMeses(objeto, numeroForm, nombreTab, objetoRep) {
 
@@ -171,6 +220,7 @@ function agrupadorSubAgrupadorMeses(objeto, numeroForm, nombreTab, objetoRep) {
     tabla += `</table>`;
 
     $(tabla).appendTo(`#t${numeroForm}`);
+    aplicarMonedaSegunFilaReporte($(`#t${numeroForm} table[tablaRef="${nombreTab}"]`));
     abrirRegistroIndividual(objeto, numeroForm);
 
     setTimeout(() => {
@@ -279,6 +329,7 @@ function infoEntidadMasEditTable(objeto, numeroForm, nombreTab, objetoRep) {
     tabla += `<div class="barraCalculada"><div class="datosCalculados"><p>Registros: ${consultaGet[numeroForm][nombreTab].length || 0}</p></div></div>`;
 
     $(tabla).appendTo(`#t${numeroForm}`);
+    aplicarMonedaSegunFilaReporte($(`#t${numeroForm} table[tablaRef="${nombreTab}"]`));
     $(`#t${numeroForm} div._id`).addClass("oculto")
 
     setTimeout(() => {
@@ -570,6 +621,9 @@ function agrupadoMes(objeto, numeroForm, nombreTab, objetoRep) {
 
     if (objeto?.totales?.vertical != undefined || objeto.totalVertical) {
 
+        const monedaTotales = obtenerMonedaTotalTablaReporte(objeto, numeroForm, nombreTab);
+        const monedaTotalesAttr = monedaTotales ? ` moneda="${monedaTotales}"` : "";
+
         let totalVertical = Object.values(consultaGet[numeroForm][nombreTab][0].periodos)
 
         tabla += `<tr class="filaTotal">`
@@ -592,7 +646,7 @@ function agrupadoMes(objeto, numeroForm, nombreTab, objetoRep) {
 
             let total = totalVertical.find(e => e.periodo == mesAnoTitulos) || {}
 
-            tabla += `<td class="td total mes ${mesesTitulo[mesTitulos]} textoCentrado"  mesAno="${mesAnoTitulos}">${numeroAString(total?.totalVertical || 0)}</td>`
+            tabla += `<td class="td total mes ${mesesTitulo[mesTitulos]} textoCentrado"  mesAno="${mesAnoTitulos}"${monedaTotalesAttr}>${numeroAString(total?.totalVertical || 0)}</td>`
             mesTitulos--
         }
 
@@ -607,13 +661,13 @@ function agrupadoMes(objeto, numeroForm, nombreTab, objetoRep) {
                 if (minNumeric < mesAnoTitulos) {
                     valor = numeroAString(totales[minNumeric])
                 }
-                tabla += `<td class="td total anteriores textoCentrado" colum="anteriores">${valor}</td>`
+                tabla += `<td class="td total anteriores textoCentrado" colum="anteriores"${monedaTotalesAttr}>${valor}</td>`
 
             })
         }
         $.each(totalesHorizontal, (indice, value) => {
 
-            tabla += `<td class="td total totalorizontal textoCentrado">${numeroAString(totalesHorizontal.total)}</td>`
+            tabla += `<td class="td total totalorizontal textoCentrado"${monedaTotalesAttr}>${numeroAString(totalesHorizontal.total)}</td>`
         })
 
         tabla += `</tr>`
@@ -625,6 +679,7 @@ function agrupadoMes(objeto, numeroForm, nombreTab, objetoRep) {
 
     $(tabla).appendTo(`#t${numeroForm}`);
     const tablaCreada = $(`#t${numeroForm} table[tablaRef="${nombreTab}"]`);
+    aplicarMonedaSegunFilaReporte(tablaCreada);
 
     if (objeto?.unir && Object.keys(objeto.unir).length > 0) {
         asegurarEstiloRowspanCompat();
@@ -747,6 +802,7 @@ function tipoExtracto(objeto, numeroForm, nombreTab, objetoRep) {
     tabla += `</table>`
     tabla += `<div class="barraCalculada"><div class="datosCalculados"><p>Registros: ${consultaGet[numeroForm][nombreTab].length || 0}</p></div></div>`;
     $(tabla).appendTo(`#t${numeroForm}`)
+    aplicarMonedaSegunFilaReporte($(`#t${numeroForm} table[tablaRef="${nombreTab}"]`));
     abrirRegistroIndividual(objeto, numeroForm)
 
     setTimeout(() => {

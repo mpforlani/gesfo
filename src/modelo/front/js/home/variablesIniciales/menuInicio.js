@@ -166,6 +166,7 @@ const modulosTotales = {
             categoriaProducto: variablesModelo.categoriaProducto,
             subCategoriaProducto: variablesModelo.subCategoriaProducto,
             almacen: variablesModelo.almacen,
+            ubicaciones: variablesModelo.ubicaciones,
             marca: variablesModelo.marca,
             operacionStock: variablesModelo.operacionStock,
 
@@ -370,9 +371,9 @@ async function escribirMenu(permisObject, empresasHabilitadas) {
 
     } else {
 
-        let cartel = cartelComplemento({}, "", { claseCartel: "new paddingLeft ", botonConfirmar: "oculto" })
+        let cartel = cartelComplemento({}, "", { claseCartel: "sinPermisosCartel", botonConfirmar: "oculto" })
 
-        let texto = `<div>El usuario no tiene permisos asignados</div>`
+        let texto = `<p class="mensajeSinPermisos">El usuario no tiene permisos asignados</p>`
 
         $(cartel).appendTo(`body`);
         $(texto).appendTo(`body .bloque0`);
@@ -564,3 +565,11 @@ async function escribirMenu(permisObject, empresasHabilitadas) {
     modulosTotales.testing.componentes.testing.tablaDobleEntrada.fila = modulosLocales
     modulosTotales.aplicacion.componentes.grupoSeguridad.tablaDobleEntrada.fila = modulosLocales
 }
+
+
+
+
+
+
+
+

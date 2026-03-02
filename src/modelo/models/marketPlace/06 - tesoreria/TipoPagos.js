@@ -4,9 +4,9 @@ const AtributosCompartidosSchema = require('../../AtributosCompartidos');
 const TipoPagoschema = new Schema({
 
     name: { type: String, index: { unique: true, sparse: true } },
-    admCheque: { type: String },
-    admCajas: { type: String },
-    admBancos: { type: String },
+    logico: { type: String },
+    logicoDos: { type: String },
+    logicoTres: { type: String },
     habilitado: { type: String },
     ...AtributosCompartidosSchema
 });

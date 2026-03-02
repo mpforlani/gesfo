@@ -15,13 +15,11 @@ const CobrosRecibidosSchema = new Schema({
         sparse: true,
         default: ""
     },
-    moneda: {
-        type: String,
-        ref: "moneda",
-        sparse: true,
-        default: ""
-    },
 
+    moneda: {
+        type: Schema.Types.ObjectId,
+        ref: "moneda"
+    },
     tipoCambio: { type: Number },
     descripcionCompleto: { type: String },
     /*compuestoReciboCobros */
@@ -71,16 +69,12 @@ const CobrosRecibidosSchema = new Schema({
     positioncobrosCtaCte: { type: [String] },
     ////*Colecion tipo de pagos */
     tipoPago: {
-        type: [String],
-        ref: "tipoPago",
-        sparse: true,
-        default: ""
+        type: [Schema.Types.ObjectId],
+        ref: "formaPago"
     },
     monedaTipoPago: {
-        type: [String],
-        ref: "monedaTipoPago",
-        sparse: true,
-        default: ""
+        type: [Schema.Types.ObjectId],
+        ref: "moneda"
     },
     importeTipoPago: { type: [Number] },
     tipoCambioTipoPago: { type: [Number] },
@@ -92,8 +86,8 @@ const CobrosRecibidosSchema = new Schema({
         sparse: true,
         default: []
     },
-    numeroDeCheque: { type: [String] },
-    vencimientoCheque: {
+    textoDosTipoPago: { type: [String] },
+    fechaTipoPago: {
         type: [Date],
         required: false,
         sparse: true,

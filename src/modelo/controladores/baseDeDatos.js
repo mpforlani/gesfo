@@ -48,6 +48,7 @@ const baseDeDat = {
     ItemCompra: require("../models/marketPlace/03 - proveedores/ItemCompra"),
     //04 - stock
     Almacen: require("../models/marketPlace/04 - stock/Almacen"),
+    Ubicaciones: require("../models/marketPlace/04 - stock/Ubicaciones"),
     CategoriaProducto: require("../models/marketPlace/04 - stock/CategoriaProducto"),
     Marca: require("../models/marketPlace/04 - stock/Marca"),
     OperacionStock: require("../models/marketPlace/04 - stock/OperacionStock"),
