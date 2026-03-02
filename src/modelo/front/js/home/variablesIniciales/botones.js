@@ -120,8 +120,8 @@ function botonSeguridad(objeto, numeroForm) {//este genera seguridad por atribut
 
         let bloqueUno = `<div class="subTitulo">
         <h4>Entidad: ${tituloEntidad}</h4>
-        <input type="hidden" id="_id" name="_id" form="atributos${numeroForm}" value="${idAtributos}" />
-        <input type="hidden" id="entidad" name="entidad" form="atributos${numeroForm}" value="${entidadId}" /></div>`
+        <input type="hidden" id="_id" name="_id" form="atributos${numeroForm}" value="${idAtributos}"  ${autoCompOff} />
+        <input type="hidden" id="entidad" name="entidad" form="atributos${numeroForm}" value="${entidadId}"  ${autoCompOff} /></div>`
 
         $(bloqueCero).appendTo($(`#t${numeroForm} .cartelComplemento .bloque0`))
         $(bloqueUno).appendTo($(`#t${numeroForm} .cartelComplemento .bloque1`))
@@ -132,8 +132,8 @@ function botonSeguridad(objeto, numeroForm) {//este genera seguridad por atribut
         bloqueDos += `<tr class="titulosTable"><th class="borderBottom minWidthQuince">Atributo</th><th class="borderBottom widthSiete">Visualizar</th><th class="borderBottom widthSiete">Editar</th></tr>`
 
         bloqueDos += `<tr class="fila tituloTabla filtroTodo"><th class="borderBottom">Seleccionar todo</th>`
-        bloqueDos += `<th class="borderBottom"><input class="seleccionarTodo widthCatorce" filtro="visualizar" type="checkbox" /></th>`
-        bloqueDos += `<th class="borderBottom"><input class="seleccionarTodo widthCatorce" filtro="editar" type="checkbox" /></th></tr>`
+        bloqueDos += `<th class="borderBottom"><input class="seleccionarTodo widthCatorce" filtro="visualizar" type="checkbox"  ${autoCompOff} /></th>`
+        bloqueDos += `<th class="borderBottom"><input class="seleccionarTodo widthCatorce" filtro="editar" type="checkbox"  ${autoCompOff} /></th></tr>`
 
         let names = variablesModelo?.[entidad]?.atributos?.names || variablesFusionadas[entidad]?.atributos?.names
         let titulos = variablesModelo?.[entidad]?.atributos?.titulos || variablesFusionadas[entidad]?.atributos?.titulos
@@ -143,27 +143,27 @@ function botonSeguridad(objeto, numeroForm) {//este genera seguridad por atribut
             if (value.type == "coleccionInd") {
 
                 bloqueDos += `<tr class="fila" colec="${value.nombre}"><th>${value.titulos} Colección completa</th>`
-                bloqueDos += `<td><input type="checkbox" class="widthCatorce" ${propCheck[dataBol?.visualizar?.[value.nombre]] || "checked"} filtro="visualizar" /><input type="hidden" name="visualizar.${value.nombre}" form="atributos${numeroForm}" value="${dataBol?.visualizar?.[value.nombre] || "true"
-                    } " /></td><td></td>`
+                bloqueDos += `<td><input type="checkbox" class="widthCatorce" ${propCheck[dataBol?.visualizar?.[value.nombre]] || "checked"} filtro="visualizar"  ${autoCompOff} /><input type="hidden" name="visualizar.${value.nombre}" form="atributos${numeroForm}" value="${dataBol?.visualizar?.[value.nombre] || "true"
+                    } "  ${autoCompOff} /></td><td></td>`
 
                 bloqueDos += `<tr class="fila coleccionAgrupador" colec="${value.nombre}"><th>${value.titulos}</th>`
-                bloqueDos += `<td><input type="checkbox" class="widthCatorce coleccionAgrupador" colec="${value.nombre}" ${propCheck[dataBol?.visualizar?.[`${value.nombre}Tot`]] || "checked"} filtro="visualizar" /><input type="hidden" name="visualizar.${value.nombre}Tot" form="atributos${numeroForm}" value="${dataBol?.visualizar?.[`${value.nombre}Tot`] || "true"}" /></td>`
-                bloqueDos += `<td><input type="checkbox" class="widthCatorce coleccionAgrupador" colec="${value.nombre}" ${propCheck[dataBol?.editar?.[`${value.nombre}Tot`]] || "checked"} filtro="editar" /><input type="hidden" name="editar.${value.nombre}Tot" form="atributos${numeroForm}" value="${dataBol?.editar?.[`${value.nombre}Tot`] || "true"}" /></td></tr>`
+                bloqueDos += `<td><input type="checkbox" class="widthCatorce coleccionAgrupador" colec="${value.nombre}" ${propCheck[dataBol?.visualizar?.[`${value.nombre}Tot`]] || "checked"} filtro="visualizar"  ${autoCompOff} /><input type="hidden" name="visualizar.${value.nombre}Tot" form="atributos${numeroForm}" value="${dataBol?.visualizar?.[`${value.nombre}Tot`] || "true"}"  ${autoCompOff} /></td>`
+                bloqueDos += `<td><input type="checkbox" class="widthCatorce coleccionAgrupador" colec="${value.nombre}" ${propCheck[dataBol?.editar?.[`${value.nombre}Tot`]] || "checked"} filtro="editar"  ${autoCompOff} /><input type="hidden" name="editar.${value.nombre}Tot" form="atributos${numeroForm}" value="${dataBol?.editar?.[`${value.nombre}Tot`] || "true"}"  ${autoCompOff} /></td></tr>`
 
 
                 $.each(Object.values(value.componentes), (ind, val) => {
 
                     if (val.oculto != "oculto") {
                         bloqueDos += `<tr class="fila coleccion" colec="${value.nombre}"><th>${value.titulosComponentes[ind]}</th>`
-                        bloqueDos += `<td><input type="checkbox" class="widthCatorce" ${propCheck[dataBol?.visualizar?.[val.nombre]] || "checked"}  filtro="visualizar"/><input type="hidden" name="visualizar.${val.nombre}" form="atributos${numeroForm}" value="${dataBol?.visualizar?.[val.nombre] || "true"}" /></td>`
-                        bloqueDos += `<td><input type="checkbox" class="widthCatorce" ${propCheck[dataBol?.editar?.[val.nombre]] || "checked"} filtro="editar" /><input type="hidden" name="editar.${val.nombre}" form="atributos${numeroForm}" value="${dataBol?.editar?.[value.nombre] || "true"}" /></td></tr>`
+                        bloqueDos += `<td><input type="checkbox" class="widthCatorce" ${propCheck[dataBol?.visualizar?.[val.nombre]] || "checked"}  filtro="visualizar" ${autoCompOff} /><input type="hidden" name="visualizar.${val.nombre}" form="atributos${numeroForm}" value="${dataBol?.visualizar?.[val.nombre] || "true"}"  ${autoCompOff} /></td>`
+                        bloqueDos += `<td><input type="checkbox" class="widthCatorce" ${propCheck[dataBol?.editar?.[val.nombre]] || "checked"} filtro="editar"  ${autoCompOff} /><input type="hidden" name="editar.${val.nombre}" form="atributos${numeroForm}" value="${dataBol?.editar?.[value.nombre] || "true"}"  ${autoCompOff} /></td></tr>`
                     }
                 })
             } else {
 
                 bloqueDos += `<tr class="fila"><th>${titulos[indice]}</th>`
-                bloqueDos += `<td><input type="checkbox" class="widthCatorce" ${propCheck[dataBol?.visualizar?.[value.nombre]] || "checked"} filtro="visualizar" /><input type="hidden" name="visualizar.${value.nombre}" form="atributos${numeroForm}" value="${dataBol?.visualizar?.[value.nombre] || "true"}" /></td>`
-                bloqueDos += `<td><input type="checkbox" class="widthCatorce" ${propCheck[dataBol?.editar?.[value.nombre]] || "checked"} filtro="editar" /><input type="hidden" name="editar.${value.nombre}" form="atributos${numeroForm}" value="${dataBol?.editar?.[value.nombre] || "true"}" /></td></tr>`
+                bloqueDos += `<td><input type="checkbox" class="widthCatorce" ${propCheck[dataBol?.visualizar?.[value.nombre]] || "checked"} filtro="visualizar"  ${autoCompOff} /><input type="hidden" name="visualizar.${value.nombre}" form="atributos${numeroForm}" value="${dataBol?.visualizar?.[value.nombre] || "true"}"  ${autoCompOff} /></td>`
+                bloqueDos += `<td><input type="checkbox" class="widthCatorce" ${propCheck[dataBol?.editar?.[value.nombre]] || "checked"} filtro="editar"  ${autoCompOff} /><input type="hidden" name="editar.${value.nombre}" form="atributos${numeroForm}" value="${dataBol?.editar?.[value.nombre] || "true"}"  ${autoCompOff} /></td></tr>`
             }
         })
         bloqueDos += `</table>`

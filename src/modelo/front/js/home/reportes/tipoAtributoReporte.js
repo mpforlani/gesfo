@@ -159,7 +159,7 @@ function numero(val, colum, valor) {
 }
 function fechaInput(val, colum, valor) {
 
-    let input = `<input type="date" class="rep ${val.nombre || val} ${val.claseReporte || ""} ${val.clase || ""} " name="${val.nombre || val}"  colum="${colum}" value="${dateNowAFechaddmmyyyy(valor, `y-m-d`)}" />`
+    let input = `<input type="date" class="rep ${val.nombre || val} ${val.claseReporte || ""} ${val.clase || ""} " name="${val.nombre || val}"  colum="${colum}" value="${dateNowAFechaddmmyyyy(valor, `y-m-d`)}"  ${autoCompOff} />`
 
     return input
 

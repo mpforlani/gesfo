@@ -44,15 +44,15 @@ function editarCompuestoFormInd(objeto, numeroForm, id, self, ordInput) {//dic
 
             case `adjunto`:
 
-                colec += `<input class="formColec ${valorCompuesto.nombre} ${indice} ${value.clase || ""} " colec="${valorCompuesto.nombre}" name="${indice}" form="f${objeto.accion}${numeroForm}" ord=${ord + 1} readonly tabindex="${tabIndex}" disabled="disabled"/></td>`;
+                colec += `<input class="formColec ${valorCompuesto.nombre} ${indice} ${value.clase || ""} " colec="${valorCompuesto.nombre}" name="${indice}" form="f${objeto.accion}${numeroForm}" ord=${ord + 1} readonly tabindex="${tabIndex}" disabled="disabled" ${autoCompOff} /></td>`;
                 $(`tr.last td.adjuntoColeccion input`, fatherTable).remove();
 
                 let listaAdjunto = ""
                 listaAdjunto += `<div class="adjuntoColec tr fila">
-                                 <div class="celdAdj nameUsu vacio ${numeroForm}" src=""><input class="nameUsu ${numeroForm}" name="nameUsuColec" form="f${objeto.accion}${numeroForm}" disabled="disabled" /></div>
-                                 <div class="celdAdj path vacio ${numeroForm} ocultoSiempre" src=""><input class="path ${numeroForm}" id="path${numeroForm}" name="pathColec" form="f${objeto.accion}${numeroForm}" disabled="disabled" /></div>
-                                 <div class="celdAdj originalname vacio  ${numeroForm} ocultoSiempre" src=""><input class="originalname ${numeroForm}" id="originalname${numeroForm}" name="originalnameColec" form="f${objeto.accion}${numeroForm}" disabled="disabled"/></div>
-                                 <div class="celdAdj adjunto "><label for="adjunto${objeto.accion}${numeroForm}"></label><img src="/img/iconos/botonAdjunto/adjuntar.svg"/><input type=file id="adjunto${objeto.accion}${numeroForm}" name="adjuntoColec" form="f${objeto.accion}${numeroForm}" class="adjunto"/></div>
+                                 <div class="celdAdj nameUsu vacio ${numeroForm}" src=""><input class="nameUsu ${numeroForm}" name="nameUsuColec" form="f${objeto.accion}${numeroForm}" disabled="disabled"  ${autoCompOff} /></div>
+                                 <div class="celdAdj path vacio ${numeroForm} ocultoSiempre" src=""><input class="path ${numeroForm}" id="path${numeroForm}" name="pathColec" form="f${objeto.accion}${numeroForm}" disabled="disabled"  ${autoCompOff} /></div>
+                                 <div class="celdAdj originalname vacio  ${numeroForm} ocultoSiempre" src=""><input class="originalname ${numeroForm}" id="originalname${numeroForm}" name="originalnameColec" form="f${objeto.accion}${numeroForm}" disabled="disabled" ${autoCompOff} /></div>
+                                 <div class="celdAdj adjunto "><label for="adjunto${objeto.accion}${numeroForm}"></label><img src="/img/iconos/botonAdjunto/adjuntar.svg"/><input type=file id="adjunto${objeto.accion}${numeroForm}" name="adjuntoColec" form="f${objeto.accion}${numeroForm}" class="adjunto" ${autoCompOff} /></div>
                                  <div class="celdAdj verAdj vacio"><img class="verAdj" img src="/img/iconos/botonAdjunto/VerAdj.svg" title="Ver adjunto"></div>
                                  <div class="celdAdj eliminarAdj vacio"><img class="eliminarAdj" src="/img/iconos/botonAdjunto/deleteAdj.svg" title="Eliminar adjunto"></div></td>`
 
@@ -63,24 +63,24 @@ function editarCompuestoFormInd(objeto, numeroForm, id, self, ordInput) {//dic
                 break;
             case `fecha`:
 
-                colec += `<input class="formColec ${valorCompuesto.nombre} ${indice} ${value.clase || ""}" colec="${valorCompuesto.nombre}" name="${indice}" form="f${objeto.accion}${numeroForm}" tabindex="${tabIndex}"  ord=${ord + 1} valid=${value.validacion}  type="date" readonly disabled="disabled"/></td>`;
+                colec += `<input class="formColec ${valorCompuesto.nombre} ${indice} ${value.clase || ""}" colec="${valorCompuesto.nombre}" name="${indice}" form="f${objeto.accion}${numeroForm}" tabindex="${tabIndex}"  ord=${ord + 1} valid=${value.validacion}  type="date" readonly disabled="disabled" ${autoCompOff} /></td>`;
 
                 break;
             case `logico`:
 
-                colec += `<input type="text" class="formColec ${valorCompuesto.nombre} ${indice} ${value.class || ""}" colec="${valorCompuesto.nombre}" name="${indice} form="f${objeto.accion}${numeroForm}"  ord=${ord + 1} style="display:none">
-                        <input type="checkbox" class="formColec ${valorCompuesto.nombre} ${indice}" colec="${valorCompuesto.nombre}" name="${indice}" tabindex="${tabIndex}" disabled="disabled"/>`
+                colec += `<input type="text" class="formColec ${valorCompuesto.nombre} ${indice} ${value.class || ""}" colec="${valorCompuesto.nombre}" name="${indice} form="f${objeto.accion}${numeroForm}"  ord=${ord + 1} style="display:none" ${autoCompOff} >
+                        <input type="checkbox" class="formColec ${valorCompuesto.nombre} ${indice}" colec="${valorCompuesto.nombre}" name="${indice}" tabindex="${tabIndex}" disabled="disabled" ${autoCompOff} />`
                 break;
             case `importe`:
 
-                colec += `<input type="${value.type}" class="formColec formatoNumero ${valorCompuesto.nombre} ${indice} ${value.clase || ""} monedaFormulario" colec="${valorCompuesto.nombre}" name="${indice}" form="f${objeto.accion}${numeroForm}" ord=${ord + 1} autocomplete="off"  valid=${value.validacion}  readonly tabindex="${tabIndex}"  disabled="disabled"/>
-                <input type="${value.type}" class="ocultoSiempre formColec ${valorCompuesto.nombre} ${indice}mb monedaBase" colec="${valorCompuesto.nombre}" name="${indice}mb" form="f${objeto.accion}${numeroForm}" ord=${ord + 1}"  disabled="disabled"/>
-                <input type="${value.type}" class="ocultoSiempre formColec  ${valorCompuesto.nombre} ${indice}ma monedaAlternativa" colec="${valorCompuesto.nombre}" name="${indice}ma" form="f${objeto.accion}${numeroForm}" ord=${ord + 1} "  disabled="disabled"/>
+                colec += `<input type="${value.type}" class="formColec formatoNumero ${valorCompuesto.nombre} ${indice} ${value.clase || ""} monedaFormulario" colec="${valorCompuesto.nombre}" name="${indice}" form="f${objeto.accion}${numeroForm}" ord=${ord + 1} autocomplete="off"  valid=${value.validacion}  readonly tabindex="${tabIndex}"  disabled="disabled" ${autoCompOff} />
+                <input type="${value.type}" class="ocultoSiempre formColec ${valorCompuesto.nombre} ${indice}mb monedaBase" colec="${valorCompuesto.nombre}" name="${indice}mb" form="f${objeto.accion}${numeroForm}" ord=${ord + 1}"  disabled="disabled" ${autoCompOff} />
+                <input type="${value.type}" class="ocultoSiempre formColec  ${valorCompuesto.nombre} ${indice}ma monedaAlternativa" colec="${valorCompuesto.nombre}" name="${indice}ma" form="f${objeto.accion}${numeroForm}" ord=${ord + 1} "  disabled="disabled" ${autoCompOff} />
                 </td>`;
                 break;
             case `cantidad`:
 
-                colec += `<input type="${value.type}" class="formColec formatoNumero ${valorCompuesto.nombre} ${indice} ${value.clase || ""} " colec="${valorCompuesto.nombre}" name="${indice}" form="f${objeto.accion}${numeroForm}" ord=${ord + 1} valid=${value.validacion} autocomplete="off" readonly tabindex="${tabIndex}"  disabled="disabled"/></td>`;
+                colec += `<input type="${value.type}" class="formColec formatoNumero ${valorCompuesto.nombre} ${indice} ${value.clase || ""} " colec="${valorCompuesto.nombre}" name="${indice}" form="f${objeto.accion}${numeroForm}" ord=${ord + 1} valid=${value.validacion} autocomplete="off" readonly tabindex="${tabIndex}"  disabled="disabled" ${autoCompOff} /></td>`;
                 break;
             case `parametrica`:
 
@@ -91,7 +91,7 @@ function editarCompuestoFormInd(objeto, numeroForm, id, self, ordInput) {//dic
                 $(pestanas).appendTo($(`tr.last:not(.creando) td.${indice}`, fatherTable))
                 $(`tr.last:not(.creando) td.${indice}`, fatherTable).addClass("pestanaSelect")
 
-                colec += `<input type="${value.type}" class="formColec ${valorCompuesto.nombre} ${indice} ${value.nombre} ${value.clase || ""} " colec="${valorCompuesto.nombre}" name="${indice}" form="f${objeto.accion}${numeroForm}" ord=${ord + 1} readonly tabindex="${tabIndex}" autocomplete="off"  disabled="disabled"/></td>`;
+                colec += `<input type="${value.type}" class="formColec ${valorCompuesto.nombre} ${indice} ${value.nombre} ${value.clase || ""} " colec="${valorCompuesto.nombre}" name="${indice}" form="f${objeto.accion}${numeroForm}" ord=${ord + 1} readonly tabindex="${tabIndex}" autocomplete="off"  disabled="disabled" ${autoCompOff} /></td>`;
                 break;
             case `parametricaPreEstablecida`:
 
@@ -110,14 +110,14 @@ function editarCompuestoFormInd(objeto, numeroForm, id, self, ordInput) {//dic
                 break;
             default:
 
-                colec += `<input type="${value.type}" class="formColec ${valorCompuesto.nombre} ${indice} ${value.clase || ""} " colec="${valorCompuesto.nombre}" name="${indice}" form="f${objeto.accion}${numeroForm}" ord=${ord + 1} readonly tabindex="${tabIndex}" valid=${value.validacion} autocomplete="off" disabled="disabled"/></td>`;
+                colec += `<input type="${value.type}" class="formColec ${valorCompuesto.nombre} ${indice} ${value.clase || ""} " colec="${valorCompuesto.nombre}" name="${indice}" form="f${objeto.accion}${numeroForm}" ord=${ord + 1} readonly tabindex="${tabIndex}" valid=${value.validacion} autocomplete="off" disabled="disabled" ${autoCompOff} /></td>`;
                 break;
 
         }
     });
 
     colec += `<td class="vacio position ocultoSiempre position${valorCompuesto.nombre} ${valorCompuesto.nombre}" ord="${ord}" set="${fatherTable.attr("id")}">
-    <input class="position ${valorCompuesto.nombre}" name="position${valorCompuesto.nombre}" form="f${objeto.accion}${numeroForm}" value="${parseFloat($(`input.position`, father).val()) + 1}" readonly="true" disabled="disabled"/></td>`;
+    <input class="position ${valorCompuesto.nombre}" name="position${valorCompuesto.nombre}" form="f${objeto.accion}${numeroForm}" value="${parseFloat($(`input.position`, father).val()) + 1}" readonly="true" disabled="disabled" ${autoCompOff} /></td>`;
     colec += `</tr>`;
 
     let col = $(colec);
@@ -305,7 +305,10 @@ function monedaUnicaPorColeccion(objeto, numeroForm, table) {
 
                 $(value).val(valorMoneda).addClass("autoValor").trigger("change").removeClass("autoValor").attr("func", "unicoValorPorColec")
             })
-            $.extend(true, objeto.atributos, { valoresIniciales: { select: { [moneda]: consultaPestanas.moneda[valorMoneda].name } } });
+            objeto.atributos = objeto.atributos || {};
+            objeto.atributos.valoresIniciales = objeto.atributos.valoresIniciales || {};
+            objeto.atributos.valoresIniciales.select = objeto.atributos.valoresIniciales.select || {};
+            objeto.atributos.valoresIniciales.select[moneda] = consultaPestanas.moneda[valorMoneda].name;
 
         }
     }

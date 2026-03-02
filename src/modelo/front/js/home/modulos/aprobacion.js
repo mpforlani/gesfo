@@ -707,11 +707,11 @@ function seleccionarAprobar(objeto, numeroForm, atributoEdit, atributoSame) {//d
 
                         valueAtributo = valueAtributo.split(`-`)
 
-                        celdas += `<input type="date" class="editAprobacion ${value.nombre} requerido" valid="${value.validacion}" value="${valueAtributo[2]}-${valueAtributo[1]}-${valueAtributo[0]}"></input>`;
+                        celdas += `<input type="date" class="editAprobacion ${value.nombre} requerido" valid="${value.validacion}" value="${valueAtributo[2]}-${valueAtributo[1]}-${valueAtributo[0]}" ${autoCompOff} ></input>`;
                         break
                     case `texto`:
 
-                        celdas += `<input  class="editAprobacion ${value.nombre} requerido" type="texto" valid="${value.validacion}" value="${valueAtributo || ""}"></input>`;
+                        celdas += `<input  class="editAprobacion ${value.nombre} requerido" type="texto" valid="${value.validacion}" value="${valueAtributo || ""}" ${autoCompOff} ></input>`;
                         break
                 }
 

@@ -62,7 +62,7 @@ async function cargarPestanasCabecera(objeto, atributo) {
 
     pest += `<div class="selectCont ${atributo.nombre || atributo}" name="${atributo.nombre || atributo}">`
 
-    pest += `<div class="selecSimulado"><div class="selectInput"><input type="parametrica" class="inputSelect ${atributo.clase || ""} ${atributo.nombre || atributo}" name="${atributo.nombre}" origen="${atributo.origen || ""}"  value="${valorDefPar}" autocomplete="new-password" /><div class="spanFlechaAbajo"><span class="material-symbols-outlined abajo">stat_minus_1</span></div></div></div>`
+    pest += `<div class="selecSimulado"><div class="selectInput"><input type="parametrica" class="inputSelect ${atributo.clase || ""} ${atributo.nombre || atributo}" name="${atributo.nombre}" origen="${atributo.origen || ""}"  value="${valorDefPar}" autocomplete="new-password"  ${autoCompOff} /><div class="spanFlechaAbajo"><span class="material-symbols-outlined abajo">stat_minus_1</span></div></div></div>`
 
     pest += `<div class="opcionesSelectDiv oculto ${lengthDesplegable?.[Math.min(10, Object?.values(opcionesHabilitadas)?.length)] || ""}">
     <div class="opciones primeroVacio" valueString="" value=""><p></p></div>`
@@ -76,7 +76,7 @@ async function cargarPestanasCabecera(objeto, atributo) {
 
     pest += `</div>`//Cerrar opcionesSelectDiv
 
-    pest += `<div class="divInput oculto"><input class="divSelectInput" name="${atributo.nombre}" value="${valorInicial._id || ""}" /></div>`
+    pest += `<div class="divInput oculto"><input class="divSelectInput" name="${atributo.nombre}" value="${valorInicial._id || ""}"  ${autoCompOff} /></div>`
     pest += `<div class="agrandarLista"> +</div>`
     pest += `</div>`;//Cerrar selectCont
 
@@ -90,7 +90,7 @@ function cargarPreEstablecidaCabecera(objeto, atributo) {
 
     pest += `<div class="selectCont ${atributo.nombre || atributo}" name="${atributo.nombre || atributo}">`
 
-    pest += `<div class="selecSimulado"><div class="selectInput"><input type="parametrica" class="inputSelect ${atributo.clase || ""} ${atributo.nombre || atributo}" name="${atributo.nombre}" origen="${atributo.origen || ""}"  autocomplete="new-password" /><div class="spanFlechaAbajo"><span class="material-symbols-outlined abajo">stat_minus_1</span></div></div></div>`
+    pest += `<div class="selecSimulado"><div class="selectInput"><input type="parametrica" class="inputSelect ${atributo.clase || ""} ${atributo.nombre || atributo}" name="${atributo.nombre}" origen="${atributo.origen || ""}"  autocomplete="new-password"  ${autoCompOff} /><div class="spanFlechaAbajo"><span class="material-symbols-outlined abajo">stat_minus_1</span></div></div></div>`
 
     pest += `<div class="opcionesSelectDiv oculto">
     <div class="opciones primeroVacio" valueString="" value=""><p></p></div>`
@@ -113,7 +113,7 @@ function cargarPreEstablecidaTesting(objeto, numeroForm, valor) {
 
     pest += `<div class="selectCont testing" name="testing">`
 
-    pest += `<div class="selecSimulado"><div class="selectInput"><input type="parametricaTesting" class="inputSelect testingCabecera requerido" name="testing" value="${variablesModelo[valor]?.pest || ""}" autocomplete="new-password" /><div class="spanFlechaAbajo"><span class="material-symbols-outlined abajo">stat_minus_1</span></div></div></div>`
+    pest += `<div class="selecSimulado"><div class="selectInput"><input type="parametricaTesting" class="inputSelect testingCabecera requerido" name="testing" value="${variablesModelo[valor]?.pest || ""}" autocomplete="new-password"  ${autoCompOff} /><div class="spanFlechaAbajo"><span class="material-symbols-outlined abajo">stat_minus_1</span></div></div></div>`
 
     pest += `<div class="opcionesSelectDiv scroll oculto">`
 
@@ -132,7 +132,7 @@ function cargarPreEstablecidaTesting(objeto, numeroForm, valor) {
         //  pest += `</div>`
     })
     pest += `</div>`//Cerrar opcionesSelectDiv
-    pest += `<div class="divInput oculto"><input class="divSelectInputTest" name="entidad" form="test${numeroForm}" value="${valorDefPar}" /></div>`
+    pest += `<div class="divInput oculto"><input class="divSelectInputTest" name="entidad" form="test${numeroForm}" value="${valorDefPar}"  ${autoCompOff} /></div>`
     pest += `</div>`;//Cerrar selectCont
 
     return pest
@@ -143,7 +143,7 @@ function pestanaCabeceraInformePrevalores(objeto, numeroForm, atributo, clase) {
     let pestana = ""
 
     pestana += `<div class="selectCont ${atributo.nombre} ${clase?.select || ""}" name="${atributo.nombre}">
-    <div class="selecSimulado preEstablecido"><div class="selectInput preEstablecido"><input type="parametrica" class="inputSelect ${atributo.nombre}" name="${atributo.nombre}" value="${atributo?.select?.inicio?.titulo}" autocomplete="new-password" />
+    <div class="selecSimulado preEstablecido"><div class="selectInput preEstablecido"><input type="parametrica" class="inputSelect ${atributo.nombre}" name="${atributo.nombre}" value="${atributo?.select?.inicio?.titulo}" autocomplete="new-password"  ${autoCompOff} />
     </div><div class="spanFlechaAbajo"><span class="material-symbols-outlined abajo">stat_minus_1</span></div></div>`
 
     pestana += `<div class="opcionesSelectDiv oculto">`
@@ -155,7 +155,7 @@ function pestanaCabeceraInformePrevalores(objeto, numeroForm, atributo, clase) {
     })
 
     pestana += `</div>`//Cerrar opcionesSelectDiv
-    pestana += `<div class="divInput oculto"><input class="divSelectInput" name="${atributo.nombre}" value="${atributo.select.inicio.valores}" /></div>`
+    pestana += `<div class="divInput oculto"><input class="divSelectInput" name="${atributo.nombre}" value="${atributo.select.inicio.valores}"  ${autoCompOff} /></div>`
     pestana += `</div>`;//Cerrar selectCont
     pestana += `</div>`//Cerrar selecAtributo
 
@@ -165,7 +165,7 @@ function pestanaCabeceraInformePrevalores(objeto, numeroForm, atributo, clase) {
 function pestanaReportePreValor(atributo, valor) {//Cuerpo de reporte para guardar datos propio del reporte ejemplo detalle importaciones
 
     let pestana = `<div class="selectCont" ${atributo.nombre || atributo}" name="${atributo.nombre || atributo}">
-    <div class="selecSimulado"><div class="selectInput"><input class="inputSelect rep" value="${valor || ""}"  autocomplete="new-password"/>
+    <div class="selecSimulado"><div class="selectInput"><input class="inputSelect rep" value="${valor || ""}"  autocomplete="new-password" ${autoCompOff} />
     </div><div class="spanFlechaAbajo"><span class="material-symbols-outlined abajo">stat_minus_1</span></div></div>`
 
     pestana += `<div class="opcionesSelectDiv oculto">
@@ -177,7 +177,7 @@ function pestanaReportePreValor(atributo, valor) {//Cuerpo de reporte para guard
 
     })
     pestana += `</div>`//Cerrar opcionesSelectDiv
-    pestana += `<div class="divInput oculto"><input class="divSelectInput ${atributo.claseReporte || ""}" name="${atributo.nombre}" value="${valor || ""}" /></div>`
+    pestana += `<div class="divInput oculto"><input class="divSelectInput ${atributo.claseReporte || ""}" name="${atributo.nombre}" value="${valor || ""}"  ${autoCompOff} /></div>`
     pestana += `</div>`;//Cerrar selectCont
 
     return pestana
@@ -268,7 +268,7 @@ function prestanaFormIndividual(objeto, numeroForm, atributo, valorPar, indice, 
 
     pest += `</div>`//Cerrar opcionesSelectDiv
 
-    pest += `<div class="divInput oculto"><input class="divSelectInput" name="${atributo.nombre}" form="f${objeto.accion}${numeroForm}" ${elementos?.disabled || ""} value="${valorPar || valorInicial._id || ""}" /></div>`
+    pest += `<div class="divInput oculto"><input class="divSelectInput" name="${atributo.nombre}" form="f${objeto.accion}${numeroForm}" ${elementos?.disabled || ""} value="${valorPar || valorInicial._id || ""}"  ${autoCompOff} /></div>`
     pest += `<div class="agrandarLista"> +</div>`
     pest += `</div>`;//Cerrar selectCont
 
@@ -281,7 +281,7 @@ function prestanaFormIndividualPreEstablecida(objeto, numeroForm, atributo, valo
 
     pest += `<div class="selectCont ${atributo.nombre || atributo}" name="${atributo.nombre || atributo}">`
 
-    pest += `<div class="selecSimulado"><div class="selectInput"><input type="parametricaPreEstablecida" class="inputSelect ${elementos.clase || ""} ${atributo.clase || ""} ${atributo.nombre || atributo}" name="${atributo.nombre}" value="${valorDefPar}" tabindex="${indice}" ${elementos.disabled || ""} form="f${objeto.accion}${numeroForm}" autocomplete="new-password" /><div class="spanFlechaAbajo"><span class="material-symbols-outlined abajo">stat_minus_1</span></div></div></div>`
+    pest += `<div class="selecSimulado"><div class="selectInput"><input type="parametricaPreEstablecida" class="inputSelect ${elementos.clase || ""} ${atributo.clase || ""} ${atributo.nombre || atributo}" name="${atributo.nombre}" value="${valorDefPar}" tabindex="${indice}" ${elementos.disabled || ""} form="f${objeto.accion}${numeroForm}" autocomplete="new-password"  ${autoCompOff} /><div class="spanFlechaAbajo"><span class="material-symbols-outlined abajo">stat_minus_1</span></div></div></div>`
 
     pest += `<div class="opcionesSelectDiv oculto">
     <div class="opciones primeroVacio" valueString="" value=""><p></p></div>`

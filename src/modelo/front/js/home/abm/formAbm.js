@@ -89,13 +89,13 @@ function crearTabla(numeroForm, objeto, consulta) {//Dicionario
 
             $.each(filtro, function (indice, value) {
                 tabla += `<div class="td filtro oculto ${value}" type=${widthTitlesD[indice].type} filtro="${value}" numeroFila="${indice}" style="order:${indice}" ${widthObject[widthTitlesD[indice]?.width] || ""} ${ocultoOject[widthTitlesD[indice]?.oculto] || ""}>
-                          <div class="filtroClass"><div class="busquedasColumna"><div class="filtroCampo"><input class="busqueda" ${autoCompOff}><span class="material-symbols-outlined deleteFiltroCampo" title="Eliminar campo">delete</span></div></div><p class="closeFiltro">+</p></div></div>`;
+                          <div class="filtroClass"><div class="busquedasColumna"><div class="filtroCampo"><input class="busqueda" ${autoCompOff}><span class="material-symbols-outlined deleteFiltroCampo" title="Eliminar campo">delete</span></div><div class="filtroCampo"><input class="busqueda" ${autoCompOff}><span class="material-symbols-outlined deleteFiltroCampo" title="Eliminar campo">delete</span></div></div><p class="closeFiltro">+</p></div></div>`;
             });
 
             tabla += `<div class="td filtro oculto date" filtro="date" type="date" numeroFila="9998" style="order:9998" width="doce">
-                          <div class="filtroClass"><div class="busquedasColumna"><div class="filtroCampo"><input class="busqueda date" ${autoCompOff}><span class="material-symbols-outlined deleteFiltroCampo" title="Eliminar campo">delete</span></div></div><p class="closeFiltro">+</p></div></div>`;
+                          <div class="filtroClass"><div class="busquedasColumna"><div class="filtroCampo"><input class="busqueda date" ${autoCompOff}><span class="material-symbols-outlined deleteFiltroCampo" title="Eliminar campo">delete</span></div><div class="filtroCampo"><input class="busqueda date" ${autoCompOff}><span class="material-symbols-outlined deleteFiltroCampo" title="Eliminar campo">delete</span></div></div><p class="closeFiltro">+</p></div></div>`;
             tabla += `<div class="td filtro oculto username" filtro="username" type="date" numeroFila="9998" style="order:9998" width="doce">
-                          <div class="filtroClass"><div class="busquedasColumna"><div class="filtroCampo"><input class="busqueda username" ${autoCompOff}><span class="material-symbols-outlined deleteFiltroCampo" title="Eliminar campo">delete</span></div></div><p class="closeFiltro">+</p></div></div>`;
+                          <div class="filtroClass"><div class="busquedasColumna"><div class="filtroCampo"><input class="busqueda username" ${autoCompOff}><span class="material-symbols-outlined deleteFiltroCampo" title="Eliminar campo">delete</span></div><div class="filtroCampo"><input class="busqueda username" ${autoCompOff}><span class="material-symbols-outlined deleteFiltroCampo" title="Eliminar campo">delete</span></div></div><p class="closeFiltro">+</p></div></div>`;
 
         } else if (i > -1 && i < consulta.length) {
 
@@ -320,12 +320,12 @@ function reCrearTabla(numeroForm, objeto) {//Dicionario
                     tabla += `<div class="tr filtro">`;
                     $.each(filtro, function (indice, value) {
                         tabla += `<div class="td filtro oculto ${value}" type=${widthTitlesD[indice].type} filtro="${value}" numeroFila="${indice}" ${widthObject[widthTitlesD[indice]?.width] || ""} ${ocultoOject[widthTitlesD[indice]?.oculto] || ""}>
-                                  <div class="filtroClass"><div class="busquedasColumna"><div class="filtroCampo"><input class="busqueda"><span class="material-symbols-outlined deleteFiltroCampo" title="Eliminar campo">delete</span></div></div><p class="closeFiltro">+</p></div></div>`;
+                                  <div class="filtroClass"><div class="busquedasColumna"><div class="filtroCampo"><input class="busqueda" ${autoCompOff} ><span class="material-symbols-outlined deleteFiltroCampo" title="Eliminar campo">delete</span></div><div class="filtroCampo"><input class="busqueda" ${autoCompOff} ><span class="material-symbols-outlined deleteFiltroCampo" title="Eliminar campo">delete</span></div></div><p class="closeFiltro">+</p></div></div>`;
                     });
                     tabla += `<div class="td filtro oculto date" filtro="date" numeroFila="9998" sstyle="order:9998" width="doce">
-                          <div class="filtroClass"><div class="busquedasColumna"><div class="filtroCampo"><input class="busqueda"><span class="material-symbols-outlined deleteFiltroCampo" title="Eliminar campo">delete</span></div></div><p class="closeFiltro">+</p></div></div>`;
+                          <div class="filtroClass"><div class="busquedasColumna"><div class="filtroCampo"><input class="busqueda" ${autoCompOff} ><span class="material-symbols-outlined deleteFiltroCampo" title="Eliminar campo">delete</span></div><div class="filtroCampo"><input class="busqueda" ${autoCompOff} ><span class="material-symbols-outlined deleteFiltroCampo" title="Eliminar campo">delete</span></div></div><p class="closeFiltro">+</p></div></div>`;
                     tabla += `<div class="td filtro oculto date" filtro="date" numeroFila="9998" sstyle="order:9998" width="doce">
-                          <div class="filtroClass"><div class="busquedasColumna"><div class="filtroCampo"><input class="busqueda"><span class="material-symbols-outlined deleteFiltroCampo" title="Eliminar campo">delete</span></div></div><p class="closeFiltro">+</p></div></div>`;
+                          <div class="filtroClass"><div class="busquedasColumna"><div class="filtroCampo"><input class="busqueda" ${autoCompOff} ><span class="material-symbols-outlined deleteFiltroCampo" title="Eliminar campo">delete</span></div><div class="filtroCampo"><input class="busqueda" ${autoCompOff} ><span class="material-symbols-outlined deleteFiltroCampo" title="Eliminar campo">delete</span></div></div><p class="closeFiltro">+</p></div></div>`;
 
                 } else if (i > -1 && i < consultaReCrear.length) {
 
@@ -643,7 +643,7 @@ function filaAbmEditada(objeto, numeroForm) {
             case `checkbox`:
 
                 $(`#t${numeroForm} .tr.sel .edit.${value.nombre}`).attr("type", "checkbox").removeAttr("form").removeAttr("name").prop("checked", valorLogic);
-                let hidden = `<input type="hidden" class="edit ${value.nombre}" name="${value.nombre}" form="f${objeto.accion}${numeroForm}" value="${valorLogic || false}"  />`;
+                let hidden = `<input type="hidden" class="edit ${value.nombre}" name="${value.nombre}" form="f${objeto.accion}${numeroForm}" value="${valorLogic || false}"   ${autoCompOff} />`;
 
                 $(hidden).appendTo(`#t${numeroForm} .tr.sel div.celda.${value.nombre}`);
 
@@ -664,7 +664,7 @@ function filaAbmEditada(objeto, numeroForm) {
 
     $(`#t${numeroForm} .tr.sel div.celda._id`).empty();
 
-    inp = `<input class="edit auditoria date ${numeroForm}" name="date" form="f${accion}${numeroForm}" soloLec=true type="datetime-local"></input>`;
+    inp = `<input class="edit auditoria date ${numeroForm}" name="date" form="f${accion}${numeroForm}" soloLec=true type="datetime-local" ${autoCompOff} ></input>`;
 
     input = $(inp);
     input.appendTo(`#t${numeroForm} .tr.sel div.celda.date`);
@@ -672,14 +672,14 @@ function filaAbmEditada(objeto, numeroForm) {
     let fecha = dateNowAFechaddmmyyyy(Date.now(), `y-m-dThh`);
     $(`#t${numeroForm} input.edit.date`).val(fecha);
 
-    inp = `<input class="edit auditoria username ${numeroForm}" name="username" form="f${accion}${numeroForm}" soloLec=true></input>`;
+    inp = `<input class="edit auditoria username ${numeroForm}" name="username" form="f${accion}${numeroForm}" soloLec=true ${autoCompOff} ></input>`;
 
     input = $(inp);
 
     input.appendTo(`#t${numeroForm} .tr.sel div.celda.username`);
     $(`#t${numeroForm} input.edit.username`).val(usu);
 
-    inp = `<input class="edit _id ${numeroForm}" name="_id" form="f${accion}${numeroForm}" soloLec=true></input>`;
+    inp = `<input class="edit _id ${numeroForm}" name="_id" form="f${accion}${numeroForm}" soloLec=true ${autoCompOff} ></input>`;
     input = $(inp);
     input.appendTo(`#t${numeroForm} .tr.sel div.celda._id`);
     $(`#t${numeroForm} input.edit._id`).val(valorId);
@@ -1532,7 +1532,7 @@ function filtrarAbm(objeto, numeroForm) {
 
         $(`#t${numeroForm} input.busqueda`).val("");
         $(`#t${numeroForm} .busquedasColumna`).each((_, columna) => {
-            $(`.filtroCampo`, columna).slice(1).remove();
+            $(`.filtroCampo`, columna).slice(2).remove();
         });
         $(`#bf${numeroForm} .cantidad`).html(consultaGet[numeroForm].length);
     });
@@ -1550,7 +1550,13 @@ function filtrarAbm(objeto, numeroForm) {
         ($(row).children(`div.${filtrado}`).text() ?? "").toString().trim();
 
     const coincideConTermino = (termino, row, filtrado, type) => {
-        const valorBuscado = termino.toLowerCase();
+        const terminoRaw = (termino ?? "").toString();
+        if (/^\s+$/.test(terminoRaw)) {
+            const filaRaw = celdaBruta(row, filtrado);
+            return filaRaw.trim() === "";
+        }
+
+        const valorBuscado = terminoRaw.toLowerCase();
         const primerCaracter = valorBuscado.slice(0, 1);
         const valorFila = tipoFiltro?.[type]?.(celdaBruta(row, filtrado)) ?? celdaTexto(row, filtrado);
         const filaComp = normalizarComparable(valorFila);
@@ -1585,7 +1591,7 @@ function filtrarAbm(objeto, numeroForm) {
             return filaComp != null && buscadoComp != null && filaComp < buscadoComp;
         }
 
-        const buscado = normalizarTexto(termino);
+        const buscado = normalizarTexto(terminoRaw);
         const fila = celdaTexto(row, filtrado);
 
         if (buscado === "vacio") return fila === "";
@@ -1599,7 +1605,7 @@ function filtrarAbm(objeto, numeroForm) {
         let filtrado = contenedorFiltro.attr(`filtro`);
         let registros = $(`#t${numeroForm} .tr.fila`);
         const terminos = $(`input.busqueda`, contenedorFiltro)
-            .map((_, input) => ($(input).val() ?? "").toString().trim())
+            .map((_, input) => ($(input).val() ?? "").toString())
             .get()
             .filter((valor) => valor !== "");
 
@@ -1619,17 +1625,14 @@ function filtrarAbm(objeto, numeroForm) {
 
         $(`#bf${numeroForm} .cantidad`).html($(`#t${numeroForm} .tr.fila:visible`).length);
     };
+    const autoAgregarCampoFiltro = (e) => {
+        const inputActual = $(e.currentTarget);
+        const columnaBusquedas = inputActual.closest(".busquedasColumna");
+        if (!columnaBusquedas.length) return;
 
-    const tablaAbm = $(`#t${numeroForm}`);
-    tablaAbm.off("input.filtroDinamico", ".busqueda");
-    tablaAbm.on("input.filtroDinamico", ".busqueda", filtoTabla);
-
-    tablaAbm.off("dblclick.filtroDinamico", ".td.filtro");
-    tablaAbm.on("dblclick.filtroDinamico", ".td.filtro", (e) => {
-        if ($(e.target).closest(".closeFiltro, .deleteFiltroCampo").length > 0) return;
-
-        const columnaBusquedas = $(e.currentTarget).find(".busquedasColumna").first();
-        if (columnaBusquedas.length === 0) return;
+        const ultimoInput = columnaBusquedas.find(".filtroCampo:last input.busqueda");
+        const valorUltimo = (ultimoInput.val() ?? "").toString();
+        if (valorUltimo === "") return;
 
         const primerInput = columnaBusquedas.find("input.busqueda").first();
         const nuevoInput = primerInput.clone(false);
@@ -1639,8 +1642,16 @@ function filtrarAbm(objeto, numeroForm) {
         const botonEliminar = $(`<span class="material-symbols-outlined deleteFiltroCampo" title="Eliminar campo">delete</span>`);
         nuevoCampo.append(nuevoInput).append(botonEliminar);
         columnaBusquedas.append(nuevoCampo);
-        nuevoInput.trigger("focus");
+    };
+
+    const tablaAbm = $(`#t${numeroForm}`);
+    tablaAbm.off("input.filtroDinamico", ".busqueda");
+    tablaAbm.on("input.filtroDinamico", ".busqueda", (e) => {
+        autoAgregarCampoFiltro(e);
+        filtoTabla(e);
     });
+
+    tablaAbm.off("dblclick.filtroDinamico", ".td.filtro");
 
     tablaAbm.off("click.filtroDinamico", ".deleteFiltroCampo");
     tablaAbm.on("click.filtroDinamico", ".deleteFiltroCampo", (e) => {
@@ -1649,7 +1660,7 @@ function filtrarAbm(objeto, numeroForm) {
         const columnaBusquedas = campo.closest(".busquedasColumna");
         const cantidadCampos = columnaBusquedas.children(".filtroCampo").length;
 
-        if (cantidadCampos <= 1) {
+        if (cantidadCampos <= 2) {
             $("input.busqueda", campo).val("").trigger("input");
             return;
         }
@@ -2253,7 +2264,7 @@ function tipoInput(objeto, numeroForm, names) {
                 $.each(value.componentes, function (ind, val) {
 
                     inputTabla += `<div class="td inputTd des ${ind}" id="inputTd${val.nombre}${numeroForm}" style="order:${indice}" cont=${numeroForm}  ${widthObject[val.width] || ""} ${ocultoOject[val.oculto] || ""}>
-                        <input class="inputR ${ind} ${numeroForm}" id="in${ind}${numeroForm}" readonly name="${ind}" form="f${objeto.accion}${numeroForm}" valid=${value.validacion}></div>`;
+                        <input class="inputR ${ind} ${numeroForm}" id="in${ind}${numeroForm}" readonly name="${ind}" form="f${objeto.accion}${numeroForm}" valid=${value.validacion} ${autoCompOff} ></div>`;
                     orderInput++
                 });
                 orderInput--
@@ -2279,19 +2290,19 @@ function tipoInput(objeto, numeroForm, names) {
     });
 
     inputTabla += `<div class="td inputTd auditoria des date" id="inputTddate${numeroForm}" style="order:9995" width=doce>
-              <input class="inputR date" id="indate${numeroForm}" soloLec=true name="date" type="datetime-local" form="f${objeto.accion}${numeroForm}"></div>`;
+              <input class="inputR date" id="indate${numeroForm}" soloLec=true name="date" type="datetime-local" form="f${objeto.accion}${numeroForm}" ${autoCompOff} ></div>`;
 
     inputTabla += `<div class="td inputTd auditoria des username" id="inputTdusername${numeroForm}" style="order:9996" width="doce">
-              <input class="inputR username" id="inusername${numeroForm}" soloLec=true name="username" form="f${objeto.accion}${numeroForm}" readonly></div>`;
+              <input class="inputR username" id="inusername${numeroForm}" soloLec=true name="username" form="f${objeto.accion}${numeroForm}" readonly ${autoCompOff} ></div>`;
 
     inputTabla += `<div class="td inputTd des version ocultoSiempre" id="inputTdversion${numeroForm}" style="order:9997">
-              <input class="inputR version" id="inversion${numeroForm}" name="version" value=0></div>`;
+              <input class="inputR version" id="inversion${numeroForm}" name="version" value=0 ${autoCompOff} ></div>`;
 
     inputTabla += `<div class="td inputTd des empresa ocultoSiempre" id="inputTdversion${numeroForm}" valueinicial="${$(`.navegacionSupHomeLog .tituloEmpresa .empresaSelect`)?.html()?.trim()}" style="order:9997">
-              <input class="inputR empresa" id="inversion${numeroForm}" name="empresa" value=0></div>`;
+              <input class="inputR empresa" id="inversion${numeroForm}" name="empresa" value=0 ${autoCompOff} ></div>`;
 
     inputTabla += `<div class="td inputTd  des _id ocultoSiempre" id="inputTd_id${numeroForm}" style="order:9998">
-              <input class="inputR _id" id="in_id${numeroForm}" name="_id" form="f${objeto.accion}${numeroForm}"></div>`;
+              <input class="inputR _id" id="in_id${numeroForm}" name="_id" form="f${objeto.accion}${numeroForm}" ${autoCompOff} ></div>`;
 
     inputTabla += "</div>"
 
@@ -2568,7 +2579,7 @@ async function cabeceraFiltroAbm(objeto, numeroForm) {
 
     $.each(objeto.atributos.cabeceraAbm?.input, (indice, value) => {
         atributosCabecera += `<div class="atributoCompletoCabecera"><h3>${value.titulo}:</h3>
-        <div><input class="${value?.atributo?.nombre || value?.atributo} cabecera" name="${value?.atributo?.nombre || value?.atributo}"></div></div>`;
+        <div><input class="${value?.atributo?.nombre || value?.atributo} cabecera" name="${value?.atributo?.nombre || value?.atributo}" ${autoCompOff} ></div></div>`;
     });
 
     $.each(objeto.atributos.cabeceraAbm?.div, (indice, value) => {
@@ -2799,9 +2810,9 @@ function adjuntoCeldaAbm(objeto, numeroForm) {
             $.each(registros?.path, (indice, value) => {
 
                 listaAdjunto += `<div class="tr fila" fila="${fila}">
-                        <div class="celdAdj nameUsu src=""><input class="nameUsu adjuntoForm" value="${registros.nameUsu[indice]}" form="f${objeto.accion}${numeroForm}"/></div>
-                        <div class="celdAdj originalname ocultoSiempre"><input class="originalname adjuntoForm" name="originalname" value="${registros.originalname[indice]}" form="f${objeto.accion}${numeroForm}"/></div> 
-                        <div class="celdAdj path ocultoSiempre"><input class="path adjuntoForm ocultoSiempre" name="path" value="${value}" form="f${objeto.accion}${numeroForm}"/></div>                                                                 
+                        <div class="celdAdj nameUsu src=""><input class="nameUsu adjuntoForm" value="${registros.nameUsu[indice]}" form="f${objeto.accion}${numeroForm}" ${autoCompOff} /></div>
+                        <div class="celdAdj originalname ocultoSiempre"><input class="originalname adjuntoForm" name="originalname" value="${registros.originalname[indice]}" form="f${objeto.accion}${numeroForm}" ${autoCompOff} /></div> 
+                        <div class="celdAdj path ocultoSiempre"><input class="path adjuntoForm ocultoSiempre" name="path" value="${value}" form="f${objeto.accion}${numeroForm}" ${autoCompOff} /></div>                                                                 
                         <div class="celdAdj verAdj "><img class="verAdj" img src="/img/iconos/botonAdjunto/VerAdj.svg" title="Ver adjunto"></div></div>`
                 fila++
             })
@@ -2893,10 +2904,10 @@ function adjuntoCeldaAbm(objeto, numeroForm) {
             listaAdjunto += `<div class="th fila titulos"><div class="nombre titulo" width="nueve">Nombre</div><div class="adjuntar ocultoSiempre titulo"></div><div class="verAdjunto titulo ocultoSiempre"></div><div class="titulo eliminarAdj"></div></div>`
             let fila = 0
             listaAdjunto += `<div class="tr fila filaVacia" fila="${fila}">
-                        <div class="celdAdj nameUsu vacio" src=""><input class="nameUsu adjuntoForm" name="nameUsu" form="f${objeto.accion}${numeroForm}" /></div>
-                        <div class="celdAdj path vacio ocultoSiempre" src=""><input class="path adjuntoForm" name="path" form="f${objeto.accion}${numeroForm}" /></div>
-                        <div class="celdAdj originalname vacio ocultoSiempre" src=""><input class="adjuntoForm originalname" name="originalname" form="f${objeto.accion}${numeroForm}" /></div>
-                        <div class="celdAdj adjunto vacio"><label for="adjunto${objeto.accion}${numeroForm}fila${fila}"></label><img src="/img/iconos/botonAdjunto/adjuntar.svg"/><input type=file id="adjunto${objeto.accion}${numeroForm}fila${fila}" name="adjunto" form="f${objeto.accion}${numeroForm}" class="adjunto adjuntoForm"/></div>
+                        <div class="celdAdj nameUsu vacio" src=""><input class="nameUsu adjuntoForm" name="nameUsu" form="f${objeto.accion}${numeroForm}"  ${autoCompOff} /></div>
+                        <div class="celdAdj path vacio ocultoSiempre" src=""><input class="path adjuntoForm" name="path" form="f${objeto.accion}${numeroForm}"  ${autoCompOff} /></div>
+                        <div class="celdAdj originalname vacio ocultoSiempre" src=""><input class="adjuntoForm originalname" name="originalname" form="f${objeto.accion}${numeroForm}"  ${autoCompOff} /></div>
+                        <div class="celdAdj adjunto vacio"><label for="adjunto${objeto.accion}${numeroForm}fila${fila}"></label><img src="/img/iconos/botonAdjunto/adjuntar.svg"/><input type=file id="adjunto${objeto.accion}${numeroForm}fila${fila}" name="adjunto" form="f${objeto.accion}${numeroForm}" class="adjunto adjuntoForm" ${autoCompOff} /></div>
                         <div class="celdAdj verAdj vacio"><img class="verAdj" img src="/img/iconos/botonAdjunto/VerAdj.svg" title="Ver adjunto"></div>
                         <div class="celdAdj eliminarAdj vacio"><img class="eliminarAdj" src="/img/iconos/botonAdjunto/deleteAdj.svg" title="Eliminar adjunto"></div>
                         <div class="celdAdj agregarFila vacio"><img class="agregarFila" src="/img/iconos/botonAdjunto/addAdj.svg" title="Agregar fila"></div></div>`
@@ -3077,10 +3088,10 @@ function adjuntoCeldaAbm(objeto, numeroForm) {
         const table = $(e.target).parents("div.contenido")
 
         let listaAdjunto = `<div class="tr fila filaVacia" fila="${fila}">
-                                <div class="celdAdj nameUsu vacio ${numeroForm}" src=""><input class="nameUsu ${numeroForm}" id="nameUsu${numeroForm}" name="nameUsu" form="f${objeto.accion}${numeroForm}" disabled="disabled"/></div>
-                                <div class="celdAdj path vacio ${numeroForm} ocultoSiempre" src=""><input class="path ${numeroForm}" id="path${numeroForm}" name="path" form="f${objeto.accion}${numeroForm}" disabled="disabled" /></div>                               
-                                <div class="celdAdj originalname vacio ${numeroForm} ocultoSiempre" src=""><input class="originalname ${numeroForm}" id="originalname${numeroForm}" name="originalname" form="f${objeto.accion}${numeroForm}" disabled="disabled" /></div>                               
-                                <div class="celdAdj adjunto vacio nuevo"><label for="adjunto${objeto.accion}${numeroForm}fila${fila}"><img src="/img/iconos/botonAdjunto/adjuntar.svg"/></label><input type=file id="adjunto${objeto.accion}${numeroForm}fila${fila}" name="adjunto" form="f${objeto.accion}${numeroForm}" class="adjunto"/></div>
+                                <div class="celdAdj nameUsu vacio ${numeroForm}" src=""><input class="nameUsu ${numeroForm}" id="nameUsu${numeroForm}" name="nameUsu" form="f${objeto.accion}${numeroForm}" disabled="disabled" ${autoCompOff} /></div>
+                                <div class="celdAdj path vacio ${numeroForm} ocultoSiempre" src=""><input class="path ${numeroForm}" id="path${numeroForm}" name="path" form="f${objeto.accion}${numeroForm}" disabled="disabled"  ${autoCompOff} /></div>                               
+                                <div class="celdAdj originalname vacio ${numeroForm} ocultoSiempre" src=""><input class="originalname ${numeroForm}" id="originalname${numeroForm}" name="originalname" form="f${objeto.accion}${numeroForm}" disabled="disabled"  ${autoCompOff} /></div>                               
+                                <div class="celdAdj adjunto vacio nuevo"><label for="adjunto${objeto.accion}${numeroForm}fila${fila}"><img src="/img/iconos/botonAdjunto/adjuntar.svg"/></label><input type=file id="adjunto${objeto.accion}${numeroForm}fila${fila}" name="adjunto" form="f${objeto.accion}${numeroForm}" class="adjunto" ${autoCompOff} /></div>
                                 <div class="celdAdj verAdj vacio nuevo"><img class="verAdj" img src="/img/iconos/botonAdjunto/VerAdj.svg" title="Ver adjunto"></div>
                                 <div class="celdAdj eliminarAdj vacio nuevo"><img class="eliminarAdj" src="/img/iconos/botonAdjunto/deleteAdj.svg" title="Eliminar adjunto"></div>
                                 <div class="celdAdj agregarFila vacio nuevo"><img class="agregarFila" src="/img/iconos/botonAdjunto/addAdj.svg" title="Agregar fila"></div></div>`;
@@ -3110,10 +3121,10 @@ function adjuntoCeldaAbm(objeto, numeroForm) {
             $.each(consulta?.path, (indice, value) => {
 
                 listaAdjunto += `<div class="tr fila" fila="${fila}">
-                        <div class="celdAdj nameUsu src=""><input class="nameUsu adjuntoForm" value="${consulta.nameUsu[indice]}" name="nameUsu" form="f${objeto.accion}${numeroForm}"/></div>
-                        <div class="celdAdj originalname ocultoSiempre"><input class="originalname adjuntoForm" name="originalname" value="${consulta.originalname[indice]}" form="f${objeto.accion}${numeroForm}"/></div> 
-                        <div class="celdAdj path ocultoSiempre"><input class="path adjuntoForm ocultoSiempre" name="path" value="${value}" form="f${objeto.accion}${numeroForm}"/></div>                                                                 
-                        <div class="celdAdj adjunto"><label for="adjunto${objeto.accion}${numeroForm}fila${fila}"><img src="/img/iconos/botonAdjunto/adjuntar.svg"/></label><input type=file id="adjunto${objeto.accion}${numeroForm}fila${fila}" name="adjunto" form="f${objeto.accion}${numeroForm}" class="adjunto adjuntoForm"/></div>
+                        <div class="celdAdj nameUsu src=""><input class="nameUsu adjuntoForm" value="${consulta.nameUsu[indice]}" name="nameUsu" form="f${objeto.accion}${numeroForm}" ${autoCompOff} /></div>
+                        <div class="celdAdj originalname ocultoSiempre"><input class="originalname adjuntoForm" name="originalname" value="${consulta.originalname[indice]}" form="f${objeto.accion}${numeroForm}" ${autoCompOff} /></div> 
+                        <div class="celdAdj path ocultoSiempre"><input class="path adjuntoForm ocultoSiempre" name="path" value="${value}" form="f${objeto.accion}${numeroForm}" ${autoCompOff} /></div>                                                                 
+                        <div class="celdAdj adjunto"><label for="adjunto${objeto.accion}${numeroForm}fila${fila}"><img src="/img/iconos/botonAdjunto/adjuntar.svg"/></label><input type=file id="adjunto${objeto.accion}${numeroForm}fila${fila}" name="adjunto" form="f${objeto.accion}${numeroForm}" class="adjunto adjuntoForm" ${autoCompOff} /></div>
                         <div class="celdAdj verAdj "><img class="verAdj" img src="/img/iconos/botonAdjunto/VerAdj.svg" title="Ver adjunto"></div>
                         <div class="celdAdj eliminarAdj"><img class="eliminarAdj"src="/img/iconos/botonAdjunto/deleteAdj.svg" title="Eliminar adjunto"></div></div>`
                 fila++
@@ -3121,10 +3132,10 @@ function adjuntoCeldaAbm(objeto, numeroForm) {
         }
 
         listaAdjunto += `<div class="tr fila filaVacia" fila="${fila}">
-                        <div class="celdAdj nameUsu vacio" src=""><input class="nameUsu adjuntoForm" name="nameUsu" form="f${objeto.accion}${numeroForm}" disabled="disabled" /></div>
-                        <div class="celdAdj path vacio ocultoSiempre" src=""><input class="path adjuntoForm" name="path" form="f${objeto.accion}${numeroForm}" disabled="disabled" /></div>
-                        <div class="celdAdj originalname vacio ocultoSiempre" src=""><input class="adjuntoForm originalname" name="originalname" form="f${objeto.accion}${numeroForm}" disabled="disabled"/></div>
-                        <div class="celdAdj adjunto vacio"><label for="adjunto${objeto.accion}${numeroForm}fila${fila}"><img src="/img/iconos/botonAdjunto/adjuntar.svg"/></label><input type=file id="adjunto${objeto.accion}${numeroForm}fila${fila}" name="adjunto" form="f${objeto.accion}${numeroForm}" class="adjunto adjuntoForm"/></div>
+                        <div class="celdAdj nameUsu vacio" src=""><input class="nameUsu adjuntoForm" name="nameUsu" form="f${objeto.accion}${numeroForm}" disabled="disabled"  ${autoCompOff} /></div>
+                        <div class="celdAdj path vacio ocultoSiempre" src=""><input class="path adjuntoForm" name="path" form="f${objeto.accion}${numeroForm}" disabled="disabled"  ${autoCompOff} /></div>
+                        <div class="celdAdj originalname vacio ocultoSiempre" src=""><input class="adjuntoForm originalname" name="originalname" form="f${objeto.accion}${numeroForm}" disabled="disabled" ${autoCompOff} /></div>
+                        <div class="celdAdj adjunto vacio"><label for="adjunto${objeto.accion}${numeroForm}fila${fila}"><img src="/img/iconos/botonAdjunto/adjuntar.svg"/></label><input type=file id="adjunto${objeto.accion}${numeroForm}fila${fila}" name="adjunto" form="f${objeto.accion}${numeroForm}" class="adjunto adjuntoForm" ${autoCompOff} /></div>
                         <div class="celdAdj verAdj vacio"><img class="verAdj" img src="/img/iconos/botonAdjunto/VerAdj.svg" title="Ver adjunto"></div>
                         <div class="celdAdj eliminarAdj vacio"><img class="eliminarAdj" src="/img/iconos/botonAdjunto/deleteAdj.svg" title="Eliminar adjunto"></div>
                         <div class="celdAdj agregarFila vacio"><img class="agregarFila" src="/img/iconos/botonAdjunto/addAdj.svg" title="Agregar fila"></div></div>`

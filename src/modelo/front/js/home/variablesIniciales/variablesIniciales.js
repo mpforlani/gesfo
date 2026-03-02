@@ -191,17 +191,24 @@ function adicionarCaracteristicaAtributos(objeto, numeroForm, value) {//doc
         switch (val.lugar) {
             case "inicio":
 
-                $.extend(true, objeto.funcionesPropias, { [val?.lugar]: { [val.nombre]: [val.func] } });
+                objeto.funcionesPropias = objeto.funcionesPropias || {};
+                objeto.funcionesPropias[val?.lugar] = objeto.funcionesPropias[val?.lugar] || {};
+                objeto.funcionesPropias[val?.lugar][val.nombre] = [val.func];
 
                 break;
             case "validarAlConfirmar":
 
-                $.extend(true, objeto.funcionesPropias, { [val?.lugar]: { [val.nombre]: val.func } });
+                objeto.funcionesPropias = objeto.funcionesPropias || {};
+                objeto.funcionesPropias[val?.lugar] = objeto.funcionesPropias[val?.lugar] || {};
+                objeto.funcionesPropias[val?.lugar][val.nombre] = val.func;
 
                 break;
             case "coleccionFormIndividual":
 
-                $.extend(true, objeto.funcionesPropias, { [val?.lugar]: { [value.nombre]: { [val.nombre]: [val.func] } } });
+                objeto.funcionesPropias = objeto.funcionesPropias || {};
+                objeto.funcionesPropias[val?.lugar] = objeto.funcionesPropias[val?.lugar] || {};
+                objeto.funcionesPropias[val?.lugar][value.nombre] = objeto.funcionesPropias[val?.lugar][value.nombre] || {};
+                objeto.funcionesPropias[val?.lugar][value.nombre][val.nombre] = [val.func];
 
                 break;
             case undefined://Este lo dejo porque los nmeradores tienen funciones y no corresopnde que hagan nada
@@ -209,7 +216,9 @@ function adicionarCaracteristicaAtributos(objeto, numeroForm, value) {//doc
                 break;
             default:
 
-                $.extend(true, objeto, { funcionesPropias: { [val?.lugar]: { [val.nombre]: [val.func] } } });
+                objeto.funcionesPropias = objeto.funcionesPropias || {};
+                objeto.funcionesPropias[val?.lugar] = objeto.funcionesPropias[val?.lugar] || {};
+                objeto.funcionesPropias[val?.lugar][val.nombre] = [val.func];
 
                 $.each(val?.atributos, (i, v) => {
 
@@ -223,17 +232,29 @@ function adicionarCaracteristicaAtributos(objeto, numeroForm, value) {//doc
 
         switch (ind) {
             case "string":
-                $.extend(true, objeto.atributos, { valoresIniciales: { string: { [value.nombre]: val } } });
+                objeto.atributos = objeto.atributos || {};
+                objeto.atributos.valoresIniciales = objeto.atributos.valoresIniciales || {};
+                objeto.atributos.valoresIniciales.string = objeto.atributos.valoresIniciales.string || {};
+                objeto.atributos.valoresIniciales.string[value.nombre] = val;
                 break;
             case "stringEntidad":
-                $.extend(true, objeto.atributos, { valoresIniciales: { string: { [value.nombre]: objeto.pest } } });
+                objeto.atributos = objeto.atributos || {};
+                objeto.atributos.valoresIniciales = objeto.atributos.valoresIniciales || {};
+                objeto.atributos.valoresIniciales.string = objeto.atributos.valoresIniciales.string || {};
+                objeto.atributos.valoresIniciales.string[value.nombre] = objeto.pest;
                 break;
             case "coleccionFirst":
-                $.extend(true, objeto.atributos, { valoresIniciales: { coleccionFirst: { [value.nombre]: { valor: val, coleccion: colecNombre } } } });
+                objeto.atributos = objeto.atributos || {};
+                objeto.atributos.valoresIniciales = objeto.atributos.valoresIniciales || {};
+                objeto.atributos.valoresIniciales.coleccionFirst = objeto.atributos.valoresIniciales.coleccionFirst || {};
+                objeto.atributos.valoresIniciales.coleccionFirst[value.nombre] = { valor: val, coleccion: colecNombre };
                 break;
             case "coleccion":
 
-                $.extend(true, objeto.atributos, { valoresIniciales: { coleccion: { [val.nombre]: { funcion: [val.funcion], coleccion: value.nombre } } } });
+                objeto.atributos = objeto.atributos || {};
+                objeto.atributos.valoresIniciales = objeto.atributos.valoresIniciales || {};
+                objeto.atributos.valoresIniciales.coleccion = objeto.atributos.valoresIniciales.coleccion || {};
+                objeto.atributos.valoresIniciales.coleccion[val.nombre] = { funcion: [val.funcion], coleccion: value.nombre };
 
                 $.each(val.atributos, (i, v) => {
                     objeto.atributos.valoresIniciales.coleccion[val.nombre].funcion.push(v)
@@ -241,17 +262,24 @@ function adicionarCaracteristicaAtributos(objeto, numeroForm, value) {//doc
 
                 break;
             case "funcion":
-                $.extend(true, objeto.atributos, { valoresIniciales: { funcion: { [value.nombre]: val } } });
+                objeto.atributos = objeto.atributos || {};
+                objeto.atributos.valoresIniciales = objeto.atributos.valoresIniciales || {};
+                objeto.atributos.valoresIniciales.funcion = objeto.atributos.valoresIniciales.funcion || {};
+                objeto.atributos.valoresIniciales.funcion[value.nombre] = val;
                 break;
             case "select":
-                $.extend(true, objeto.atributos, { valoresIniciales: { select: { [value.nombre]: val } } });
+                objeto.atributos = objeto.atributos || {};
+                objeto.atributos.valoresIniciales = objeto.atributos.valoresIniciales || {};
+                objeto.atributos.valoresIniciales.select = objeto.atributos.valoresIniciales.select || {};
+                objeto.atributos.valoresIniciales.select[value.nombre] = val;
                 break;
         }
     })
 
     $.each(value.totalizadores, (indice, value) => {
 
-        $.extend(true, objeto, { totalizadores: { [indice]: value } });
+        objeto.totalizadores = objeto.totalizadores || {};
+        objeto.totalizadores[indice] = value;
     })
 
 }
@@ -300,7 +328,9 @@ function agregarIdDesenCompononentesObjetos(objeto, coleccionesObjeto) { //Esta 
 
             if (val.opciones != undefined) {
 
-                $.extend(true, objeto, { funcionesPropias: { formularioIndiv: { atributoLimpiaDesencadenante: [atributoLimpiaDesencadenante, val] } } });
+                objeto.funcionesPropias = objeto.funcionesPropias || {};
+                objeto.funcionesPropias.formularioIndiv = objeto.funcionesPropias.formularioIndiv || {};
+                objeto.funcionesPropias.formularioIndiv.atributoLimpiaDesencadenante = [atributoLimpiaDesencadenante, val];
 
             }
         }
@@ -314,7 +344,9 @@ function agregarIdDesenCompononentesObjetos(objeto, coleccionesObjeto) { //Esta 
 
             if (val.opciones != undefined || val.atributosMain != undefined) {
 
-                $.extend(true, objeto, { funcionesPropias: { formularioIndiv: { atributoLimpiaDesencadenante: [atributoLimpiaDesencadenante, val] } } });
+                objeto.funcionesPropias = objeto.funcionesPropias || {};
+                objeto.funcionesPropias.formularioIndiv = objeto.funcionesPropias.formularioIndiv || {};
+                objeto.funcionesPropias.formularioIndiv.atributoLimpiaDesencadenante = [atributoLimpiaDesencadenante, val];
 
             }
         }
@@ -328,7 +360,9 @@ function agregarIdDesenCompononentesObjetos(objeto, coleccionesObjeto) { //Esta 
 
             if (val.opciones != undefined) {
 
-                $.extend(true, objeto, { funcionesPropias: { formularioIndiv: { atributoLimpiaDesencadenante: [atributoLimpiaDesencadenante, val] } } });
+                objeto.funcionesPropias = objeto.funcionesPropias || {};
+                objeto.funcionesPropias.formularioIndiv = objeto.funcionesPropias.formularioIndiv || {};
+                objeto.funcionesPropias.formularioIndiv.atributoLimpiaDesencadenante = [atributoLimpiaDesencadenante, val];
 
             }
         }
@@ -1413,8 +1447,13 @@ function agregarCaractAtributos(objeto, numeroForm, elemento, clase) {
 
         if (val.type == "coleccionInd") {
 
-            $.extend(true, objeto.atributos, { compuesto: { [val.nombre]: val } });//Aca agrego el compuesto al objeto buscar la manera de hacerlo solo una vez
-            $.extend(true, objeto, { formInd: { moneda: { coleccion: { [val.nombre]: val.moneda || (objeto.atributos.moneda || "moneda") } } } });
+            objeto.atributos = objeto.atributos || {};
+            objeto.atributos.compuesto = objeto.atributos.compuesto || {};
+            objeto.atributos.compuesto[val.nombre] = val;//Aca agrego el compuesto al objeto buscar la manera de hacerlo solo una vez
+            objeto.formInd = objeto.formInd || {};
+            objeto.formInd.moneda = objeto.formInd.moneda || {};
+            objeto.formInd.moneda.coleccion = objeto.formInd.moneda.coleccion || {};
+            objeto.formInd.moneda.coleccion[val.nombre] = val.moneda || (objeto.atributos.moneda || "moneda");
 
             $.each(val.componentes, (i, v) => {
 
@@ -1643,8 +1682,8 @@ function entidadesEmailFuncion(objeto, numeroForm) {
 
     for (const value of entidadesUnicas) {
 
-        celdas += `<td class="${value} email${value} textoCentrado" set="${idTabla}"><input type="checkbox" class="email${value}" />`
-        celdas += `<input type="hidden" class="formColec email${value}" name="email${value}" form="f${objeto.accion}${numeroForm}"/>`
+        celdas += `<td class="${value} email${value} textoCentrado" set="${idTabla}"><input type="checkbox" class="email${value}"  ${autoCompOff} />`
+        celdas += `<input type="hidden" class="formColec email${value}" name="email${value}" form="f${objeto.accion}${numeroForm}" ${autoCompOff} />`
         celdas += `</td>`
         titulos += `<th class="tituloTablasIndividual ${value}">${variablesModelo?.[value]?.pest || variablesIniciales?.locales?.[value]?.pest}</th>`
     }

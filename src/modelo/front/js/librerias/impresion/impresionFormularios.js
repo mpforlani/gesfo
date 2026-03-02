@@ -191,10 +191,10 @@ async function formularioIndividualImpresion(objeto, numeroForm, data) {
 
         $(cartel).appendTo('#documentoImpresion')
         let inputs = `<div class="enviarEmail">`
-        inputs += `<div class="para flex heightAuto email-container"><div class="widthDiezPorc">Para:</div><div class="widthCien"><input name="para" /></div></div>`
-        inputs += `<div class="copia flex heightAuto email-container"><div class="widthDiezPorc">CC:</div><div class="widthCien"><input name="copia" /></div></div>`
-        inputs += `<div class="copiaOculta flex heightAuto email-container"><div class="widthDiezPorc">CCO:</div><div class="widthCien"><input  name="copiaOculta" /></div></div>`
-        inputs += `<div class="asunto flex heightAuto email-container"><div class="widthDiezPorc">Asunto:</div><div class="widthCien"><input  name="sujeto" value="${asunto || ""}" /></div></div>`
+        inputs += `<div class="para flex heightAuto email-container"><div class="widthDiezPorc">Para:</div><div class="widthCien"><input name="para"  ${autoCompOff} /></div></div>`
+        inputs += `<div class="copia flex heightAuto email-container"><div class="widthDiezPorc">CC:</div><div class="widthCien"><input name="copia"  ${autoCompOff} /></div></div>`
+        inputs += `<div class="copiaOculta flex heightAuto email-container"><div class="widthDiezPorc">CCO:</div><div class="widthCien"><input  name="copiaOculta"  ${autoCompOff} /></div></div>`
+        inputs += `<div class="asunto flex heightAuto email-container"><div class="widthDiezPorc">Asunto:</div><div class="widthCien"><input  name="sujeto" value="${asunto || ""}"  ${autoCompOff} /></div></div>`
 
         inputs += `<div class="texto flex heighDiez email-container"><div class="widthDiezPorc">Texto:</div><div class="widthCien"><textarea class="heighDiez" name="textoEmail" />${texto || ""}</textarea></div></div>`
         inputs += `</div>`

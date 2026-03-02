@@ -200,7 +200,7 @@ function tablesComplemento(objeto, numeroForm, table) {
     }
     let fila = (indice, value, objeto, numeroForm, valor) => {
 
-        let fila = `<div class="td ${indice}" ${widthObject[value.width] || ""}><input type="${value.type}" class="tablaDetalle ${indice} ${objeto.clasesInput[indice] || ""}" name="${indice}" value="${valor}" form="f${objeto.accion}${numeroForm}" /></div>`
+        let fila = `<div class="td ${indice}" ${widthObject[value.width] || ""}><input type="${value.type}" class="tablaDetalle ${indice} ${objeto.clasesInput[indice] || ""}" name="${indice}" value="${valor}" form="f${objeto.accion}${numeroForm}"  ${autoCompOff} /></div>`
 
         return fila
     }
@@ -224,7 +224,7 @@ function tablesComplemento(objeto, numeroForm, table) {
         let valor = datos?.[value.type]?.(consultaGet?.[numeroForm]?.[indice]?.[0] || "") || consultaGet?.[numeroForm]?.[indice]?.[0] || ""
 
         primeraFila += fila(indice, value, objeto, numeroForm, valor)
-        ultimaFila += `<div class="td ${indice}" ${widthObject[value.width] || ""}><input type="${value.type}"  class="tablaDetalle ${indice} ${objeto.clasesInput[indice] || ""}" name="${indice}" form="f${objeto.accion}${numeroForm}" readOnly=true /></div>`
+        ultimaFila += `<div class="td ${indice}" ${widthObject[value.width] || ""}><input type="${value.type}"  class="tablaDetalle ${indice} ${objeto.clasesInput[indice] || ""}" name="${indice}" form="f${objeto.accion}${numeroForm}" readOnly=true  ${autoCompOff} /></div>`
         totales += `<div class="td totales ${indice}" ${widthObject[value.width] || ""}></div>`
 
         lengthTable.push(consultaGet?.[numeroForm]?.[indice]?.length)
@@ -233,10 +233,10 @@ function tablesComplemento(objeto, numeroForm, table) {
 
     tableCuerpo += `<div class="th deleteIcon"></div>`
     tableCuerpo += `</div>`//Cierre tr titulos
-    primeraFila += `<div class="td oculto"><input class="tablaDetalle positionDetalle" name="positionDetalle" value=${0} form="f${objeto.accion}${numeroForm}"/></div>`
+    primeraFila += `<div class="td oculto"><input class="tablaDetalle positionDetalle" name="positionDetalle" value=${0} form="f${objeto.accion}${numeroForm}" ${autoCompOff} /></div>`
     primeraFila += `<div class="td delete"><span class="material-symbols-outlined botonColeccion deleteIcon">delete</span></div>`;
     primeraFila += `</div>`//Cierre tr primeraFila
-    ultimaFila += `<div class="td oculto"><input class="tablaDetalle positionDetalle" name="positionDetalle" form="f${objeto.accion}${numeroForm}" /></div>`
+    ultimaFila += `<div class="td oculto"><input class="tablaDetalle positionDetalle" name="positionDetalle" form="f${objeto.accion}${numeroForm}"  ${autoCompOff} /></div>`
     ultimaFila += `<div class="td delete last"><span class="material-symbols-outlined botonColeccion deleteIcon">delete</span></div>`;
     ultimaFila += `</div>`//Cierre ultima Fila
     totales += `<div class="td delete last"><span class="material-symbols-outlined botonColeccion deleteIcon">delete</span></div>`;
@@ -280,7 +280,7 @@ function totalesTabla(objeto, numeroForm, table, totales) {
 
         $.each(value.componentes, (ind, val) => {
 
-            let celda = `<input class="tablaDetalle total ${ind} ${val.nombre || val} ${objeto.clasesInput[indice] || ""}" />`
+            let celda = `<input class="tablaDetalle total ${ind} ${val.nombre || val} ${objeto.clasesInput[indice] || ""}"  ${autoCompOff} />`
             $(celda).appendTo($(`.td.totales.${ind}`, $(`#ampliar${numeroForm}`)))
 
         })
@@ -431,9 +431,9 @@ function cartelfilaOriginalMasTablaComp(objeto, numeroForm, tablaOrigen) {
 
         $.each(tablaOrigen?.complemento?.atributos, (indice, value) => {
 
-            nuevoRenglon += `<div class="td ${indice}" ${widthObject[value.width] || ""}><input type="${value.type}" class="tablaDetalle ${indice} ${objeto.clasesInput[indice] || ""}" name="${indice}" form="f${objeto.accion}${numeroForm}" readOnly=true/></div>`
+            nuevoRenglon += `<div class="td ${indice}" ${widthObject[value.width] || ""}><input type="${value.type}" class="tablaDetalle ${indice} ${objeto.clasesInput[indice] || ""}" name="${indice}" form="f${objeto.accion}${numeroForm}" readOnly=true ${autoCompOff} /></div>`
         })
-        nuevoRenglon += `<div class="td oculto"><input class="tablaDetalle" name="positionDetalle" form="f${objeto.accion}${numeroForm}" /></div>`
+        nuevoRenglon += `<div class="td oculto"><input class="tablaDetalle" name="positionDetalle" form="f${objeto.accion}${numeroForm}"  ${autoCompOff} /></div>`
         nuevoRenglon += `<div class="td delete last"><span class="material-symbols-outlined botonColeccion deleteIcon">delete</span></div>`;
 
         nuevoRenglon += `</div>`

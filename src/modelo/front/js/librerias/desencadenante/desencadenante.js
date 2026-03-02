@@ -586,7 +586,8 @@ function desencadenanteAgrupadoColeccionVistaPrevia(desencadena, objeto, numeroF
         let objetoEnOrigenInicial = new Object
 
         /*Esta es la referencia de la operación original*/
-        $.extend(true, objetoEnOrigenInicial, { referencias: { desencAgrup: new Object } });
+        objetoEnOrigenInicial.referencias = objetoEnOrigenInicial.referencias || {};
+        objetoEnOrigenInicial.referencias.desencAgrup = objetoEnOrigenInicial.referencias.desencAgrup || new Object;
 
         objetoEnOrigenInicial.referencias.desencAgrup[ident] = {
             _id: resultado.posteo._id,

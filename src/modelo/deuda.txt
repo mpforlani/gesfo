@@ -18,80 +18,76 @@ instalar mi sitio web y el demo
 responsive
 Ver inteligencia artifical o web simplified
 ---------Funciones especificas
-104 - Ver tipo de cambios automaticos
-103 - Reporte resultado Lucho -  Miercoles 03/12 (Versión Beta)
-101 - Cambio seleccion celdas reportes -  Jueves 04/12
-100 - Manipulación celdas tamañao y orden reportes -  Martes 09/12 
-99 - Ver el formato en formulario, el tanto el ancho, como las celdas por reglon
-98 - arreglar formato oculto, que sea lindo priemro cuando se va(alguna transition), y segundo que que tenga en cuenta solo los visibles para los renglones
-97 - Ver si confirmo operación q se esta editando, en otro reigsotro, cierra esa o que hago.
-96 - Cuando muevo fila con la mano las opciones del select me quedan abajo
-95 - Ver de sugerir destinatarios en email, y poner firma 
-94 - Enriquecer cuerpo de email
-93 - Filtros get, ver en la tabla de cheni proque la complemento trae error, ejemplo cajas pones filtros si es get pone en cabecera y en el get comun no tiene cabecera => esto esta pero desprolijo, lo hice yo, chequear si se puede mejorar
-92 - Cración de la tabla con acumuladores, renlong 110 esta raro el filtro eta raro que va a buscar cheni tuvo que poner filtro coleecion
-91 - Ver filtro totales en reportes, que sale corrido cuando pongo filtros en totales de algunos reportes  o de los que tiene totales
-89 - ver los acumuladores total que pasa si modifica el que no es el último.
-88 - Sacar titulos de atributos
-87 - Ver lo de importe siempre tenga dos decimales asi me queda alineado en reportes e impresiones----
-86 - no me andubo anular en salda de stocks
-85 - Ver acumuladores cuando no le mandas mnoneda alternativa porque no funciona con multimoneda
-84 - Ver el TC en moneda base cuando no es multimoneda, en SBc no me sugiere tipo de cambios en tesoreria
-82 - Ver imputacion multiples desde facturacion proveedores
-81 - Ingresar factura a proveedores, centrar el estado
-80 - Ver duplicidad clase en colecciones
-78 - Ver en reportes arreglar el panel negro, porque no anda osea si agarro corrdido el scroll horizontal lo crea mal
-77 - Pagos cta ctte y cobros cta tte ver que se corre el renglon del tc por oculto
-76 - no envia email imrpesiones
-74 - titulo undefined, facturacion a orden salida
-72 - Ver lo de imputación multiples
-71 - No se puede NO crear entidades
-70 - Ver de crear un tilde para abm y otro para indm y otro para crearInd
-66 - ver imputacon un registros del array 
-64 - Ver filtros rápidos entidades kuni
-63 - Pestaña agrupada ????
-61 - El largo de adjuntos, si se estira el formulario no lo cubre todo, estasria bueno si lo cubre
-60 - sacar los desencadeantnes los atributos que no andan
-59 - en cobros que no se pueda cobrar mas que el saldo - PROBAR
-57 - moneda que no aparece por ejemplo en detalle flete signo dolar
-56 - ver moneda en items de pagos esta en la coleccion de moneda
-55 - El autocompletado en slect de colecciones
-54 - Ver deposito que el total es de ambas moneda -- Le dije a cheni poco usado
-53 - Ver como calcular moneda alternativa si no estar cargarda la moneda alternativa
-51 - Ver obtener cotizacioens automaticas de internet y registrarla
-48 - Ver borrar o desinputar
-47 - Arreglar multimoneda, no tiene cheques
-44 - Agregar scroll y maximo de largo chequear cartel de cheques con 20 cheques, que pasa
-43 - Ver lo de de renglones sea por atributos que no estan ocultos
-42 - desinputar cheque repetido
-41 - Ingresar registros que repite por ejmeplo nombre, tira error perono dice porque, es como si se tildaria
-40 - No anda ninguna tipo de adjunto en pagos y corbros verifiar porque puede estar pasando lo msimo en sbc
-39 - arreglar el nombre de tipo de cambio, sacarñp de indice y darle un lugar demtrp de tesoreria
-38 - ver porque busca 4 veces la cotizacon despues
-37 - Refrescar tipo de cambio cuando se ingresa uno nuevo
-36 - revisar abm de cobros, observaciones esta muy a la izquierda, y ver la tipo de cambio que esta raro
-35 - Ver como guarda o muestra el tc en cobros, de minima en la parte de meio de pagos, ver en cabecra tambien
-34 - Ver lo de objeto fusion eso no existe mas ya que fusiono cuando creo
-33 - Ver los de filaAbmEditada y edita registro del abm como hacer para q quede uno
-32 - ver tc en cheques o en todo el circuito que trabaja cheni de sacar el tc en el abm
-31 - Ver formato texto importe tipoPago
-29 - Traer medio de pago en formularioAbm, (ver colecciones en formularioABM)
-28 - Ver en provincia, que se me pone la pestaña arriba, y no entra se corta, mirar bien, ante la duda ir abajo
-27 - Crear algo para cuando abra la entidad espere a que termine asi obtengo el numero de operacion, tipo (Esto en testing)
-26 - Ver como calcula los impuestos la transformacion de factura
-25 - Arreglar los del tab, porque si pongo cartel seguro, me deja tabular a otros lados
-24 - Arreglar impresion, sacar la imagen porque sino todo el tiempo tengo que hacer doble con el print
-23 - Ver lo de abrir muchas pestañas 
-22 - ver de arreglar lo de tab index en coleccion, agregandole coma, para la carga rapida:
-21 - Ver lo del tab index, que pase por adjunto
-20 - Ver text area, enriquecerlo con negrita etc
-19 - hacer por default que la parametricas solo puedan desabilitarse y las transaccionales eliminarse
-18 - actualizao mongo
-17 - actualizar node
-14 - ver filtro y orden igualarlo al de reportes
-13 - Click ruedita cierre pestaña
-11 - ver de arreglar pestanas, para valores grandes
-10 - Sacar reversion rechazo en las aprobaciones.
+78 - Verreporetes de venta que haga uno nuevo agrupado
+77 - Reporte resultado Lucho -  Miercoles 03/12 (Versión Beta)
+76 - Cambio seleccion celdas reportes -  Jueves 04/12
+75 - Ver el formato en formulario, el tanto el ancho, como las celdas por reglon
+74 - arreglar formato oculto, que sea lindo priemro cuando se va(alguna transition), y segundo que que tenga en cuenta solo los visibles para los renglones
+73 - Ver si confirmo operación q se esta editando, en otro reigsotro, cierra esa o que hago.
+72 - Cuando muevo fila con la mano las opciones del select me quedan abajo
+71 - Ver de sugerir destinatarios en email, y poner firma 
+70 - Enriquecer cuerpo de email
+69 - Ver filtro totales en reportes, que sale corrido cuando pongo filtros en totales de algunos reportes  o de los que tiene totales
+68 - ver los acumuladores total que pasa si modifica el que no es el último.
+67 - Sacar titulos de atributos
+66 - Ver lo de importe siempre tenga dos decimales asi me queda alineado en reportes e impresiones----
+65 - no me andubo anular en salda de stocks
+64 - Ver acumuladores cuando no le mandas mnoneda alternativa porque no funciona con multimoneda
+63 - Ver el TC en moneda base cuando no es multimoneda, en SBc no me sugiere tipo de cambios en tesoreria
+62 - Ver imputacion multiples desde facturacion proveedores
+61 - Ingresar factura a proveedores, centrar el estado
+60 - Ver duplicidad clase en colecciones
+59 - Ver en reportes arreglar el panel negro, porque no anda osea si agarro corrdido el scroll horizontal lo crea mal
+58 - Pagos cta ctte y cobros cta tte ver que se corre el renglon del tc por oculto
+57 - no envia email imrpesiones
+56 - titulo undefined, facturacion a orden salida
+55 - No se puede NO crear entidades
+54 - Ver de crear un tilde para abm y otro para indm y otro para crearInd
+53 - ver imputacon un registros del array 
+52 - Ver filtros rápidos entidades kuni
+51 - Pestaña agrupada ????
+50 - El largo de adjuntos, si se estira el formulario no lo cubre todo, estasria bueno si lo cubre
+49 - sacar los desencadeantnes los atributos que no andan
+48 - en cobros que no se pueda cobrar mas que el saldo - PROBAR
+47 - moneda que no aparece por ejemplo en detalle flete signo dolar
+46 - ver moneda en items de pagos esta en la coleccion de moneda
+45 - El autocompletado en slect de colecciones
+44 - Ver deposito que el total es de ambas moneda -- Le dije a cheni poco usado
+43 - Ver como calcular moneda alternativa si no estar cargarda la moneda alternativa
+42 - Ver obtener cotizacioens automaticas de internet y registrarla
+41 - Ver borrar o desinputar
+40 - Arreglar multimoneda, no tiene cheques
+39 - Agregar scroll y maximo de largo chequear cartel de cheques con 20 cheques, que pasa
+38 - Ver lo de de renglones sea por atributos que no estan ocultos
+37 - desinputar cheque repetido
+36 - Ingresar registros que repite por ejmeplo nombre, tira error perono dice porque, es como si se tildaria
+35 - No anda ninguna tipo de adjunto en pagos y corbros verifiar porque puede estar pasando lo msimo en sbc
+34 - arreglar el nombre de tipo de cambio, sacarñp de indice y darle un lugar demtrp de tesoreria
+33 - ver porque busca 4 veces la cotizacon despues
+32 - Refrescar tipo de cambio cuando se ingresa uno nuevo
+31 - revisar abm de cobros, observaciones esta muy a la izquierda, y ver la tipo de cambio que esta raro
+30 - Ver como guarda o muestra el tc en cobros, de minima en la parte de meio de pagos, ver en cabecra tambien
+29 - Ver lo de objeto fusion eso no existe mas ya que fusiono cuando creo
+28 - Ver los de filaAbmEditada y edita registro del abm como hacer para q quede uno
+27 - ver tc en cheques o en todo el circuito que trabaja cheni de sacar el tc en el abm
+26 - Ver formato texto importe tipoPago
+25 - Traer medio de pago en formularioAbm, (ver colecciones en formularioABM)
+24 - Ver en provincia, que se me pone la pestaña arriba, y no entra se corta, mirar bien, ante la duda ir abajo
+23 - Crear algo para cuando abra la entidad espere a que termine asi obtengo el numero de operacion, tipo (Esto en testing)
+22 - Ver como calcula los impuestos la transformacion de factura
+21 - Arreglar los del tab, porque si pongo cartel seguro, me deja tabular a otros lados
+20 - Arreglar impresion, sacar la imagen porque sino todo el tiempo tengo que hacer doble con el print
+19 - Ver lo de abrir muchas pestañas 
+18 - ver de arreglar lo de tab index en coleccion, agregandole coma, para la carga rapida:
+17 - Ver lo del tab index, que pase por adjunto
+16 - Ver text area, enriquecerlo con negrita etc
+15 - hacer por default que la parametricas solo puedan desabilitarse y las transaccionales eliminarse
+14 - actualizao mongo
+13 - actualizar node
+12 - ver filtro y orden igualarlo al de reportes
+11 - Click ruedita cierre pestaña
+10 - ver de arreglar pestanas, para valores grandes
+9 - Sacar reversion rechazo en las aprobaciones.
 8 - Ver lo del historial ver que paso, no marca los cambios y ver regenerar. en colección gemela
 7 - Ver el boton cruz, que no te vuelve atras form individual.
 6 - No dejar cerrar la pestana si esta enviando registro.
@@ -172,5 +168,3 @@ Consololidacion de pallets
 Cliente generear codigo 
 reporte 
 
-
-"ola"

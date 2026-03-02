@@ -3,8 +3,8 @@ function atributoinputLogico(objeto, numeroForm, value, indice) {
 
 
     let atributo = `<div class="td inputTd des ${value.nombre}" id="inputTd${value.nombre}${numeroForm}" style="order:${indice}" ${widthObject[value.width] || ""} ${ocultoOject[value.oculto] || ""}>
-    <input type="hidden" class="inputR ${value.nombre}" name="${value.nombre}" form="f${objeto.accion}${numeroForm}" value=false>
-    <input type="checkbox" class="inputR ${value.nombre}" id="in${value.nombre}${numeroForm}" valid=${value.validacion}></div>`;
+    <input type="hidden" class="inputR ${value.nombre}" name="${value.nombre}" form="f${objeto.accion}${numeroForm}" value=false ${autoCompOff} >
+    <input type="checkbox" class="inputR ${value.nombre}" id="in${value.nombre}${numeroForm}" valid=${value.validacion} ${autoCompOff} ></div>`;
 
     return atributo
 
@@ -13,8 +13,8 @@ function atributoImporteAbm(objeto, numeroForm, value, indice) {
 
     let atributo = `<div class="td inputTd des ${value.nombre}" id="inputTd${value.nombre}${numeroForm}" cont=${numeroForm}  style="order:${indice}" ${widthObject[value.width] || ""}>
     <input type="importe" class="inputR monedaFormulario ${value.nombre} ${value.clase || ""}" id="in${value.nombre}${numeroForm}" readonly name="${value.nombre}" form="f${objeto.accion}${numeroForm}" ${autoCompOff} valid=${value.validacion}>
-    <input type="importe" class="inputR monedaBase ocultoSiempre ${value.nombre}mb" id="in${value.nombre}${numeroForm}" readonly name="${value.nombre}mb" form="f${objeto.accion}${numeroForm}"  valid=${value.validacion}>
-    <input type="importe" class="inputR monedaAlternativa ocultoSiempre ${value.nombre}ma" id="in${value.nombre}${numeroForm}" readonly name="${value.nombre}ma" form="f${objeto.accion}${numeroForm}"  valid=${value.validacion}>
+    <input type="importe" class="inputR monedaBase ocultoSiempre ${value.nombre}mb" id="in${value.nombre}${numeroForm}" readonly name="${value.nombre}mb" form="f${objeto.accion}${numeroForm}"  valid=${value.validacion} ${autoCompOff} >
+    <input type="importe" class="inputR monedaAlternativa ocultoSiempre ${value.nombre}ma" id="in${value.nombre}${numeroForm}" readonly name="${value.nombre}ma" form="f${objeto.accion}${numeroForm}"  valid=${value.validacion} ${autoCompOff} >
     </div>`;
 
     return atributo
@@ -83,7 +83,7 @@ function atributoCeldaLogico(objeto, numeroForm, value, indice, consulta) {
     }
 
     atributo += `<div class="celda ${value.nombre}"  style="order:${indice}" ${widthObject[value.width] || ""} ${ocultoOject[value.oculto] || ""}>
-    <input type="checkbox" class="edit ${value.nombre}" ${checked[consulta[value.nombre] || ""]} valid=${value.validacion} disabled="disabled"> </div>`;
+    <input type="checkbox" class="edit ${value.nombre}" ${checked[consulta[value.nombre] || ""]} valid=${value.validacion} disabled="disabled" ${autoCompOff} > </div>`;
 
     return atributo
 }

@@ -777,10 +777,10 @@ async function crearFormulario(objeto, numeroForm, consult) {//doc
             }
 
             let listaAdjunto = `<div class="tr fila filaVacia" fila="${fila}">
-                                <div class="celdAdj nameUsu vacio ${numeroForm}" src=""><input class="nameUsu ${numeroForm}" id="nameUsu${numeroForm}" name="nameUsu" form="f${objeto.accion}${numeroForm}" disabled="disabled"/></div>
-                                <div class="celdAdj path vacio ${numeroForm} ocultoSiempre" src=""><input class="path ${numeroForm}" id="path${numeroForm}" name="path" form="f${objeto.accion}${numeroForm}" disabled="disabled" /></div>                               
-                                <div class="celdAdj originalname vacio ${numeroForm} ocultoSiempre" src=""><input class="originalname ${numeroForm}" id="originalname${numeroForm}" name="originalname" form="f${objeto.accion}${numeroForm}" disabled="disabled" /></div>                               
-                                <div class="celdAdj adjunto vacio nuevo"><label for="adjunto${objeto.accion}${numeroForm}fila${fila}"><img src="/img/iconos/botonAdjunto/adjuntar.svg"/></label><input type=file id="adjunto${objeto.accion}${numeroForm}fila${fila}" name="adjunto" form="f${objeto.accion}${numeroForm}" class="adjunto"/></div>
+                                <div class="celdAdj nameUsu vacio ${numeroForm}" src=""><input class="nameUsu ${numeroForm}" id="nameUsu${numeroForm}" name="nameUsu" form="f${objeto.accion}${numeroForm}" disabled="disabled" ${autoCompOff} /></div>
+                                <div class="celdAdj path vacio ${numeroForm} ocultoSiempre" src=""><input class="path ${numeroForm}" id="path${numeroForm}" name="path" form="f${objeto.accion}${numeroForm}" disabled="disabled"  ${autoCompOff} /></div>                               
+                                <div class="celdAdj originalname vacio ${numeroForm} ocultoSiempre" src=""><input class="originalname ${numeroForm}" id="originalname${numeroForm}" name="originalname" form="f${objeto.accion}${numeroForm}" disabled="disabled"  ${autoCompOff} /></div>                               
+                                <div class="celdAdj adjunto vacio nuevo"><label for="adjunto${objeto.accion}${numeroForm}fila${fila}"><img src="/img/iconos/botonAdjunto/adjuntar.svg"/></label><input type=file id="adjunto${objeto.accion}${numeroForm}fila${fila}" name="adjunto" form="f${objeto.accion}${numeroForm}" class="adjunto" ${autoCompOff} /></div>
                                 <div class="celdAdj verAdj vacio nuevo"><img class="verAdj" img src="/img/iconos/botonAdjunto/VerAdj.svg" title="Ver adjunto"></div>
                                 <div class="celdAdj eliminarAdj vacio nuevo"><img class="eliminarAdj" src="/img/iconos/botonAdjunto/deleteAdj.svg" title="Eliminar adjunto"></div>
                                 <div class="celdAdj agregarFila vacio nuevo"><img class="agregarFila" src="/img/iconos/botonAdjunto/addAdj.svg" title="Agregar fila"></div></div>`;
@@ -1150,7 +1150,11 @@ async function enviarRegistroNuevoForm(numeroForm, objeto, electronica) {//doc
                 }
                 valorEnviar.arrays.push(objetArray)
 
-                $.extend(true, valorEnviar, { referencias: { imputado: Object.assign(valorEnviar?.referencias?.["referencias.imputado"] || {}, resultado?.referencias?.["referencias.imputado"] || {}) } });
+                valorEnviar.referencias = valorEnviar.referencias || {};
+                valorEnviar.referencias.imputado = Object.assign(
+                    valorEnviar?.referencias?.["referencias.imputado"] || {},
+                    resultado?.referencias?.["referencias.imputado"] || {}
+                );
             });
             promises.push(promise)
         })
@@ -1232,7 +1236,11 @@ function enviarUsuarioNuevoForm(numeroForm, objeto) {//doc
                         }
                         valorEnviar.arrays.push(objetArray)
 
-                        $.extend(true, valorEnviar, { referencias: { desencadenantesColec: Object.assign(valorEnviar?.referencias?.["referencias.desencadenantesColec"] || {}, resultado?.referencias?.["referencias.desencadenantesColec"] || {}) } });
+                        valorEnviar.referencias = valorEnviar.referencias || {};
+                        valorEnviar.referencias.desencadenantesColec = Object.assign(
+                            valorEnviar?.referencias?.["referencias.desencadenantesColec"] || {},
+                            resultado?.referencias?.["referencias.desencadenantesColec"] || {}
+                        );
 
                     });
 
@@ -1255,7 +1263,11 @@ function enviarUsuarioNuevoForm(numeroForm, objeto) {//doc
                         }
                         valorEnviar.arrays.push(objetArray)
 
-                        $.extend(true, valorEnviar, { referencias: { imputado: Object.assign(valorEnviar?.referencias?.["referencias.imputado"] || {}, resultado?.referencias?.["referencias.imputado"] || {}) } });
+                        valorEnviar.referencias = valorEnviar.referencias || {};
+                        valorEnviar.referencias.imputado = Object.assign(
+                            valorEnviar?.referencias?.["referencias.imputado"] || {},
+                            resultado?.referencias?.["referencias.imputado"] || {}
+                        );
                     });
                     promises.push(promise)
                 })
@@ -1415,7 +1427,11 @@ async function enviarRegistroEditadoForm(objeto, numeroForm, modificar, tableMod
                 }
                 valorEnviar.arrays.push(objetArray)
 
-                $.extend(true, valorEnviar, { referencias: { desencadenantesColec: Object.assign(valorEnviar?.referencias?.["referencias.desencadenantesColec"] || {}, resultado?.referencias?.["referencias.desencadenantesColec"] || {}) } });
+                valorEnviar.referencias = valorEnviar.referencias || {};
+                valorEnviar.referencias.desencadenantesColec = Object.assign(
+                    valorEnviar?.referencias?.["referencias.desencadenantesColec"] || {},
+                    resultado?.referencias?.["referencias.desencadenantesColec"] || {}
+                );
             });
 
             promises.push(promise)
@@ -1435,14 +1451,11 @@ async function enviarRegistroEditadoForm(objeto, numeroForm, modificar, tableMod
                 atributosArrayCompuesto: resultado.atributosArray
             });
 
-            $.extend(true, valorEnviar, {
-                referencias: {
-                    desenColecAgrup: Object.assign(
-                        valorEnviar?.referencias?.["referencias.desenColecAgrup"] || {},
-                        resultado?.referencias?.["referencias.desenColecAgrup"] || {}
-                    )
-                }
-            });
+            valorEnviar.referencias = valorEnviar.referencias || {};
+            valorEnviar.referencias.desenColecAgrup = Object.assign(
+                valorEnviar?.referencias?.["referencias.desenColecAgrup"] || {},
+                resultado?.referencias?.["referencias.desenColecAgrup"] || {}
+            );
 
             promises.push(resultado)
         }
@@ -1463,7 +1476,11 @@ async function enviarRegistroEditadoForm(objeto, numeroForm, modificar, tableMod
                 }
                 valorEnviar.arrays.push(objetArray)
 
-                $.extend(true, valorEnviar, { referencias: { imputado: Object.assign(valorEnviar?.referencias?.["referencias.imputado"] || {}, resultado?.referencias?.["referencias.imputado"] || {}) } });
+                valorEnviar.referencias = valorEnviar.referencias || {};
+                valorEnviar.referencias.imputado = Object.assign(
+                    valorEnviar?.referencias?.["referencias.imputado"] || {},
+                    resultado?.referencias?.["referencias.imputado"] || {}
+                );
             });
             promises.push(promise)
         })
@@ -1593,7 +1610,7 @@ function tipoAtributoForm(objeto, numeroForm, consulta) {//doc
         unWind: (objeto, numeroForm, consulta, diasbled) => {
             return `<div id="form_id${numeroForm}" class="fo _id ocultoSiempre" style="order:9999">    
                   <h2>ID</h2>
-                  <input class="form _id ${numeroForm}" name="_id" value="${consulta._id}" form="f${objeto.accion}${numeroForm}" tabindex=9999 ${diasbled} />
+                  <input class="form _id ${numeroForm}" name="_id" value="${consulta._id}" form="f${objeto.accion}${numeroForm}" tabindex=9999 ${diasbled}  ${autoCompOff} />
                  </div>`
         },
         individual: tipoAtributoFormSistema
@@ -2484,7 +2501,7 @@ function tipoAtributoFormSistema(objeto, numeroForm, consulta, disabled) {//dic
     let _id = consulta._id || ""
     formSistema += `<div id="form_id${numeroForm}" class="fo auditoria _id ocultoSiempre" style="order:9999">    
                   <h2>ID</h2>
-                  <input class="form _id ${numeroForm}" name="_id" value="${_id}" form="f${objeto.accion}${numeroForm}" tabindex=9999 ${disabled} />
+                  <input class="form _id ${numeroForm}" name="_id" value="${_id}" form="f${objeto.accion}${numeroForm}" tabindex=9999 ${disabled}  ${autoCompOff} />
                  </div>`;
 
     let valorDefDate = consulta.date || ""
@@ -2504,16 +2521,16 @@ function tipoAtributoFormSistema(objeto, numeroForm, consulta, disabled) {//dic
     formSistema += `<div id="formauditoria${numeroForm}" class="fo auditoria auditoria" style="order:9999">
                   <div class="titulos"><h2>Auditoria</h2></div>
                   <div class="atributos">
-                  <div class="date"><input class="form date ${numeroForm}" name="date" type="datetime-local" soloLec=true value=${dateNowAFechaddmmyyyy(valorDefDate, `y-m-dThh`)} form="f${objeto.accion}${numeroForm}" tabindex=9999 /></div>
-                  <div class="username"><input class="form username ${numeroForm}" name="username" value="${usuarioForm}" idregistro="${consultaPestanas?.username?.[consulta.username]?._id || ""}" soloLec=true form="f${objeto.accion}${numeroForm}" tabindex=9999/></div>
-                  <div class="empresa ocultoSiempre"><input class="form empresa ${numeroForm}" name="empresa" value="${empresaSeleccionada?._id || ""}"  soloLec=true form="f${objeto.accion}${numeroForm}" tabindex=9999/></div>
+                  <div class="date"><input class="form date ${numeroForm}" name="date" type="datetime-local" soloLec=true value=${dateNowAFechaddmmyyyy(valorDefDate, `y-m-dThh`)} form="f${objeto.accion}${numeroForm}" tabindex=9999  ${autoCompOff} /></div>
+                  <div class="username"><input class="form username ${numeroForm}" name="username" value="${usuarioForm}" idregistro="${consultaPestanas?.username?.[consulta.username]?._id || ""}" soloLec=true form="f${objeto.accion}${numeroForm}" tabindex=9999 ${autoCompOff} /></div>
+                  <div class="empresa ocultoSiempre"><input class="form empresa ${numeroForm}" name="empresa" value="${empresaSeleccionada?._id || ""}"  soloLec=true form="f${objeto.accion}${numeroForm}" tabindex=9999 ${autoCompOff} /></div>
                    </div>
                   </div>`;
 
     let version = parseFloat(consulta?.version + 1) || 0
     formSistema += `<div id="formversion${numeroForm}" class="fo auditoria version ocultoSiempre" style="order:9999">
                   <h2>version</h2>
-                  <input class="form version ${numeroForm}" name="version" value="${version}" tabindex=9999 />
+                  <input class="form version ${numeroForm}" name="version" value="${version}" tabindex=9999  ${autoCompOff} />
                  </div>`;
 
     formSistema += `</div></div>`
@@ -2863,14 +2880,14 @@ function formatoPassword(objeto, numeroForm) {
     if (id == "") {
         let repetir = ""
 
-        form += `<div class="cont" ><input type="password" class="form password requerido" name="password" form="f${objeto.accion}${numeroForm}" tabindex="${indice}" valid="password" />
+        form += `<div class="cont" ><input type="password" class="form password requerido" name="password" form="f${objeto.accion}${numeroForm}" tabindex="${indice}" valid="password"  ${autoCompOff} />
                   <span class="material-symbols-outlined oculto ojito">visibility</span>
                   <span class="material-symbols-outlined tachado ojito">visibility_off</span>`;
 
         repetir += `<div class="fo repetirContrasena" width="quince" set=t${numeroForm}>
         <h2>Repetir contraseña</h2>`;
 
-        repetir += `<div class="cont"><input type="password" class="form repetirContrasena requerido requeridoEspecial chequeo"  tabindex="${indice}"/>
+        repetir += `<div class="cont"><input type="password" class="form repetirContrasena requerido requeridoEspecial chequeo"  tabindex="${indice}" ${autoCompOff} />
               <span class="material-symbols-outlined oculto ojito">visibility</span>
               <span class="material-symbols-outlined tachado ojito">visibility_off</span>`;
 
@@ -2891,11 +2908,11 @@ function formatoPassword(objeto, numeroForm) {
 
         let bloqueUno = `<form method="POST" action="/${objeto.accion}" id="contrasena${numeroForm}"></form><div class="inputs">
         <div class="contrasena inputDiv flex marginBot">
-        <input type="password" disabled class="nuevaCont " name="password" placeholder="Nueva contraseña" valid="password" form="contrasena${numeroForm}"/>
+        <input type="password" disabled class="nuevaCont " name="password" placeholder="Nueva contraseña" valid="password" form="contrasena${numeroForm}" ${autoCompOff} />
         <span class="material-symbols-outlined oculto ojito">visibility</span><span class="material-symbols-outlined tachado ojito">visibility_off</span></div>
         <div class="paddingCero textoValidacionContrasena oculto"><p class="bold">La contraseña debe tener al menos una mayúscula, un número y un caracter especial</p></div>`
         bloqueUno += `<div class="repetirContrasena inputDiv flex marginBot">
-        <input type="password" disabled class="nuevaCont requeridoEspecial chequeo" placeholder="Repetir contraseña"  />
+        <input type="password" disabled class="nuevaCont requeridoEspecial chequeo" placeholder="Repetir contraseña"   ${autoCompOff} />
         <span class="material-symbols-outlined oculto ojito">visibility</span><span class="material-symbols-outlined tachado ojito">visibility_off</span></div>
         <div class="paddingCero marginBotUno textoValidacionRep oculto"><p class="bold">La contraseñas no coinciden</p></div>`
         bloqueUno += `<button class="botonEnviar">💾 Blanquear contraseña</button></div>`;

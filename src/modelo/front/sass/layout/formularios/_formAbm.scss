@@ -338,6 +338,17 @@
         }
     }
 
+    &.resizing-col,
+    &.resizing-row {
+        user-select: none;
+    }
+    &.reordering-col {
+        user-select: none;
+    }
+    &.reordering-row {
+        user-select: none;
+    }
+
     &.removiendo {
         animation: fadeOut .2s ease-out;
     }
@@ -351,6 +362,7 @@
         display: flex;
         flex-wrap: nowrap;
         @include clearFix;
+        position: relative;
 
 
         &.tr.tituloTablas {
@@ -411,6 +423,29 @@
                 justify-content: center;
                 position: relative;
                 width: 100%;
+                padding-left: 0.9rem;
+
+                .reorder-col-handle {
+                    position: absolute;
+                    left: 0.2rem;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    width: 0.5rem;
+                    height: 0.95rem;
+                    border-radius: 0.2rem;
+                    opacity: 0.7;
+                    cursor: grab;
+                    z-index: 940;
+                    user-select: none;
+                    touch-action: none;
+                    background-image: radial-gradient(currentColor 1px, transparent 1px);
+                    background-size: 4px 4px;
+                    color: rgb(81, 92, 141);
+
+                    &:active {
+                        cursor: grabbing;
+                    }
+                }
 
 
                 .iconos {
@@ -476,10 +511,56 @@
 
             }
 
+            .resize-col-handle {
+                position: absolute;
+                top: 0;
+                right: -0.25rem;
+                width: 0.5rem;
+                height: 100%;
+                cursor: col-resize;
+                z-index: 960;
+                user-select: none;
+                touch-action: none;
+            }
+
         }
 
         &.desHabilitado .celda {
             background-color: $fondo-rojoDeshabilitado;
+        }
+
+        .resize-row-handle {
+            position: absolute;
+            left: 0;
+            bottom: -0.2rem;
+            width: 100%;
+            height: 0.4rem;
+            cursor: row-resize;
+            z-index: 60;
+            user-select: none;
+            touch-action: none;
+        }
+
+        .reorder-row-handle {
+            position: absolute;
+            left: 0.2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0.5rem;
+            height: 0.95rem;
+            border-radius: 0.2rem;
+            opacity: 0.7;
+            cursor: grab;
+            z-index: 70;
+            user-select: none;
+            touch-action: none;
+            background-image: radial-gradient(currentColor 1px, transparent 1px);
+            background-size: 4px 4px;
+            color: rgb(81, 92, 141);
+
+            &:active {
+                cursor: grabbing;
+            }
         }
 
         &.desHabilitado.sel .celda {

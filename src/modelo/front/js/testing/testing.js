@@ -102,12 +102,12 @@ function botonMultipleTesting(objeto, numeroForm) {
 
             fila++
 
-            registrosTabla += `<tr class="filaInput" fila="${ind}"><td width="veinte"><input fila="${ind}" name="testingCrear" value="${val.value}" form="test${numeroForm}" /></td>
+            registrosTabla += `<tr class="filaInput" fila="${ind}"><td width="veinte"><input fila="${ind}" name="testingCrear" value="${val.value}" form="test${numeroForm}"  ${autoCompOff} /></td>
             <td class="textoCentrado notPadding"><span class="material-symbols-outlined botonesCartel ver">search</span></td>
             <td class="textoCentrado notPadding"><span class="material-symbols-outlined botonesCartel delete">delete</span></td></tr>`
         })
 
-        registrosTabla += `<tr class="filaInput agregar" fila="${fila}"><td width="veinte"><input fila="${fila}" name="testingCrear" form="test${numeroForm}" readonly /></td>
+        registrosTabla += `<tr class="filaInput agregar" fila="${fila}"><td width="veinte"><input fila="${fila}" name="testingCrear" form="test${numeroForm}" readonly  ${autoCompOff} /></td>
             <td class="textoCentrado notPadding"><span class="material-symbols-outlined botonesCartel ver oculto">search</span></td>
             <td class="textoCentrado notPadding"><span class="material-symbols-outlined botonesCartel delete oculto">delete</span></td></tr>`
         fila++
@@ -126,7 +126,7 @@ function botonMultipleTesting(objeto, numeroForm) {
         $(father).removeClass("agregar")
         $(`span.oculto`, father).removeClass("oculto")
 
-        let registrosTablaAgregar = `<tr class="filaInput agregar" fila="${fila}"><td width="veinte"><input fila="${fila}" name="testingCrear" form="test${numeroForm}" readonly /></td>
+        let registrosTablaAgregar = `<tr class="filaInput agregar" fila="${fila}"><td width="veinte"><input fila="${fila}" name="testingCrear" form="test${numeroForm}" readonly  ${autoCompOff} /></td>
             <td class="textoCentrado notPadding"><span class="material-symbols-outlined botonesCartel ver oculto">search</span></td>
             <td class="textoCentrado notPadding"><span class="material-symbols-outlined botonesCartel delete oculto">delete</span></td></tr>`
 
@@ -174,7 +174,8 @@ async function formularioIndividualTesting(objetoDef, numeroFormAnt, consulta) {
     }
 
     const nuevaFunc = { agregarIDPestanas: [agregarIDPestanas], ...objeto?.funcionesPropias?.cargar };
-    $.extend(true, objeto, { funcionesPropias: { cargar: nuevaFunc } });
+    objeto.funcionesPropias = objeto.funcionesPropias || {};
+    objeto.funcionesPropias.cargar = nuevaFunc;
 
     await clickFormularioIndividualPestana(objeto, numeroFormAnt, consulta?.atributos || {})
 
@@ -486,13 +487,13 @@ function cabeceraTestingFunc(objeto, numeroForm, consulta) {
 
     let cabeceraTesting = `<div class="cabeceraTesting padding-bot-med"><form id="test${numeroForm}"></form>`
     cabeceraTesting += `<div class="filaUnoTestin flex">`
-    cabeceraTesting += `<div class="foTest numerador flex"><div><h2>Número:&nbsp</h2></div><div><h2 class="num">${numerador}</h2><input type="hidden" name="numerador" form="test${numeroForm}" value=${numerador} /></div></div>`
-    cabeceraTesting += `<div class="foTest flex margin-left-dos"><div><h2>Nombre testing: &nbsp</h2></div><div><input type="texto" class="form nombreTesting padding-left-med requerido" name="name" value="${consulta.name || ""}" form="test${numeroForm}" valid="texto" /></div> </div>`
+    cabeceraTesting += `<div class="foTest numerador flex"><div><h2>Número:&nbsp</h2></div><div><h2 class="num">${numerador}</h2><input type="hidden" name="numerador" form="test${numeroForm}" value=${numerador}  ${autoCompOff} /></div></div>`
+    cabeceraTesting += `<div class="foTest flex margin-left-dos"><div><h2>Nombre testing: &nbsp</h2></div><div><input type="texto" class="form nombreTesting padding-left-med requerido" name="name" value="${consulta.name || ""}" form="test${numeroForm}" valid="texto"  ${autoCompOff} /></div> </div>`
     cabeceraTesting += `<div class="foTest flex margin-left-dos"><div><h2>Entidad: &nbsp</h2></div><div>${cargarPreEstablecidaTesting(objeto, numeroForm, consulta?.entidad || "")}</div></div>`
     cabeceraTesting += `<div class="foTest flex margin-left-dos"><div><h2>Accion: &nbsp</h2></div><div>${accionesTesting(objeto, numeroForm)}</div></div>`
     cabeceraTesting += `</div>`
     cabeceraTesting += `<div class="filaDosTestin flex margin-top-uno">`
-    cabeceraTesting += `<div class="foTest flex"><div class="centroVertical"><h2>Editar:&nbsp</h2></div><div class="centroVertical"><input type="checkbox" ${checking[consulta?.edit || false]} class="form checkbox verticalAlignInput" id="edit" /><input type="hidden" class="form checkbox" name="edit" form="test${numeroForm}" value="${consulta.edit || ""}" /></div></div>`
+    cabeceraTesting += `<div class="foTest flex"><div class="centroVertical"><h2>Editar:&nbsp</h2></div><div class="centroVertical"><input type="checkbox" ${checking[consulta?.edit || false]} class="form checkbox verticalAlignInput" id="edit"  ${autoCompOff} /><input type="hidden" class="form checkbox" name="edit" form="test${numeroForm}" value="${consulta.edit || ""}"  ${autoCompOff} /></div></div>`
     cabeceraTesting += `<div class="foTest flex editObj margin-left-dos"><div class="centroVertical"><h2>Vista Edición:&nbsp</h2></div><div class="centroVertical"><span class="material-symbols-outlined oculto ojito">visibility</span>
         <span class="material-symbols-outlined tachado ojito">visibility_off</span></div></div>`
     cabeceraTesting += `<div class="foTest flex margin-left-dos editObj"><div class="tipoTest"><h2>Registro Nuevo</h2></div></div>`
@@ -642,7 +643,7 @@ function accionesTesting(objeto, numeroForm) {
 
     pest += `<div class="selectCont testingAcciones" name="testing">`
 
-    pest += `<div class="selecSimulado"><div class="selectInput"><input type="parametricaTesting" class="inputSelect testingCabecera acciones" autocomplete="off" value="Completar Usuario" /><div class="spanFlechaAbajo"><span class="material-symbols-outlined abajo">stat_minus_1</span></div></div></div>`
+    pest += `<div class="selecSimulado"><div class="selectInput"><input type="parametricaTesting" class="inputSelect testingCabecera acciones" autocomplete="off" value="Completar Usuario"  ${autoCompOff} /><div class="spanFlechaAbajo"><span class="material-symbols-outlined abajo">stat_minus_1</span></div></div></div>`
 
     pest += `<div class="opcionesSelectDiv oculto">`
     pest += `<div class="opciones" value="completarUsuario" valueString="Completar Usuario"><p>Completar Usuario</p></div>`

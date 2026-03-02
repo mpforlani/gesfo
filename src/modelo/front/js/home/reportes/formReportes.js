@@ -68,8 +68,8 @@ function fechaCabeceraReportes(objeto, numeroForm) {
     let fechaDesde = addDay(objeto.cabeceraCont.fecha[0], objeto.cabeceraCont.fecha[1], 0, 0, "y-m-d")
 
     let cabecera = `<div class="divCabecera alignitemsCenter fechaTablaReporte ${objeto.cabeceraCont.fecha[2]}">
-      <div class="divDesde margin-right-uno"><p class="fsOnce centroVertical interSans margin-right-ceroTres">Desde:</p><input type="date" class="fechaTextoDeReporte" value=${fechaDesde}></div>
-      <div class="divHasta"><p class="fsOnce centroVertical interSans margin-right-ceroTres">Hasta:</p><input type="date" class="fechaTextoHastaReporte" value=${fechaHasta}></div>
+      <div class="divDesde margin-right-uno"><p class="fsOnce centroVertical interSans margin-right-ceroTres">Desde:</p><input type="date" class="fechaTextoDeReporte" value=${fechaDesde} ${autoCompOff} ></div>
+      <div class="divHasta"><p class="fsOnce centroVertical interSans margin-right-ceroTres">Hasta:</p><input type="date" class="fechaTextoHastaReporte" value=${fechaHasta} ${autoCompOff} ></div>
       </div>`
 
     let cab = $(cabecera);
@@ -88,8 +88,8 @@ function rangoFechasReportes(objeto, numeroForm) {
     const monthSixMonthsAg = ('0' + (sixMonthsAgo.getMonth() + 1)).slice(-2);
 
     let cabecera = `<div class="divCabecera mesesPicker">
-    <div class="fechaHasta"><p class="fsOnce centroVertical interSans margin-right-ceroTres">Hasta:</p><input type="month" class="MesReporteHasta" name="monthPickerDesde" value="${year}-${month}"></div>
-    <div class="fechaDesde"><p class="fsOnce centroVertical interSans margin-right-ceroTres">Desde:</p><input type="month" class="MesReporteDesde" name="monthPickerHasta" value="${yearSixMonthsAg}-${monthSixMonthsAg}"></div>
+    <div class="fechaHasta"><p class="fsOnce centroVertical interSans margin-right-ceroTres">Hasta:</p><input type="month" class="MesReporteHasta" name="monthPickerDesde" value="${year}-${month}" ${autoCompOff} ></div>
+    <div class="fechaDesde"><p class="fsOnce centroVertical interSans margin-right-ceroTres">Desde:</p><input type="month" class="MesReporteDesde" name="monthPickerHasta" value="${yearSixMonthsAg}-${monthSixMonthsAg}" ${autoCompOff} ></div>
     </div>`;
     let cab = $(cabecera);
     cab.appendTo(`#bf${numeroForm}`);
@@ -380,7 +380,7 @@ function administrarAtributoTabla(objeto, numeroForm, mo) {
             });
             $(`#t${numeroForm} td.filtro input`).val("")
             $(`#t${numeroForm} .busquedasColumna`).each((_, columna) => {
-                $(`.filtroCampo`, columna).slice(1).remove();
+                $(`.filtroCampo`, columna).slice(2).remove();
             });
         }
 
@@ -425,7 +425,13 @@ function administrarAtributoTabla(objeto, numeroForm, mo) {
         return null;
     };
     const coincideConTermino = (termino, fila, filtrado, tipoFiltrado) => {
-        const buscado = normalizarTexto(termino);
+        const terminoRaw = (termino ?? "").toString();
+        if (/^\s+$/.test(terminoRaw)) {
+            const textoFilaRaw = ($(`td.${filtrado}`, fila).text() ?? "").toString();
+            return textoFilaRaw.trim() === "";
+        }
+
+        const buscado = normalizarTexto(terminoRaw);
         const primerCaracter = buscado.slice(0, 1);
         const textoFila = $(`td.${filtrado}`, fila).text() || "";
         const textoFilaNormalizado = normalizarTexto(textoFila);
@@ -478,6 +484,14 @@ function administrarAtributoTabla(objeto, numeroForm, mo) {
                 inputs.remove();
                 tdFiltro.prepend(columna);
             }
+
+            const cantidadCampos = columna.children(".filtroCampo").length;
+            if (cantidadCampos < 2) {
+                const inputBase = columna.find("input.filtro").first();
+                for (let i = cantidadCampos; i < 2; i++) {
+                    columna.append(crearCampoFiltro(inputBase));
+                }
+            }
         });
     };
     const filtros = (e) => {
@@ -488,7 +502,7 @@ function administrarAtributoTabla(objeto, numeroForm, mo) {
         const filtrado = tdFiltro.attr("atributo") || inputActual.attr("atributo");
         const tipoFiltrado = inputActual.attr("type");
         const terminos = $(`input.filtro`, tdFiltro)
-            .map((_, input) => ($(input).val() ?? "").toString().trim())
+            .map((_, input) => ($(input).val() ?? "").toString())
             .get()
             .filter((v) => v !== "");
 
@@ -505,31 +519,45 @@ function administrarAtributoTabla(objeto, numeroForm, mo) {
             else $(fila).addClass(`oculto${filtrado}`);
         });
     }
-
-    inicializarFiltrosDinamicos();
-    $(`#t${numeroForm}`).on("click", `.flechasOrden span.arriba:not(.active)`, ordenarAscendente)
-    $(`#t${numeroForm}`).on("click", `.flechasOrden span.abajo:not(.active)`, ordenarDescendente)
-    $(`#t${numeroForm}`).on("click", `.flechasOrden span.active`, quitarActive)
-    $(`#t${numeroForm}`).off("click.filtroRep", `th .iconos .filtro span.filtro`)
-    $(`#t${numeroForm}`).on("click.filtroRep", `th .iconos .filtro span.filtro`, filaFiltroOculto)
-    $(`#t${numeroForm}`).on("input", `tr.filtros input`, filtros)
-    $(`#t${numeroForm}`).off("dblclick.filtroRep", `tr.filtros td.filtro`)
-    $(`#t${numeroForm}`).on("dblclick.filtroRep", `tr.filtros td.filtro`, (e) => {
-        if ($(e.target).closest(".deleteFiltroCampo, .ojito").length > 0) return;
-
-        const tdFiltro = $(e.currentTarget);
-        const columna = tdFiltro.children(".busquedasColumna").first();
+    const autoAgregarCampoFiltro = (e) => {
+        const inputActual = $(e.currentTarget);
+        const columna = inputActual.closest(".busquedasColumna");
         if (!columna.length) return;
+
+        const ultimoInput = columna.find(".filtroCampo:last input.filtro");
+        const valorUltimo = (ultimoInput.val() ?? "").toString();
+        if (valorUltimo === "") return;
 
         const inputBase = columna.find("input.filtro").first();
         if (!inputBase.length) return;
 
         const nuevoCampo = crearCampoFiltro(inputBase);
-        const nuevoInput = $("input.filtro", nuevoCampo);
-        nuevoInput.val("");
+        $("input.filtro", nuevoCampo).val("");
         columna.append(nuevoCampo);
-        nuevoInput.trigger("focus");
-    });
+    }
+
+    inicializarFiltrosDinamicos();
+    const limpiarMarcaCeldaReporte = () => {
+        $(`#t${numeroForm} table td.seleccionada`).removeClass("seleccionada");
+        const seleccion = window.getSelection?.();
+        if (seleccion && seleccion.rangeCount > 0) {
+            seleccion.removeAllRanges();
+        }
+    };
+
+    $(`#t${numeroForm}`).off("mousemove.noHoverCeldaRep mousedown.noHoverCeldaRep click.noHoverCeldaRep", "table td");
+    $(`#t${numeroForm}`).on("mousemove.noHoverCeldaRep mousedown.noHoverCeldaRep click.noHoverCeldaRep", "table td", limpiarMarcaCeldaReporte);
+
+    $(`#t${numeroForm}`).on("click", `.flechasOrden span.arriba:not(.active)`, ordenarAscendente)
+    $(`#t${numeroForm}`).on("click", `.flechasOrden span.abajo:not(.active)`, ordenarDescendente)
+    $(`#t${numeroForm}`).on("click", `.flechasOrden span.active`, quitarActive)
+    $(`#t${numeroForm}`).off("click.filtroRep", `th .iconos .filtro span.filtro`)
+    $(`#t${numeroForm}`).on("click.filtroRep", `th .iconos .filtro span.filtro`, filaFiltroOculto)
+    $(`#t${numeroForm}`).on("input", `tr.filtros input`, (e) => {
+        autoAgregarCampoFiltro(e);
+        filtros(e);
+    })
+    $(`#t${numeroForm}`).off("dblclick.filtroRep", `tr.filtros td.filtro`)
     $(`#t${numeroForm}`).off("click.filtroRep", `.deleteFiltroCampo`)
     $(`#t${numeroForm}`).on("click.filtroRep", `.deleteFiltroCampo`, (e) => {
         e.stopPropagation();
@@ -539,7 +567,7 @@ function administrarAtributoTabla(objeto, numeroForm, mo) {
         const columna = campo.closest(".busquedasColumna");
         const cantidadCampos = columna.children(".filtroCampo").length;
 
-        if (cantidadCampos <= 1) {
+        if (cantidadCampos <= 2) {
             $("input.filtro", campo).val("").trigger("input");
             return;
         }
@@ -816,8 +844,8 @@ function totalVerticalManual(objeto, numeroForm, tabla) {
         const monthSixMonthsAg = ('0' + (sixMonthsAgo.getMonth() + 1)).slice(-2);
 
         fechas += `<div class="primerDiv mesesPicker">
-    <div class="fechaHasta"><div class="tituloPick"><h3>Hasta:</h3></div><input type="month" class="MesReporteHasta" name="monthPickerDesde" value="${year}-${month}"></div>
-    <div class="fechaDesde"><div class="tituloPick"><h3>Desde:</h3></div><input type="month" class="MesReporteDesde" name="monthPickerHasta" value="${yearSixMonthsAg}-${monthSixMonthsAg}"></div>
+    <div class="fechaHasta"><div class="tituloPick"><h3>Hasta:</h3></div><input type="month" class="MesReporteHasta" name="monthPickerDesde" value="${year}-${month}" ${autoCompOff} ></div>
+    <div class="fechaDesde"><div class="tituloPick"><h3>Desde:</h3></div><input type="month" class="MesReporteDesde" name="monthPickerHasta" value="${yearSixMonthsAg}-${monthSixMonthsAg}" ${autoCompOff} ></div>
     </div>`;
 
     } else if (fecha == "fecha") {
@@ -825,8 +853,8 @@ function totalVerticalManual(objeto, numeroForm, tabla) {
         let fechaDesdeEntidad = objeto.fechaRegistros || fechaDesde
 
         fechas += `<div class="fechaTablaAbm">
-      <div><p>Desde:</p><input name="fechaDesde" type="date" class="fechaTextoDeAbm" value=${fechaDesdeEntidad}></div>
-      <div><p>Hasta:</p><input name="fechaHasta" type="date" class="fechaTextoHastaAbm" value=${fechaHasta}></div>
+      <div><p>Desde:</p><input name="fechaDesde" type="date" class="fechaTextoDeAbm" value=${fechaDesdeEntidad} ${autoCompOff} ></div>
+      <div><p>Hasta:</p><input name="fechaHasta" type="date" class="fechaTextoHastaAbm" value=${fechaHasta} ${autoCompOff} ></div>
       </div>`
 
     } else if (fecha == "saldos") { // para probar si anda el saldo, volar luego
@@ -834,8 +862,8 @@ function totalVerticalManual(objeto, numeroForm, tabla) {
         let fechaDesdeEntidad = objeto.fechaRegistros || fechaDesde
 
         fechas += `<div class="fechaTablaAbm">
-      <div><p>Desde:</p><input name="fechaDesde" type="date" class="fechaTextoDeAbm" value=${fechaDesdeEntidad}></div>
-      <div><p>Hasta:</p><input name="fechaHasta" type="date" class="fechaTextoHastaAbm" value=${fechaHasta}></div>
+      <div><p>Desde:</p><input name="fechaDesde" type="date" class="fechaTextoDeAbm" value=${fechaDesdeEntidad} ${autoCompOff} ></div>
+      <div><p>Hasta:</p><input name="fechaHasta" type="date" class="fechaTextoHastaAbm" value=${fechaHasta} ${autoCompOff} ></div>
       </div>`
 
         let saldoInicial = objeto.saldoInicial ?? 0

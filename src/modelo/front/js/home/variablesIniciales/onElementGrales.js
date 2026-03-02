@@ -436,8 +436,8 @@ $(`body`).on("click", `div.olvidaste`, () => {
      </p></div>`
     $(bloqueCero).appendTo(`.bloque0`)
     let bloqueUno = `<form method="PUT" action="/recuperarContrasena"  id="recuperarContrasena"></form>`
-    bloqueUno += `<div class="inputDiv"><label for="usuario">🧑‍💻 Usuario</label><input type="text" id="usuario" name="usernameUser" form="recuperarContrasena" placeholder="Ingresá tu nombre de usuario"></div>`
-    bloqueUno += ` <div class="inputDiv"><label for="email">📧 Email</label><input type="email" id="email" name="email"  form="recuperarContrasena" placeholder="Ingresá tu correo electrónico"></div>`
+    bloqueUno += `<div class="inputDiv"><label for="usuario">🧑‍💻 Usuario</label><input type="text" id="usuario" name="usernameUser" form="recuperarContrasena" placeholder="Ingresá tu nombre de usuario" ${autoCompOff} ></div>`
+    bloqueUno += ` <div class="inputDiv"><label for="email">📧 Email</label><input type="email" id="email" name="email"  form="recuperarContrasena" placeholder="Ingresá tu correo electrónico" ${autoCompOff} ></div>`
     bloqueUno += `<button class="botonCartel">🔁 Recuperar contraseña</button>`
 
     $(bloqueUno).appendTo(`.bloque1`)

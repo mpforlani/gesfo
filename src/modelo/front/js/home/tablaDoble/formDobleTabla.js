@@ -348,7 +348,7 @@ function valoresTablaPestana(objeto, numeroForm, consulta) {
 
             $.each(objeto.atributos.titulos, function (indice, value) {
                 tabla += `<td class="filtro oculto ${filtro[indice]}" filtro="${filtro[indice]}" numeroFila="${indice}">
-                           <div class="filtroClass"><input class="busqueda"><p class="closeFiltro">+</p></div></td>`;
+                           <div class="filtroClass"><input class="busqueda" ${autoCompOff} ><p class="closeFiltro">+</p></div></td>`;
             });
             tabla += `</tr>`;
         } else if (i > -1 && i < data.length) {
@@ -566,24 +566,24 @@ function tablaDoble(numeroForm, objeto, data, tabla) {
 
         let valorCheck = valueCampo == "true" ? "checked" : "";
 
-        return `<input type="checkbox" ${valorCheck} class="tablaDobleN ${d.nombre || d}" ${tipoValorInput[valueCampo] || ""} filtro="${d.nombre || d}" subFiltro="${agrupador}"></input>
-                <input type="hidden" class="tablaDobleN ${d.nombre || d}" name="${d.nombre}.${val.nombre || val}" form="f${objeto.accion}${numeroForm}" value=${valueCampo || false} ></input></td>`;
+        return `<input type="checkbox" ${valorCheck} class="tablaDobleN ${d.nombre || d}" ${tipoValorInput[valueCampo] || ""} filtro="${d.nombre || d}" subFiltro="${agrupador}" ${autoCompOff} ></input>
+                <input type="hidden" class="tablaDobleN ${d.nombre || d}" name="${d.nombre}.${val.nombre || val}" form="f${objeto.accion}${numeroForm}" value=${valueCampo || false}  ${autoCompOff} ></input></td>`;
     }
     const inputBoton = (agrupador, val, d, valueCampo) => {
 
         return `<div type="${d.type}" atributo="${val.nombre}" class="boton tablaDobleN ${val.nombre || val}"><p>${d.titulo}</p></div>
-        <input type="hidden" class="tablaDobleN boton ${val.nombre}" name="atributos.${val.nombre || val}" form="f${objeto.accion}${numeroForm}" value="${valueCampo || ""}" />`
+        <input type="hidden" class="tablaDobleN boton ${val.nombre}" name="atributos.${val.nombre || val}" form="f${objeto.accion}${numeroForm}" value="${valueCampo || ""}"  ${autoCompOff} />`
     }
     const inputBotonMultiple = (agrupador, val, d, valueCampo) => {
 
         let botones = `<div type="boton" atributo="${val.nombre}" class="botonMultiple tablaDobleN ${val.nombre || val}"><p>${d.titulo}</p></div>`
 
-        botones += `<input type="hidden" class="tablaDobleN botonMultiple ${val.nombre}" name="atributos.${val.nombre || val}" fila=0 form="f${objeto.accion}${numeroForm}" value="${valueCampo?.[0] || ""}" />`
+        botones += `<input type="hidden" class="tablaDobleN botonMultiple ${val.nombre}" name="atributos.${val.nombre || val}" fila=0 form="f${objeto.accion}${numeroForm}" value="${valueCampo?.[0] || ""}"  ${autoCompOff} />`
         let valueCampoDef = (valueCampo || []).shift()
 
         $.each(valueCampoDef, (ind, v) => {
 
-            botones += `<input type="hidden" class="tablaDobleN botonMultiple ${val.nombre}" name="atributos.${val.nombre || val}" fila=${ind + 1} form="f${objeto.accion}${numeroForm}" value="${v || ""}" />`
+            botones += `<input type="hidden" class="tablaDobleN botonMultiple ${val.nombre}" name="atributos.${val.nombre || val}" fila=${ind + 1} form="f${objeto.accion}${numeroForm}" value="${v || ""}"  ${autoCompOff} />`
         })
 
         return botones
@@ -591,7 +591,7 @@ function tablaDoble(numeroForm, objeto, data, tabla) {
     }
     const inputText = (agrupador, val, d, valueCampo) => {
 
-        return `<input type="${d.type}" class="tablaDobleN ${d.nombre} ${d.clase}" name="${d.nombre}.${val.nombre || val}" form="f${objeto.accion}${numeroForm}" value="${valueCampo || ""}" />`
+        return `<input type="${d.type}" class="tablaDobleN ${d.nombre} ${d.clase}" name="${d.nombre}.${val.nombre || val}" form="f${objeto.accion}${numeroForm}" value="${valueCampo || ""}"  ${autoCompOff} />`
     }
     tabla += "<tbody>"
     ///Estos son los titulos de laa tabla
@@ -611,7 +611,7 @@ function tablaDoble(numeroForm, objeto, data, tabla) {
         tabla += `<th class="tituloTablas seleccionarTodo ${value.nombre}">`
 
         if (value.type == "checkbox") {
-            tabla += `<input type="${value.type}" class="filtroTodo checkbox" filtro=${value.nombre || value}>`
+            tabla += `<input type="${value.type}" class="filtroTodo checkbox" filtro=${value.nombre || value} ${autoCompOff} >`
         }
         tabla += `</th>`
 
@@ -633,7 +633,7 @@ function tablaDoble(numeroForm, objeto, data, tabla) {
             tabla += `<th class="tituloTablas ${val.nombre} ${agrupador}">`
 
             if (val.type == "checkbox") {
-                tabla += `<input type="${val.type}" class="agrupador  ${agrupador}" filtro="${val.nombre || val}" subFiltro="${agrupador}"> </input>`;
+                tabla += `<input type="${val.type}" class="agrupador  ${agrupador}" filtro="${val.nombre || val}" subFiltro="${agrupador}" ${autoCompOff} > </input>`;
             }
             tabla += `</th>`
         })

@@ -30,7 +30,7 @@ function atributosLista(objeto, numeroForm, indice, value, titulos, consulta, di
         <div class="icon"><span class="material-symbols-outlined botonListaDelete">delete</span></div></div>`
         ord++
     })
-    form += `<div class="inputHijo"><input class="formLista input ${value.nombre} ${value.clase || ""}"  ord="${consulta?.[value.nombre]?.length || 0}" readonly ${disabled} />
+    form += `<div class="inputHijo"><input class="formLista input ${value.nombre} ${value.clase || ""}"  ord="${consulta?.[value.nombre]?.length || 0}" readonly ${disabled}  ${autoCompOff} />
              <div class="icon"><span class="material-symbols-outlined botonListaDelete ocultoConLugar">delete</span></div></div>`
     form += `</div>`;//Cierro div inputIndiv lista
     form += `</div>`//Cierro listaInputs
@@ -563,7 +563,7 @@ function coleccionIndForm(objeto, numeroForm, indice, value, titulos, consulta, 
 
         });
         colec += `<td class="position ${value.nombre} position${value.nombre} ocultoSiempre" ord="${ord + 1}" set=pc${indice}>
-        <input class="position ${value.nombre}" name="position${value.nombre}" value="${val?.[`position${value.nombre}`]?.[pos] || 0}" form="f${accion}${numeroForm}" ${disabled}></td>`;
+        <input class="position ${value.nombre}" name="position${value.nombre}" value="${val?.[`position${value.nombre}`]?.[pos] || 0}" form="f${accion}${numeroForm}" ${disabled} ${autoCompOff} ></td>`;
         colec += `<td class="delete" ord="${ord + 1}"><span class="material-symbols-outlined botonColeccion deleteIcon">delete</span></td></tr>`;
     }
 
@@ -580,16 +580,16 @@ function coleccionIndForm(objeto, numeroForm, indice, value, titulos, consulta, 
                 colec += `<input type="date" class="formColec ${value.nombre} ${ind} ${val.clase || ""}" colec="${value.nombre}" name="${ind}" disabled="disabled" form="f${accion}${numeroForm}" ord="${ord + 1}"   valid=${val.validacion} tabindex="${indice + 1}" readonly="true" autocomplete="off" disabled="disabled"  ${autoCompOff}  /></td>`;
                 break;
             case `logico`:
-                colec += `<input type="hidden" class="formColec ${ind} ${val.clase || ""}" name="${ind} form="f${accion}${numeroForm}" value=false ord="${ord + 1}">
-                          <input type="checkbox" class="formColec ${ind} ${val.clase || ""}" tabindex="${indice + 1}" ord="${ord + 1}" disabled="disabled" />`
+                colec += `<input type="hidden" class="formColec ${ind} ${val.clase || ""}" name="${ind} form="f${accion}${numeroForm}" value=false ord="${ord + 1}" ${autoCompOff} >
+                          <input type="checkbox" class="formColec ${ind} ${val.clase || ""}" tabindex="${indice + 1}" ord="${ord + 1}" disabled="disabled"  ${autoCompOff} />`
                 break;
             case `importe`:
 
                 colec += `<input type="${val.type}" class="formColec ${value.nombre} ${ind}  ${val.clase || ""} monedaFormulario" colec="${value.nombre}" name="${ind}" form="f${accion}${numeroForm}"   valid=${val.validacion} ord="${ord + 1}" tabindex="${indice + 1}" readonly="true" autocomplete="off" disabled="disabled" ${autoCompOff}  />`
 
-                colec += ` <input type="${val.type}" class="formColec ${ind}mb monedaBase ocultoSiempre" colec="${value.nombre}" name="${ind}mb" form="f${accion}${numeroForm}"  ord="${ord + 1}"  disabled="disabled"/>`
+                colec += ` <input type="${val.type}" class="formColec ${ind}mb monedaBase ocultoSiempre" colec="${value.nombre}" name="${ind}mb" form="f${accion}${numeroForm}"  ord="${ord + 1}"  disabled="disabled" ${autoCompOff} />`
 
-                colec += ` <input type="${val.type}" class="formColec ${ind}ma  monedaAlternativa ocultoSiempre" colec="${value.nombre}" name="${ind}ma" form="f${accion}${numeroForm}"  ord="${ord + 1}"   disabled="disabled"/>
+                colec += ` <input type="${val.type}" class="formColec ${ind}ma  monedaAlternativa ocultoSiempre" colec="${value.nombre}" name="${ind}ma" form="f${accion}${numeroForm}"  ord="${ord + 1}"   disabled="disabled" ${autoCompOff} />
                 </td>`;
 
                 break;
@@ -606,7 +606,7 @@ function coleccionIndForm(objeto, numeroForm, indice, value, titulos, consulta, 
 
     });
 
-    colec += `<td class="position ocultoSiempre ${value.nombre}" set=pc${indice}><input class="position ${value.nombre}" name="position${value.nombre}" form="f${accion}${numeroForm}" value="${parseFloat(val?.[`position${value.nombre}`]?.[val?.[`position${value.nombre}`]?.length - 1] || 0) + 1}"  ${ocultoOject[val.oculto] || ``} readonly="true" disabled="disabled"/></td>`
+    colec += `<td class="position ocultoSiempre ${value.nombre}" set=pc${indice}><input class="position ${value.nombre}" name="position${value.nombre}" form="f${accion}${numeroForm}" value="${parseFloat(val?.[`position${value.nombre}`]?.[val?.[`position${value.nombre}`]?.length - 1] || 0) + 1}"  ${ocultoOject[val.oculto] || ``} readonly="true" disabled="disabled" ${autoCompOff} /></td>`
     colec += `</tr>`;
     colec += `</table>`;
     col = $(colec);
@@ -624,7 +624,7 @@ function coleccionIndForm(objeto, numeroForm, indice, value, titulos, consulta, 
 
             let valorTot = formatoNum?.[val.type]?.(valorT[`${val.nombre}`]) || numeroAString(valorT[`${val.nombre}`] || "")
 
-            let input = `<input class="formColec totalColec ${ind} ${val.nombre} ${val.clase || ""}" name="${val.nombre}" form="f${accion}${numeroForm}" value="${valorTot}" sololec="true" ${disabled}>
+            let input = `<input class="formColec totalColec ${ind} ${val.nombre} ${val.clase || ""}" name="${val.nombre}" form="f${accion}${numeroForm}" value="${valorTot}" sololec="true" ${disabled} ${autoCompOff} >
              </div>`;
 
             $(`#t${numeroForm} table.tablaCompuesto.${value.nombre} tr.totales:last td.${ind}`).removeAttr("ocultoconlugar")
@@ -694,10 +694,10 @@ function adjuntoForm(objeto, numeroForm, indice, value, titulos, consulta, disab
         $.each(consulta?.path, (indice, value) => {
 
             listaAdjunto += `<div class="tr fila" fila="${fila}">
-                        <div class="celdAdj nameUsu src=""><input class="nameUsu adjuntoForm" value="${consulta.nameUsu[indice]}" name="nameUsu" form="f${accion}${numeroForm}"/></div>
-                        <div class="celdAdj originalname ocultoSiempre"><input class="originalname adjuntoForm" name="originalname" value="${consulta.originalname[indice]}" form="f${accion}${numeroForm}"/></div> 
-                        <div class="celdAdj path ocultoSiempre"><input class="path adjuntoForm ocultoSiempre" name="path" value="${value}" form="f${accion}${numeroForm}"/></div>                                                                 
-                        <div class="celdAdj adjunto"><label for="adjunto${accion}${numeroForm}fila${fila}"><img src="/img/iconos/botonAdjunto/adjuntar.svg"/></label><input type=file id="adjunto${accion}${numeroForm}fila${fila}" name="adjunto" form="f${accion}${numeroForm}" class="adjunto adjuntoForm"/></div>
+                        <div class="celdAdj nameUsu src=""><input class="nameUsu adjuntoForm" value="${consulta.nameUsu[indice]}" name="nameUsu" form="f${accion}${numeroForm}" ${autoCompOff} /></div>
+                        <div class="celdAdj originalname ocultoSiempre"><input class="originalname adjuntoForm" name="originalname" value="${consulta.originalname[indice]}" form="f${accion}${numeroForm}" ${autoCompOff} /></div> 
+                        <div class="celdAdj path ocultoSiempre"><input class="path adjuntoForm ocultoSiempre" name="path" value="${value}" form="f${accion}${numeroForm}" ${autoCompOff} /></div>                                                                 
+                        <div class="celdAdj adjunto"><label for="adjunto${accion}${numeroForm}fila${fila}"><img src="/img/iconos/botonAdjunto/adjuntar.svg"/></label><input type=file id="adjunto${accion}${numeroForm}fila${fila}" name="adjunto" form="f${accion}${numeroForm}" class="adjunto adjuntoForm" ${autoCompOff} /></div>
                         <div class="celdAdj verAdj "><img class="verAdj" img src="/img/iconos/botonAdjunto/VerAdj.svg" title="Ver adjunto"></div>
                         <div class="celdAdj eliminarAdj"><img class="eliminarAdj"src="/img/iconos/botonAdjunto/deleteAdj.svg" title="Eliminar adjunto"></div></div>`
             fila++
@@ -705,10 +705,10 @@ function adjuntoForm(objeto, numeroForm, indice, value, titulos, consulta, disab
     }
 
     listaAdjunto += `<div class="tr fila filaVacia" fila="${fila}">
-                        <div class="celdAdj nameUsu vacio" src=""><input class="nameUsu adjuntoForm" name="nameUsu" form="f${accion}${numeroForm}" disabled="disabled" /></div>
-                        <div class="celdAdj path vacio ocultoSiempre" src=""><input class="path adjuntoForm" name="path" form="f${accion}${numeroForm}" disabled="disabled" /></div>
-                        <div class="celdAdj originalname vacio ocultoSiempre" src=""><input class="adjuntoForm originalname" name="originalname" form="f${accion}${numeroForm}" disabled="disabled"/></div>
-                        <div class="celdAdj adjunto vacio"><label for="adjunto${accion}${numeroForm}fila${fila}"></label><img src="/img/iconos/botonAdjunto/adjuntar.svg"/><input type=file id="adjunto${accion}${numeroForm}fila${fila}" name="adjunto" form="f${accion}${numeroForm}" class="adjunto adjuntoForm"/></div>
+                        <div class="celdAdj nameUsu vacio" src=""><input class="nameUsu adjuntoForm" name="nameUsu" form="f${accion}${numeroForm}" disabled="disabled"  ${autoCompOff} /></div>
+                        <div class="celdAdj path vacio ocultoSiempre" src=""><input class="path adjuntoForm" name="path" form="f${accion}${numeroForm}" disabled="disabled"  ${autoCompOff} /></div>
+                        <div class="celdAdj originalname vacio ocultoSiempre" src=""><input class="adjuntoForm originalname" name="originalname" form="f${accion}${numeroForm}" disabled="disabled" ${autoCompOff} /></div>
+                        <div class="celdAdj adjunto vacio"><label for="adjunto${accion}${numeroForm}fila${fila}"></label><img src="/img/iconos/botonAdjunto/adjuntar.svg"/><input type=file id="adjunto${accion}${numeroForm}fila${fila}" name="adjunto" form="f${accion}${numeroForm}" class="adjunto adjuntoForm" ${autoCompOff} /></div>
                         <div class="celdAdj verAdj vacio"><img class="verAdj" img src="/img/iconos/botonAdjunto/VerAdj.svg" title="Ver adjunto"></div>
                         <div class="celdAdj eliminarAdj vacio"><img class="eliminarAdj" src="/img/iconos/botonAdjunto/deleteAdj.svg" title="Eliminar adjunto"></div>
                         <div class="celdAdj agregarFila vacio"><img class="agregarFila" src="/img/iconos/botonAdjunto/addAdj.svg" title="Agregar fila"></div></div>`
@@ -738,7 +738,7 @@ function adjuntoForm(objeto, numeroForm, indice, value, titulos, consulta, disab
                      <h2>${titulos[indice]}</h2>`;
 
 
-        form += `<input class="form ${value.nombre} ${numeroForm} oculto" name="${value.nombre}" value="${valorDef}" form="f${accion}${numeroForm}" tabindex="${indice + 1}"   disabled/>`
+        form += `<input class="form ${value.nombre} ${numeroForm} oculto" name="${value.nombre}" value="${valorDef}" form="f${accion}${numeroForm}" tabindex="${indice + 1}"   disabled ${autoCompOff} />`
         form += `<select class="select form ${value.nombre}"  name="${value.nombre}" form="f${accion}${numeroForm}" value=${valorDef} validado="false" tabindex="${indice + 1}">`;
         form += `<option class="opciones" value=""></option>`;
 
@@ -751,7 +751,7 @@ function adjuntoForm(objeto, numeroForm, indice, value, titulos, consulta, disab
 
         form += `<div class="fo ${value.nombre} oculto"  ${widthObject[value.width] || ""}  >
                  <h2>${titulos[indice]}</h2>`;
-        form += `<input class="form ${value.nombre} ${value.clase || ""}" name="${value.nombre}" value="${valorDef}" form="f${accion}${numeroForm}" tabindex="${indice + 1}"   disabled/>`
+        form += `<input class="form ${value.nombre} ${value.clase || ""}" name="${value.nombre}" value="${valorDef}" form="f${accion}${numeroForm}" tabindex="${indice + 1}"   disabled ${autoCompOff} />`
     }
 
     form += `</div>`;
@@ -777,13 +777,13 @@ function imagenForm(objeto, numeroForm, indice, value, titulos, consulta, disabl
              <div class="imgCrear">`
     form += `<label for="imgAdj${numeroForm}" class="botonImg">
              <img src="/img/iconos/botonAdjunto/adjuntar.svg"></label>
-             <input class="ocultoSiempre"type="file" id="imgAdj${numeroForm}" name="imgAdj" form="f${accion}${numeroForm}" accept="image/*">`
+             <input class="ocultoSiempre"type="file" id="imgAdj${numeroForm}" name="imgAdj" form="f${accion}${numeroForm}" accept="image/*" ${autoCompOff} >`
     form += `</div>`
     form += `<div class="imgEliminar"><img src="/img/iconos/botonAdjunto/deleteAdj.svg""></div>`
     form += `</div>`
     form += `</div>`
-    form += `<input class="pathImg ocultoSiempre" name="pathImg" value="${consulta.pathImg || ""}" form="f${accion}${numeroForm}" ${disabled}/>
-             <input class="originalnameImg ocultoSiempre" name="originalnameImg" value="${consulta.originalnameImg || ""}" form="f${accion}${numeroForm}" ${disabled}/>
+    form += `<input class="pathImg ocultoSiempre" name="pathImg" value="${consulta.pathImg || ""}" form="f${accion}${numeroForm}" ${disabled} ${autoCompOff} />
+             <input class="originalnameImg ocultoSiempre" name="originalnameImg" value="${consulta.originalnameImg || ""}" form="f${accion}${numeroForm}" ${disabled} ${autoCompOff} />
     
     </div>`;
 
@@ -938,7 +938,7 @@ function parametricaPreEstablecidaColec(objeto, numeroForm, i, v, value, ord, in
 }
 function numeroColec(objeto, numeroForm, i, v, value, ord, indice, disabled, valorColec) {
 
-    let colec = `<input type="${v.type}" class="formColec ${i} ${value.nombre} ${v.clase || ""}" name="${i}" value="${numeroAString(valorColec)}" form="f${objeto.accion}${numeroForm}" ord="${ord}" valid="${v.validacion}" tabindex="${indice + 1}" ${disabled}/></td>`;
+    let colec = `<input type="${v.type}" class="formColec ${i} ${value.nombre} ${v.clase || ""}" name="${i}" value="${numeroAString(valorColec)}" form="f${objeto.accion}${numeroForm}" ord="${ord}" valid="${v.validacion}" tabindex="${indice + 1}" ${disabled} ${autoCompOff} /></td>`;
 
     return colec
 }
@@ -949,9 +949,9 @@ function importeColec(objeto, numeroForm, i, v, value, ord, indice, disabled, va
 
     let colec = `<input type="${v.type}" class="formColec ${v.moneda} ${i} ${v.clase || ""} monedaFormulario" name="${i}" value="${numeroAString(valorColec)}" form="f${objeto.accion}${numeroForm}" ord="${ord}" valid="${v.validacion}" tabindex="${indice + 1}" ${disabled} ${autoCompOff}  />`
 
-    colec += `<input type="${v.type}" class="formColec  ${i}mb monedaBase ocultoSiempre" name="${i}mb" value="${valorDefMb}" form="f${objeto.accion}${numeroForm}" ord="${ord}" valid="${v.validacion}" ${disabled}/>`
+    colec += `<input type="${v.type}" class="formColec  ${i}mb monedaBase ocultoSiempre" name="${i}mb" value="${valorDefMb}" form="f${objeto.accion}${numeroForm}" ord="${ord}" valid="${v.validacion}" ${disabled} ${autoCompOff} />`
 
-    colec += `<input type="${v.type}" class="formColec  ${i}ma monedaAlternativa ocultoSiempre" name="${i}ma" value="${valorDefMa}" form="f${objeto.accion}${numeroForm}" ord="${ord}" valid="${v.validacion}" ${disabled}/></td>`;
+    colec += `<input type="${v.type}" class="formColec  ${i}ma monedaAlternativa ocultoSiempre" name="${i}ma" value="${valorDefMa}" form="f${objeto.accion}${numeroForm}" ord="${ord}" valid="${v.validacion}" ${disabled} ${autoCompOff} /></td>`;
 
     return colec
 }
@@ -963,7 +963,7 @@ function logicoColec(objeto, numeroForm, i, v, value, ord, indice, disabled, val
     }
     let valorDef = valorColec || false
 
-    let colec = `<input type="hidden" class="formColec ${i} ${v.clase || ""}"  name="${i}" form="f${accion}${numeroForm}" ord="${ord}" value="${valorDef}"><input type="checkbox" class="formColec ${i} ${v.clase || ""}"  tabindex="${indice + 1}" ${checked[valorDef]}  ${disabled}/></div>`;
+    let colec = `<input type="hidden" class="formColec ${i} ${v.clase || ""}"  name="${i}" form="f${accion}${numeroForm}" ord="${ord}" value="${valorDef}" ${autoCompOff} ><input type="checkbox" class="formColec ${i} ${v.clase || ""}"  tabindex="${indice + 1}" ${checked[valorDef]}  ${disabled} ${autoCompOff} /></div>`;
 
     return colec
 }
@@ -976,7 +976,7 @@ function fechaColec(objeto, numeroForm, i, v, value, ord, indice, disabled, valo
 }
 function defaultColec(objeto, numeroForm, i, v, value, ord, indice, disabled, valorColec) {
 
-    let colec = `<input type="texto" class="formColec ${i} ${value.nombre}  ${v.clase || ""}" name="${i}" value="${valorColec}" form="f${accion}${numeroForm}" ord="${ord}"   valid=${v.validacion} tabindex="${indice + 1}" ${disabled}/></td>`;
+    let colec = `<input type="texto" class="formColec ${i} ${value.nombre}  ${v.clase || ""}" name="${i}" value="${valorColec}" form="f${accion}${numeroForm}" ord="${ord}"   valid=${v.validacion} tabindex="${indice + 1}" ${disabled} ${autoCompOff} /></td>`;
 
     return colec
 }

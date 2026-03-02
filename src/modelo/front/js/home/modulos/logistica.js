@@ -951,10 +951,10 @@ function seguroManual(objeto, numeroForm) {
         </tr>`//Ciero TR
 
         bloqueCero += `<tr class="filas filaInput">
-        <td class="tdFila" width="diez"><input class="inputDetalleSeguro" name="valorMercaderia" value="${valorDeMrs}" /></td>
-        <td class="tdFila seguro" width="diez"><input class="inputDetalleSeguro" name="ventaPorcentual" value="${valorDePorcentVenta}" /></td>
-        <td class="tdFila nominal" width="diez"><input class="inputDetalleSeguro" name="ventaNominal" value="${importeVentFinal}" /></td>
-        <td class="tdFila nominal" width="diez"><input class="inputDetalleSeguro" minimoObj="${arrayTipoSeg[0] + (arrayTipoSeg[1]?.toLowerCase() || "")}" name="minimo" value="${minimoDefault[arrayTipoSeg[0] + (arrayTipoSeg[1]?.toLowerCase() || "")]}" /></div>
+        <td class="tdFila" width="diez"><input class="inputDetalleSeguro" name="valorMercaderia" value="${valorDeMrs}"  ${autoCompOff} /></td>
+        <td class="tdFila seguro" width="diez"><input class="inputDetalleSeguro" name="ventaPorcentual" value="${valorDePorcentVenta}"  ${autoCompOff} /></td>
+        <td class="tdFila nominal" width="diez"><input class="inputDetalleSeguro" name="ventaNominal" value="${importeVentFinal}"  ${autoCompOff} /></td>
+        <td class="tdFila nominal" width="diez"><input class="inputDetalleSeguro" minimoObj="${arrayTipoSeg[0] + (arrayTipoSeg[1]?.toLowerCase() || "")}" name="minimo" value="${minimoDefault[arrayTipoSeg[0] + (arrayTipoSeg[1]?.toLowerCase() || "")]}"  ${autoCompOff} /></div>
         </tr>`//Cierro TR
         bloqueCero += `</table>`//Cierro table
 
@@ -1187,7 +1187,7 @@ function numeroDeDocumentoFormInd(objeto, numeroForm) {
 
     $(`#t${numeroForm} div.listaInputs`).addClass("oculto")
 
-    let input = `<input class="form" value="${valor}" diasbled/>`
+    let input = `<input class="form" value="${valor}" diasbled ${autoCompOff} />`
     $(input).appendTo(`#t${numeroForm} div.fo.listaDesplegableTexto`);
 
 }

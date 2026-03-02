@@ -53,8 +53,8 @@ $('body').on('click ', `.nav-vert:not(.enEspera) .menuSelectAbm`, async function
 
     let imgs = `<div class="comand" id="bf${contador}" agrupado=${indice} linea="uno"><div class="comandPrimeraLinea">${iHistoria}${iRecargar}${iDeshabilitar}${iDelete}${iEdit}${iCrearInd}${iCruz}${iOk}
       <div class="fechaTablaAbm oculto">
-      <div><p>De:</p><input type="date" class="fechaTextoDeAbm"></div>
-      <div><p>Hasta:</p><input type="date" class="fechaTextoHastaAbm"></div></div>
+      <div><p>De:</p><input type="date" class="fechaTextoDeAbm" ${autoCompOff} ></div>
+      <div><p>Hasta:</p><input type="date" class="fechaTextoHastaAbm" ${autoCompOff} ></div></div>
       <div class="cantidad"></div></div>
       <div class="comandSegundaLinea"></div></div>`;
 
@@ -514,7 +514,7 @@ $('body').on('click ', `.nav-vert:not(.enEspera) .menuSelectAbm`, async function
             let input = $(`#t${numeroForm} .inputTd input[type="parametrica"]`)
             $.each(input, (indice, value) => {
                 let name = $(value).attr("name")
-                let input = `<input class="inputR ${name} pestanaSelect" id="in${name}${numeroForm}" readonly name="${name}" form="f${objeto.accion}${numeroForm}" valid="parametrica" value="" diasbled/>`
+                let input = `<input class="inputR ${name} pestanaSelect" id="in${name}${numeroForm}" readonly name="${name}" form="f${objeto.accion}${numeroForm}" valid="parametrica" value="" diasbled ${autoCompOff} />`
 
                 let father = $(value).parents(`.inputTd`)
                 $(`div.selectCont`, father).remove()
