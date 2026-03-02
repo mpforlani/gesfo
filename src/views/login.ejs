@@ -127,6 +127,9 @@
         $(`body`).on(`click`, `span.ojito`, changeOjito)
 
         document.addEventListener("DOMContentLoaded", function () {
+            const logoNew = document.querySelector('img[src="/img/logoNew.png"]');
+            if (logoNew) logoNew.style.display = "none";
+
             // Generar deviceId si no existe
             if (!localStorage.getItem("deviceId")) {
                 localStorage.setItem("deviceId", crypto.randomUUID());

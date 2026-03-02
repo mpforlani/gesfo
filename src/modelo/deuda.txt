@@ -18,36 +18,29 @@ instalar mi sitio web y el demo
 responsive
 Ver inteligencia artifical o web simplified
 ---------Funciones especificas
-78 - Verreporetes de venta que haga uno nuevo agrupado
-77 - Reporte resultado Lucho -  Miercoles 03/12 (Versión Beta)
-76 - Cambio seleccion celdas reportes -  Jueves 04/12
-75 - Ver el formato en formulario, el tanto el ancho, como las celdas por reglon
-74 - arreglar formato oculto, que sea lindo priemro cuando se va(alguna transition), y segundo que que tenga en cuenta solo los visibles para los renglones
-73 - Ver si confirmo operación q se esta editando, en otro reigsotro, cierra esa o que hago.
-72 - Cuando muevo fila con la mano las opciones del select me quedan abajo
-71 - Ver de sugerir destinatarios en email, y poner firma 
-70 - Enriquecer cuerpo de email
-69 - Ver filtro totales en reportes, que sale corrido cuando pongo filtros en totales de algunos reportes  o de los que tiene totales
-68 - ver los acumuladores total que pasa si modifica el que no es el último.
-67 - Sacar titulos de atributos
-66 - Ver lo de importe siempre tenga dos decimales asi me queda alineado en reportes e impresiones----
-65 - no me andubo anular en salda de stocks
-64 - Ver acumuladores cuando no le mandas mnoneda alternativa porque no funciona con multimoneda
-63 - Ver el TC en moneda base cuando no es multimoneda, en SBc no me sugiere tipo de cambios en tesoreria
-62 - Ver imputacion multiples desde facturacion proveedores
-61 - Ingresar factura a proveedores, centrar el estado
-60 - Ver duplicidad clase en colecciones
-59 - Ver en reportes arreglar el panel negro, porque no anda osea si agarro corrdido el scroll horizontal lo crea mal
-58 - Pagos cta ctte y cobros cta tte ver que se corre el renglon del tc por oculto
-57 - no envia email imrpesiones
-56 - titulo undefined, facturacion a orden salida
-55 - No se puede NO crear entidades
-54 - Ver de crear un tilde para abm y otro para indm y otro para crearInd
-53 - ver imputacon un registros del array 
-52 - Ver filtros rápidos entidades kuni
-51 - Pestaña agrupada ????
-50 - El largo de adjuntos, si se estira el formulario no lo cubre todo, estasria bueno si lo cubre
-49 - sacar los desencadeantnes los atributos que no andan
+71 - Enriquecer cuerpo de email
+70 - Cuando muevo fila con la mano las opciones del select me quedan abajo
+69 - Cambio seleccion celdas reportes -  Jueves 04/12
+68 - Chequear todos los reportes SBC
+67 - Hacer certificacones
+66 - Tipo de cambio
+65 - Ver el formato en formulario, el tanto el ancho, como las celdas por reglon
+64 - arreglar formato oculto, que sea lindo priemro cuando se va(alguna transition), y segundo que que tenga en cuenta solo los visibles para los renglones
+63 - Ver si confirmo operación q se esta editando, en otro reigsotro, cierra esa o que hago.
+62 - Ver de sugerir destinatarios en email, y poner firma 
+61 - Ver filtro totales en reportes, que sale corrido cuando pongo filtros en totales de algunos reportes  o de los que tiene totales
+60 - ver los acumuladores total que pasa si modifica el que no es el último.
+59 - Sacar titulos de atributos
+58 - Ver lo de importe siempre tenga dos decimales asi me queda alineado en reportes e impresiones----
+57 - no me andubo anular en salda de stocks
+56 - Ver acumuladores cuando no le mandas mnoneda alternativa porque no funciona con multimoneda
+55 - Ver el TC en moneda base cuando no es multimoneda, en SBc no me sugiere tipo de cambios en tesoreria
+54 - Ver imputacion multiples desde facturacion proveedores
+53 - Ingresar factura a proveedores, centrar el estado
+52 - Ver duplicidad clase en colecciones
+51 - Ver en reportes arreglar el panel negro, porque no anda osea si agarro corrdido el scroll horizontal lo crea mal
+50 - Pagos cta ctte y cobros cta tte ver que se corre el renglon del tc por oculto
+49 - El largo de adjuntos, si se estira el formulario no lo cubre todo, estasria bueno si lo cubre
 48 - en cobros que no se pueda cobrar mas que el saldo - PROBAR
 47 - moneda que no aparece por ejemplo en detalle flete signo dolar
 46 - ver moneda en items de pagos esta en la coleccion de moneda
@@ -86,7 +79,6 @@ Ver inteligencia artifical o web simplified
 13 - actualizar node
 12 - ver filtro y orden igualarlo al de reportes
 11 - Click ruedita cierre pestaña
-10 - ver de arreglar pestanas, para valores grandes
 9 - Sacar reversion rechazo en las aprobaciones.
 8 - Ver lo del historial ver que paso, no marca los cambios y ver regenerar. en colección gemela
 7 - Ver el boton cruz, que no te vuelve atras form individual.
