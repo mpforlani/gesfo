@@ -448,8 +448,11 @@ let variablesModeloReportes = {
     existencias: {
         tablas: {
             stock: {
-                atributos: [P("producto"), P({ nombre: "almacen", clase: "textoCentrado", width: "diez" }), P({ nombre: "unidadesMedida", clase: "textoCentrado", width: "diez" })],
+                atributos: [P("producto"), P({ nombre: "almacen", width: "diez" }), P({ nombre: "unidadesMedida", clase: "textoCentrado", width: "diez" })],
                 titulos: ['Producto', "Almacen", "Unidad"],
+                clases: {
+                    table: ["separadorTitulos"]
+                },
                 type: "agrupadoMes",
                 entidad: "acumulador",
                 atributosEnMeses: [N("cantidadTotal")],
@@ -512,8 +515,11 @@ let variablesModeloReportes = {
 
             },
             valorizado: {
-                atributos: [P("producto"), P({ nombre: "almacen", clase: "textoCentrado", width: "diez" }), P({ nombre: "unidadesMedida", clase: "textoCentrado", width: "diez" })],
+                atributos: [P("producto"), P({ nombre: "almacen", width: "diez" }), P({ nombre: "unidadesMedida", clase: "textoCentrado", width: "diez" })],
                 titulos: ['Producto', "Almacen", "Unidad"],
+                clases: {
+                    table: ["separadorTitulos"]
+                },
                 type: "agrupadoMes",
                 datos: "getGroup",
                 atributosEnMeses: [I("totalConPrecio")],

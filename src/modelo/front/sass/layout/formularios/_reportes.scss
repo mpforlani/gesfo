@@ -96,7 +96,7 @@
             &.botones {
                 position: absolute;
                 bottom: 20%;
-                right: 20px;
+                right: calc(20px + 5rem);
             }
 
             .selecAtributo {
@@ -166,6 +166,9 @@
         .barraForm {
             margin: 0.5rem 0 0 0.5rem;
 
+            span.material-symbols-outlined.botones {
+                background-color: $colorFondoBotoneraInd;
+            }
         }
     }
 }
@@ -226,7 +229,7 @@
     }
 
     .tituloTabla {
-        margin: 0 0 0.5rem 2rem;
+        margin: 0 0 0 2rem;
 
         h3 {
             font-family: $letra-pestana;
@@ -237,9 +240,12 @@
 
     table {
         margin: 0.7rem 2rem 0.7rem 2rem;
+        font-family: "Roboto", sans-serif;
+        font-size: 1rem;
         min-height: max-content;
         border-radius: 5px;
         overflow: hidden;
+        border-spacing: 0;
 
         &.trBordes {
             tr:not(:last-child) {
@@ -259,14 +265,13 @@
             tr {
                 &:not(.titulosFila):not(.filtros) {
                     background-color: white;
-
                 }
 
                 &.filtros {
                     position: sticky;
-                    backdrop-filter: blur(10px);
-                    -webkit-backdrop-filter: blur(10px);
-                    background: rgba(255, 255, 255, 0.3);
+                    backdrop-filter: none;
+                    -webkit-backdrop-filter: none;
+                    background: rgb(255, 255, 255);
                     z-index: 1000;
 
                     input {
@@ -284,7 +289,7 @@
                     }
                 }
 
-                &:not(.modificado):hover {
+                &:not(.modificado):not(.titulosFila):not(.filtros):not(.segunFilaTitulos):hover {
                     background-color: rgb(237, 239, 247) !important;
 
                 }
@@ -314,7 +319,7 @@
                     }
 
                     &.seleccionada {
-                        background-color: inherit !important;
+                        background-color: rgba(46, 121, 74, 0.28) !important;
                     }
 
                     &.editableRep {
@@ -333,7 +338,6 @@
             display: flex;
             width: auto;
             flex-wrap: nowrap;
-            align-items: center;
             position: relative;
 
             &.titulosFila {
@@ -342,19 +346,20 @@
                 z-index: 999;
                 backdrop-filter: blur(30px);
 
-                >th,
-                >td {
+                >th {
                     position: relative;
+                    padding-top: 0.3rem;
+                    padding-bottom: 0.3rem;
                 }
             }
 
             &.filtros {
 
-                display: none;
+                display: none !important;
 
 
                 &.active {
-                    display: flex;
+                    display: flex !important;
                 }
 
                 .filtroAgrupador {
@@ -375,6 +380,37 @@
                     display: flex;
                     align-items: flex-start;
                     padding: 0.3rem 0.1rem 0.3rem 0.1rem;
+                    background-color: transparent !important;
+
+                    &:hover,
+                    &:focus,
+                    &:focus-visible,
+                    &:focus-within,
+                    &:active {
+                        background-color: transparent !important;
+                    }
+
+                    input.filtro,
+                    input.filtro:hover,
+                    input.filtro:focus,
+                    input.filtro:focus-visible,
+                    input.filtro:active {
+                        background-color: rgb(255, 255, 255);
+                        color: rgb(0, 0, 0);
+                        outline: none;
+                        box-shadow: none;
+                        filter: none;
+                    }
+
+                    &.filtroDeshabilitado {
+                        .busquedasColumna {
+                            opacity: 0.55;
+                        }
+
+                        input.filtro {
+                            text-decoration: line-through;
+                        }
+                    }
 
                     .busquedasColumna {
                         display: flex;
@@ -391,6 +427,7 @@
                             input.filtro {
                                 width: 100%;
                                 min-width: 0;
+                                transition: none;
                             }
 
                             .deleteFiltroCampo {
@@ -399,7 +436,38 @@
                                 cursor: pointer;
                                 color: rgb(90, 90, 90);
                                 user-select: none;
+
+                                &:hover,
+                                &:focus,
+                                &:focus-visible,
+                                &:active {
+                                    color: rgb(90, 90, 90);
+                                    outline: none;
+                                    box-shadow: none;
+                                    filter: none;
+                                }
                             }
+                        }
+                    }
+
+                    p.closeFiltro {
+                        font-size: 1rem;
+                        transform: rotate(45deg);
+                        cursor: pointer;
+                        color: rgb(0, 0, 0);
+                        font-weight: bolder;
+                        margin: 0.15rem 0.2rem 0 0.2rem;
+                        line-height: 1;
+                        user-select: none;
+
+                        &:hover,
+                        &:focus,
+                        &:focus-visible,
+                        &:active {
+                            transform: rotate(45deg);
+                            color: rgb(0, 0, 0);
+                            outline: none;
+                            box-shadow: none;
                         }
                     }
                 }
@@ -408,7 +476,7 @@
             &.filaTotal {
 
                 td {
-                    border-top: 2px solid #000000;
+                    border-top: 1px solid #000000;
                     background-color: rgba(255, 255, 255, 0.151);
                     height: auto;
                     font-weight: bold;
@@ -448,6 +516,9 @@
 
             th {
                 font-size: 1rem;
+                font-family: "Roboto", sans-serif;
+                font-weight: 700;
+                line-height: 1;
                 display: flex;
                 justify-content: center;
                 align-items: center;
@@ -469,8 +540,21 @@
                     justify-content: center;
                     position: relative;
                     width: 100%;
+                    min-width: 0;
+                    overflow: hidden;
                     padding-left: 0.9rem;
                     padding-right: 0.9rem;
+
+                    span.tit {
+                        display: block;
+                        min-width: 0;
+                        max-width: 100%;
+                        line-height: 1;
+                        overflow: hidden;
+                        white-space: nowrap;
+                        text-overflow: ellipsis;
+                        transition: max-width 0.15s ease;
+                    }
 
                     .reorder-col-handle {
                         position: absolute;
@@ -508,10 +592,15 @@
                             padding: 0;
                             font-weight: bold;
 
-                            &:hover {
-                                transform: scale(1.2);
-                                color: rgb(5, 187, 35);
+                            &:hover,
+                            &:focus,
+                            &:focus-visible,
+                            &:active {
+                                transform: none;
+                                color: inherit;
                                 cursor: pointer;
+                                outline: none;
+                                box-shadow: none;
                             }
                         }
 
@@ -543,12 +632,8 @@
 
                     &:hover {
                         span.tit {
-                            overflow: hidden;
-                            white-space: nowrap;
-                            text-overflow: clip;
-
-                            transition: opacity 0.3s ease;
-                            max-width: 100%;
+                            max-width: clamp(0px, calc(100% - 3.4rem), 100%);
+                            text-overflow: ellipsis;
                         }
 
                         .reorder-col-handle {
@@ -562,9 +647,18 @@
                     }
 
                     &:focus-within {
+                        span.tit {
+                            max-width: clamp(0px, calc(100% - 3.4rem), 100%);
+                            text-overflow: ellipsis;
+                        }
+
                         .reorder-col-handle {
                             opacity: 0.7;
                             pointer-events: auto;
+                        }
+
+                        .iconos {
+                            display: flex;
                         }
                     }
                 }
@@ -575,7 +669,15 @@
                 height: -webkit-fill-available;
                 align-content: center;
                 transition: none;
+                font-family: "Roboto", sans-serif;
+                font-size: 1rem;
+                font-weight: 400;
+                line-height: normal;
                 padding: 0 0.3rem 0 1rem;
+
+                &.seleccionada {
+                    background-color: rgba(46, 121, 74, 0.28) !important;
+                }
 
                 &.totalHorizontal {
                     font-weight: bold;
@@ -713,6 +815,21 @@
                 touch-action: none;
             }
         }
+
+        &.separadorTitulos {
+
+            tr.titulosFila {
+
+                >th,
+                >td {
+                    border-bottom: 1px solid #000000;
+                }
+            }
+        }
+    }
+
+    .tituloTabla+table {
+        margin-top: 0;
     }
 
     .barraCalculada {

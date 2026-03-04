@@ -1594,11 +1594,14 @@ function completaConCodigo(objeto, numeroForm) {
     function completarAtributos(e) {
         let fila = $(e.target).closest("tr");
         let numeroFila = fila.attr("q");
+        let codigoDeBarrasInput = $(`#t${numeroForm} table.movimientoStock tr[q="${numeroFila}"] input.codigoDeBarras`);
         let codigoDeBarras = ($(`#t${numeroForm} table.movimientoStock tr[q="${numeroFila}"] input.codigoDeBarras`).val() || "").trim();
 
         if (codigoDeBarras.length != 13) {
-            return
+            setTimeout(() => $(`#t${numeroForm} table.movimientoStock tr[q="${numeroFila}"] input.codigoDeBarras`).removeClass("validado"), 200);
+
         } else {
+            $(`#t${numeroForm} table.movimientoStock tr[q="${numeroFila}"] input.codigoDeBarras`).addClass("validado");
 
             let productos = Object.values(consultaPestanas.producto);
 
@@ -1653,3 +1656,85 @@ function ajustesSalida(objeto, numeroForm) {
     $(`#t${numeroForm}`).on("change", ".inputSelect.operacionStock", ocultarAtributosAjustes);
 
 }
+function traspasosDeUbicaciones(objeto, numeroForm) {
+    let ingresoPendiente = "";
+    function cartelIngresos(e) {
+        ingresoPendiente = $(e.target).parents("tr");
+
+        const idProducto = $(".divSelectInput[name='producto']", ingresoPendiente).val();
+        const idAlmacenOrigen = $(".divSelectInput[name='almacenOrigen']", ingresoPendiente).val();
+        const idUbicacionOrigen = $(".divSelectInput[name='ubicacionOrigen']", ingresoPendiente).val();
+
+        if (!idProducto || !idAlmacenOrigen || !idUbicacionOrigen) return;
+
+        let preFiltros = {
+            estado: ["Ingresado", "Salida parcial"],
+            producto: idProducto,
+            almacen: idAlmacenOrigen,
+            ubicaciones: idUbicacionOrigen
+        }
+        console.log(preFiltros)
+        const filtros = `&filtros=${JSON.stringify(preFiltros)}`
+        fetch(`/get?base=stock${filtros}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data)
+                cartelComplementoConCortina(objeto, numeroForm, { bloques: 2, claseCartel: "movimientoUbicaciones" })
+
+                let titulo = "<div><h4>Movimientos pendientes</h4></div>"
+                $(titulo).appendTo(`#t${numeroForm} .bloque0`)
+                let cuerpoPrincipal = ""
+                cuerpoPrincipal += `<table>`
+                cuerpoPrincipal += `<tr class="titulosTable">`
+                cuerpoPrincipal += `<th class="oculto">ID</th><th>Fecha</th><th>Producto</th><th>Unidad</th><th>Cantidad</th><th>Disponibles</th><th>Almacen</th><th>Ubicaciones</th><th>Vencimiento</th>`
+                cuerpoPrincipal += `</tr>`
+                $.each(data, (indice, value) => {
+
+                    cuerpoPrincipal += `<tr class="filaTable">`
+                    cuerpoPrincipal += `<td class="oculto idComprobante">${value._id}</td><td class="fecha" fechaFormateada="${dateNowAFechaddmmyyyy(value.fecha, "y-m-d")}">${dateNowAFechaddmmyyyy(value.fecha, "d/m/y")}</td><td class="producto">${consultaPestanas?.producto?.[value.producto]?.name || ""}</td><td class="unidadesMedida">${consultaPestanas?.unidadesMedida?.[value.unidadesMedida]?.name || ""}</td><td class ="cantidad">${value.cantidad}</td><td class ="disponibles">${value.disponibles}</td><td class="almacen">${consultaPestanas?.almacen?.[value.almacen]?.name || ""}</td><td class="ubicaciones">${consultaPestanas?.ubicaciones?.[value.ubicaciones]?.name || ""}</td><td class="fechaVencimientoProducto" fechaFormateada="${dateNowAFechaddmmyyyy(value.fecha, "y-m-d")}">${dateNowAFechaddmmyyyy(value.fecha, "d/m/y")}</td>`
+                    cuerpoPrincipal += `</tr>`
+                })
+                $(cuerpoPrincipal).appendTo(`#t${numeroForm} .bloque1`)
+
+                $(`#t${numeroForm} table.movimientoUbicaciones tr.mainBody:not(.last)`).each((indice, elemento) => {
+                    const idComprobante = $(elemento).find('td.idComprobante input').val();
+                    $(`#t${numeroForm} .cartelComplemento.movimientoUbicaciones tr.filaTable`).filter(function () {
+                        return $(this).find('td.idComprobante')?.html()?.trim() === idComprobante;
+                    }).addClass('oculto');
+                });
+            })
+            .catch(error => console.error('Error de red:', error));
+    }
+    console.log(3)
+    console.log(consultaPestanas)
+    function seleccionarMovimiento(e) {
+
+        $(e.currentTarget).toggleClass(`seleccionado`)
+        $(e.currentTarget).siblings().removeClass(`seleccionado`)
+    }
+    console.log(4)
+    $(`#t${numeroForm}`).on("click", ".movimientoUbicaciones tr.filaTable", seleccionarMovimiento)
+    $(`#t${numeroForm}`).on("change", "table.movimientoUbicaciones .divSelectInput[name='producto']", cartelIngresos)
+    $(`#t${numeroForm}`).on("click", ".movimientoUbicaciones .okBoton", (e) => {
+
+        let filaSeleccionada = $(`#t${numeroForm} .movimientoUbicaciones tr.seleccionado`);
+
+        if (filaSeleccionada.length > 0) {
+            console.log(5)
+            $.each(filaSeleccionada, (indice, value) => {
+
+                $("input.producto", ingresoPendiente).val($("td.producto", value).html().trim()).trigger("input").addClass("transparente");
+                $("input.almacenOrigen", ingresoPendiente).val($("td.almacen", value).html().trim()).trigger("change").addClass("transparente");
+                $("input.ubicacionOrigen", ingresoPendiente).val($("td.ubicaciones", value).html().trim()).trigger("change").addClass("transparente");
+                $("input.disponibles", ingresoPendiente).val($("td.disponibles", value).html().trim()).trigger("input").addClass("transparente");
+                $("input.idComprobante", ingresoPendiente).val($("td.idComprobante", value).html()?.trim()).trigger("change");
+                $("input.cantidad", ingresoPendiente).val($("td.cantidad", value).html().trim()).trigger("input").addClass("transparente");
+                $("input.unidadesMedida", ingresoPendiente).val($("td.unidadesMedida", value).html().trim()).trigger("input").addClass("transparente");
+
+                $(`#t${numeroForm} .movimientoUbicaciones .closePop`).trigger(`click`);
+            });
+        }
+    });
+}
+
+

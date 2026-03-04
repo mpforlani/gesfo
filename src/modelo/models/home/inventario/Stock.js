@@ -20,7 +20,12 @@ const StockSchema = new Schema({
         sparse: true,
         default: ""
     },
-
+    ubicaciones: {
+        type: String,
+        ref: "ubicaciones",
+        sparse: true,
+        default: ""
+    },
     estado: { type: String },
     comprobanteOP: { type: String },
     operacionStock: { type: String },

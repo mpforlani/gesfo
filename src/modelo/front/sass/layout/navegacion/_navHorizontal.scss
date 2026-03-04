@@ -37,9 +37,10 @@
             display: flex;
             align-items: center;
 
-            .logoGesfin {
-                @include logosGesfin
+            img {
+                height: 3rem;
             }
+
         }
     }
 

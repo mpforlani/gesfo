@@ -18,9 +18,8 @@ instalar mi sitio web y el demo
 responsive
 Ver inteligencia artifical o web simplified
 ---------Funciones especificas
-71 - Enriquecer cuerpo de email
-70 - Cuando muevo fila con la mano las opciones del select me quedan abajo
-69 - Cambio seleccion celdas reportes -  Jueves 04/12
+70 - Ver separadores dond el titulo no esta pintado
+69 - Cambio seleccion celdas reportes Falta sumar
 68 - Chequear todos los reportes SBC
 67 - Hacer certificacones
 66 - Tipo de cambio
@@ -43,8 +42,6 @@ Ver inteligencia artifical o web simplified
 49 - El largo de adjuntos, si se estira el formulario no lo cubre todo, estasria bueno si lo cubre
 48 - en cobros que no se pueda cobrar mas que el saldo - PROBAR
 47 - moneda que no aparece por ejemplo en detalle flete signo dolar
-46 - ver moneda en items de pagos esta en la coleccion de moneda
-45 - El autocompletado en slect de colecciones
 44 - Ver deposito que el total es de ambas moneda -- Le dije a cheni poco usado
 43 - Ver como calcular moneda alternativa si no estar cargarda la moneda alternativa
 42 - Ver obtener cotizacioens automaticas de internet y registrarla

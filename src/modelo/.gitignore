@@ -1,9 +1,11 @@
 node_modules/
-src/.env
-gesFin.docx
+test-results/
+.env
+planilla pato.xlsx
 scripts/
-src/uploads/
-src/mainTree/front/uploads/
-front/css/style.css
+src/uploads
+src/front/uploads
+src/gesfin/front/uploads
+file
 front/css/style.css.map
-.env.testing
+tmp

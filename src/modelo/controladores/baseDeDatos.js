@@ -18,6 +18,7 @@ const baseDeDat = {
     Stock: require("../models/home/inventario/Stock"),
     EntradaInventario: require("../models/home/inventario/EntradaInventario"),
     SalidaInventario: require("../models/home/inventario/SalidaInventario"),
+    TraspasoUbicaciones: require("../models/home/inventario/TraspasoUbicaciones"),
     ListaDeVenta: require("../models/home/inventario/ListaDeVenta"),
     ListaProveedores: require("../models/home/inventario/ListaProveedores"),
     //Logistica

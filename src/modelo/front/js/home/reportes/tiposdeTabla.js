@@ -162,8 +162,7 @@ function agrupadorSubAgrupadorMeses(objeto, numeroForm, nombreTab, objetoRep) {
         tabla += `<td class="td filtro ${atributo.nombre || atributo} ${atributo.clase || ""}" atributo="${atributo.nombre || atributo}" colum="${colum}" ${widthObject[atributo.width] || ""}>
                  
                  <input class="filtro ${atributo.nombre || atributo}" atributo="${atributo.nombre || atributo}" type="${atributo.type}"  colum="${colum}" ${autoCompOff} />
-                  <span class="material-symbols-outlined oculto ojito">visibility</span>
-                   <span class="material-symbols-outlined tachado ojito">visibility_off</span>
+                  <p class="closeFiltro">+</p>
                  </td>`
 
         colum++
@@ -270,8 +269,7 @@ function infoEntidadMasEditTable(objeto, numeroForm, nombreTab, objetoRep) {
         tabla += `<td class="td filtro ${atributo.nombre || atributo}" atributo="${atributo.nombre || atributo}" style="order:${indice}" colum="${colum}" ${widthObject[atributo.width] || ""}>
            
            <input  class="filtro ${atributo.nombre || atributo}" atributo="${atributo.nombre || atributo}" type="${atributo.type}"  colum="${colum}" ${autoCompOff} />
-           <span class="material-symbols-outlined oculto ojito">visibility</span>
-           <span class="material-symbols-outlined tachado ojito">visibility_off</span>
+           <p class="closeFiltro">+</p>
            </td>`
 
         colum++
@@ -284,8 +282,7 @@ function infoEntidadMasEditTable(objeto, numeroForm, nombreTab, objetoRep) {
         tabla += `<td class="td filtro ${atributo.nombre || atributo}" atributo="${atributo.nombre || atributo}" style="order:${orden || indice}" colum="${colum}" style="order:${orden || indice}" ${widthObject[atributo.width] || ""}>
            
            <input  class="filtro ${atributo.nombre || atributo}" atributo="${atributo.nombre || atributo}" type="${atributo.type}"  colum="${colum}" ${autoCompOff} />
-           <span class="material-symbols-outlined oculto ojito">visibility</span>
-            <span class="material-symbols-outlined tachado ojito">visibility_off</span>
+           <p class="closeFiltro">+</p>
            
            
            </td>`
@@ -363,10 +360,11 @@ function agrupadoMes(objeto, numeroForm, nombreTab, objetoRep) {
             .tablaReporte table[rowspanCompat="true"] tr td:hover {
                 background-color: transparent !important;
                 font-weight: inherit !important;
-                cursor: default !important;
+                cursor: pointer !important;
             }
             .tablaReporte table[rowspanCompat="true"] tr td.seleccionada {
-                background-color: transparent !important;
+                background-color: #cfe3ff !important;
+                box-shadow: inset 0 0 0 1px #3f6fc8;
             }
             .tablaReporte table[rowspanCompat="true"] tr td.hoverGrupoCeldaCompat {
                 background-color: rgb(237, 239, 247) !important;
@@ -510,8 +508,7 @@ function agrupadoMes(objeto, numeroForm, nombreTab, objetoRep) {
 
         tabla += `<td class="filtro ${atributo.nombre || atributo} ${atributo.clase || ""}" atributo="${atributo.nombre || atributo}"  ${widthObject[atributo.width] || ""}>
                 <input name="${atributo.nombre || atributo}" class="filtro ${atributo.nombre || atributo}" atributo="${atributo.nombre || atributo}" type="${atributo.type}"  ${autoCompOff} />
-                <span class="material-symbols-outlined oculto ojito">visibility</span>
-                <span class="material-symbols-outlined tachado ojito">visibility_off</span>
+                <p class="closeFiltro">+</p>
                 </td>`
 
         colum++
@@ -530,8 +527,7 @@ function agrupadoMes(objeto, numeroForm, nombreTab, objetoRep) {
             let atributo = objeto.atributosEnMeses[ind]
             tabla += `<td class=" filtro ${mesesTitulo[mesTitulosFiltro]} ${atributo.nombre || atributo}" atributo="${atributo.nombre || atributo}">
                       <input  class="filtro ${atributo.nombre || atributo}" atributo="${atributo.nombre || atributo}" type="${atributo.type}" ${autoCompOff} />
-                      <span class="material-symbols-outlined oculto ojito">visibility</span>
-                      <span class="material-symbols-outlined tachado ojito">visibility_off</span>
+                      <p class="closeFiltro">+</p>
                       </td>`
 
         })
@@ -732,8 +728,7 @@ function tipoExtracto(objeto, numeroForm, nombreTab, objetoRep) {
     $.each(objetoRep.tablas[nombreTab].atributos, (i, atr) => {
 
         tabla += `<td class="td filtro ${atr.nombre}" atributo="${atr.nombre}" colum="${colum}" style="order:${i}" ${widthObject[atr.width] || ""}><input class="filtro ${atr.nombre}" atributo="${atr.nombre}"type="${atr.type}" colum="${colum}"  ${autoCompOff} />
-        <span class="material-symbols-outlined oculto ojito">visibility</span>
-        <span class="material-symbols-outlined tachado ojito">visibility_off</span>
+        <p class="closeFiltro">+</p>
         </td>`
 
         colum++
@@ -1068,3 +1063,4 @@ function tablaPromedio(objetoCalc, numeroForm, objeto, tablaName) {
     $(tabla).appendTo(`#t${numeroForm}`);
 
 }
+

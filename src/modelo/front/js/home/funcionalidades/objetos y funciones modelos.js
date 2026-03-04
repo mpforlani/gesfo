@@ -36,6 +36,7 @@ let variablesModelo = {
     almacen: variablesModeloInventarios.almacen,
     marca: variablesModeloInventarios.marca,
     ubicaciones: variablesModeloInventarios.ubicaciones,
+    traspasoUbicaciones: variablesModeloInventarios.traspasoUbicaciones,
     entradaInventario: variablesModeloInventarios.entradaInventario,
     salidaInventario: variablesModeloInventarios.salidaInventario,
     operacionStock: variablesModeloInventarios.operacionStock,

@@ -109,6 +109,7 @@ const modulosTotales = {
             stock: variablesModelo.stock,
             entradaInventario: variablesModelo.entradaInventario,
             salidaInventario: variablesModelo.salidaInventario,
+            traspasoUbicaciones: variablesModelo.traspasoUbicaciones,
             listaDeVenta: variablesModelo.listaDeVenta,
             listaProveedores: variablesModelo.listaProveedores,
             existenciasRep: variablesModelo.existencias,
@@ -384,14 +385,7 @@ async function escribirMenu(permisObject, empresasHabilitadas) {
                 <div class="primeraParteNavegacion">
                 
                     <div class="contenedorLogo">
-                        <div class="logoGesfin">
-                            <div class="flecha">&nbsp;</div>
-                            <div class="logoGesfin_icon uno">&nbsp;</div>
-                            <div class="logoGesfin_icon dos">&nbsp;</div>
-                            <div class="logoGesfin_icon tres">&nbsp;</div>
-                            <div class="logoGesfin_icon cuatro">&nbsp;</div>
-
-                        </div>
+                        <div class="logo"><img src="/img/LogoSFondoNiPa.png"></div>
                     </div>
                 ${cabeceraEmpresa}
                   </div>

@@ -12,99 +12,30 @@
 
 
 }
+
 @mixin closeMix {
 
-        transform: rotate(45deg);
-        font-size: 2rem;
-        font-weight: bold;
-        color: $closePop;
-        position: absolute;
-        top: 0.3rem;
-        right: 1rem;
-        font-weight: bold;
-        cursor: pointer;
-        justify-content: right;
-        align-self: flex-end;
+    transform: rotate(45deg);
+    font-size: 2rem;
+    font-weight: bold;
+    color: $closePop;
+    position: absolute;
+    top: 0.3rem;
+    right: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    justify-content: right;
+    align-self: flex-end;
 
-        &:hover {
-            transform: rotate(45deg) scale(1.5);
-        }
+    &:hover {
+        transform: rotate(45deg) scale(1.5);
+    }
 
-        &:active {
-            cursor: grabbing;
-        } 
+    &:active {
+        cursor: grabbing;
+    }
 }
-@mixin logosGesfin {
 
-  position: relative;
-                border-left: 2.5px solid $colorLogo;
-                border-bottom: 2.5px solid $colorLogo;
-                display: flex;
-                align-items: end;
-                flex-direction: row;
-                width: auto;
-                height: 60%;
-                margin: 10px;
-                padding-left: 3px;
-                transition: all .3s;
-
-                &:hover {
-
-                    border-left: 2.5px solid rgba(90, 89, 89, 0.795);
-                    border-bottom: 2.5px solid rgba(90, 89, 89, 0.795); //border: none;
-
-                    .logoGesfin_icon {
-                        transform: translateX(3px);
-
-                    }
-
-                    .logoGesfin_icon,
-                    .flecha {
-                        color: transparent;
-                        background-image: linear-gradient(to right bottom, rgba(53, 51, 51, 0.795), rgba(223, 223, 223, 0.788));
-                        background-size: cover;
-                        transition: all .3s;
-                    }
-                }
-
-                .flecha {
-                    width: 100%;
-                    background-color: $colorLogo;
-                    position: absolute;
-                    height: 30px;
-                    position: absolute;
-                    top: -10px;
-                    transform: rotate(-28deg);
-                    clip-path: polygon(0 41%, 60% 41%, 51% 30%, 75% 46%, 52% 56%, 60% 47%, 0 47%);
-                    transition: all .3s;
-                }
-
-                .logoGesfin_icon {
-                    display: flex;
-                    background-color: $colorLogo;
-                    margin: 0 1.2px 0 0;
-                    width: 6px;
-                    margin-bottom: 4px;
-                    transition: all .3s;
-
-                    &.uno {
-                        height: 20%;
-                    }
-
-                    &.dos {
-                        height: 30%;
-                    }
-
-                    &.tres {
-                        height: 45%;
-                    }
-
-                    &.cuatro {
-                        height: 60%;
-                    }
-                }
-
-}
 @mixin clearFix {
     &::after {
         content: "";

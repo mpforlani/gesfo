@@ -34,6 +34,99 @@ function crearimpresion(objeto, numeroForm, data) {
 
     })
 }
+function escaparHtmlEditor(texto) {
+    return `${texto || ""}`
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+function prepararContenidoInicialEditor(textoInicial) {
+    const texto = `${textoInicial || ""}`;
+    if (!texto.trim()) return "";
+
+    const pareceHtml = /<\/?[a-z][\s\S]*>/i.test(texto);
+    if (pareceHtml) return texto;
+
+    return escaparHtmlEditor(texto).replace(/\n/g, "<br>");
+}
+function contenidoEditorEmail(editor) {
+    if (!editor) return "";
+
+    const html = (editor.innerHTML || "").trim();
+    const textoPlano = (editor.textContent || "").replace(/\u00A0/g, " ").trim();
+    const tieneImagenes = !!editor.querySelector("img");
+
+    return (textoPlano.length > 0 || tieneImagenes) ? html : "";
+}
+function insertarImagenEnEditor(file, editor) {
+    if (!file || !editor || !file.type?.startsWith("image/")) return;
+
+    const reader = new FileReader();
+    reader.onload = function (event) {
+        editor.focus();
+        document.execCommand("insertImage", false, event?.target?.result || "");
+    };
+    reader.readAsDataURL(file);
+}
+function inicializarEditorTextoEmail($contenedor, textoInicial) {
+    if (!$contenedor?.length) return;
+
+    const $editor = $contenedor.find(".email-rich-editor");
+    const $toolbar = $contenedor.find(".email-rich-toolbar");
+    const $inputImagen = $contenedor.find(".email-image-input");
+
+    if (!$editor.length) return;
+
+    const editor = $editor.get(0);
+    editor.innerHTML = prepararContenidoInicialEditor(textoInicial);
+
+    $toolbar.on("mousedown", "button", function (e) {
+        e.preventDefault();
+    });
+
+    $toolbar.on("click", "button", function (e) {
+        e.preventDefault();
+        const accion = this.dataset.action;
+        const comando = this.dataset.command;
+        editor.focus();
+
+        if (accion == "insertImage") {
+            $inputImagen.trigger("click");
+            return;
+        }
+
+        if (accion == "createLink") {
+            const url = (window.prompt("Ingrese la URL", "https://") || "").trim();
+            if (!url) return;
+            document.execCommand("createLink", false, url);
+            return;
+        }
+
+        if (comando) {
+            document.execCommand(comando, false, null);
+        }
+    });
+
+    $inputImagen.on("change", function (e) {
+        const archivos = Array.from(e.target.files || []);
+        archivos.forEach(file => insertarImagenEnEditor(file, editor));
+        this.value = "";
+    });
+
+    $editor.on("paste", function (e) {
+        const clipboardItems = e.originalEvent?.clipboardData?.items || [];
+        const imagenes = Array.from(clipboardItems)
+            .map(item => item.getAsFile?.())
+            .filter(file => file?.type?.startsWith("image/"));
+
+        if (imagenes.length == 0) return;
+
+        e.preventDefault();
+        imagenes.forEach(file => insertarImagenEnEditor(file, editor));
+    });
+}
 async function formularioIndividualImpresion(objeto, numeroForm, data) {
 
     let impresion = objeto?.formInd?.impresion || objeto?.impresion
@@ -135,7 +228,8 @@ async function formularioIndividualImpresion(objeto, numeroForm, data) {
         let htmlParaPdf = `${document.getElementById('documentoImpresion').outerHTML}`;
 
         objetoEnviar.texto = htmlParaPdf
-        objetoEnviar.textoDescrip = $(`#impresionFormulario div.texto textarea`).val() || "Reporte Automatico";
+        const cuerpoEmailHtml = contenidoEditorEmail(document.querySelector(`#impresionFormulario div.texto .email-rich-editor`));
+        objetoEnviar.textoDescrip = cuerpoEmailHtml || "Reporte Automatico";
 
         if (impresion.hoja == "custom") {
 
@@ -196,10 +290,11 @@ async function formularioIndividualImpresion(objeto, numeroForm, data) {
         inputs += `<div class="copiaOculta flex heightAuto email-container"><div class="widthDiezPorc">CCO:</div><div class="widthCien"><input  name="copiaOculta"  ${autoCompOff} /></div></div>`
         inputs += `<div class="asunto flex heightAuto email-container"><div class="widthDiezPorc">Asunto:</div><div class="widthCien"><input  name="sujeto" value="${asunto || ""}"  ${autoCompOff} /></div></div>`
 
-        inputs += `<div class="texto flex heighDiez email-container"><div class="widthDiezPorc">Texto:</div><div class="widthCien"><textarea class="heighDiez" name="textoEmail" />${texto || ""}</textarea></div></div>`
+        inputs += `<div class="texto flex email-editor-container"><div class="widthCien"><div class="email-rich-toolbar"><button type="button" class="email-rich-btn" data-command="bold"><b>B</b></button><button type="button" class="email-rich-btn" data-command="italic"><i>I</i></button><button type="button" class="email-rich-btn" data-command="underline"><u>U</u></button><button type="button" class="email-rich-btn" data-command="insertUnorderedList">Lista</button><button type="button" class="email-rich-btn" data-command="insertOrderedList">1.</button><button type="button" class="email-rich-btn" data-action="createLink">Link</button><button type="button" class="email-rich-btn" data-command="removeFormat">Limpiar</button><button type="button" class="email-rich-btn" data-action="insertImage">Imagen</button><input type="file" class="email-image-input oculto" accept="image/*" multiple /></div><div class="email-rich-editor heighDiez" contenteditable="true" data-placeholder="Escribi el cuerpo del email..."></div></div></div>`
         inputs += `</div>`
 
         $(inputs).appendTo('#impresionFormulario .bloque0')
+        inicializarEditorTextoEmail($(`#impresionFormulario .bloque0 .enviarEmail`).last(), texto || "");
         $(`#documentoImpresion .cartelComplemento`).css("top", "5%");
         /*if (objeto?.enviar?.emailAtributo != undefined) {
     

@@ -823,18 +823,24 @@ const movimientoStock = {
     idComprobante: T({ nombre: "idComprobante", oculto: "oculto" }),
 
   },
-  titulosComponentes: ["Cantidad", "Unidad", "Producto", "Fecha vencimiento", "Codigo", "Estado", "Disponibles", "Salidas", "Descripción", "idComprobante"],
+  titulosComponentes: ["Cantidad", "Unidad", "Producto", "Fecha vencimiento", "Codigo de barras", "Estado", "Disponibles", "Salidas", "Descripción", "idComprobante"],
 };
 const movimientoUbicaciones = {
   titulos: `Movimiento Ubicaciones`,
   nombre: `movimientoUbicaciones`,
   type: `coleccionInd`,
   componentes: {
+    almacenOrigen: P({ nombre: "almacenOrigen", origen: "almacen", clase: "requerido" }),
     ubicacionOrigen: P({ nombre: "ubicacionOrigen", origen: "ubicaciones", clase: "requerido" }),
     producto: P({ nombre: "producto", clase: "requerido" }),
+    disponibles: N({ nombre: "disponibles", clase: "requerido" }),
+    almacenDestino: P({ nombre: "almacenDestino", origen: "almacen", clase: "requerido" }),
     ubicacionDestino: P({ nombre: "ubicacionDestino", origen: "ubicaciones", clase: "requerido" }),
+    idComprobante: T({ nombre: "idComprobante", oculto: "oculto" }),
+    unidadesMedida: P({ nombre: "unidadesMedida", clase: "requerido", oculto: "oculto" }),
+    cantidad: N({ nombre: "cantidad", clase: "requerido", oculto: "oculto" }),
   },
-  titulosComponentes: ["Ubicacion origen", "Producto", "Ubicacion destino"],
+  titulosComponentes: ["Almacen origen", "Ubicacion origen", "Producto", "Cantidad", "Almacen destino", "Ubicacion destino", "ID", "unidadesMedida", "cantidad"],
 };
 const costosInventarios = {
   titulos: `Lista de precios`,

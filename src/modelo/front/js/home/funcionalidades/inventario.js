@@ -17,8 +17,9 @@ let variablesModeloInventarios = {
             T({ nombre: "remito", clase: "requerido textoCentrado" }),
             PPE({ nombre: "estadoFacturacion", opciones: ["Pendiente", "Facturado"] }),
             P("almacen"),
+            P("ubicaciones")
             ],
-            titulos: ["Número", "Fecha", "Producto", "Marca", "Unidad de medida", "Cantidad", "Estado", "Comprobante", "Operación", "Disponibles", "Vencimiento", "Proveedor", "Remito", "Facturacion", "Almacen"],
+            titulos: ["Número", "Fecha", "Producto", "Marca", "Unidad de medida", "Cantidad", "Estado", "Comprobante", "Operación", "Disponibles", "Vencimiento", "Proveedor", "Remito", "Facturacion", "Almacen", "Ubicacion"],
             crear: false,
             editar: false,
             eliminar: false,
@@ -76,7 +77,7 @@ let variablesModeloInventarios = {
                 NS("numerador"),
                 FH(),
                 P({ nombre: "almacen", clase: "requerido" }),
-                P({ nombre: "ubicaciones", clase: "requerido" }),
+                P({ nombre: "ubicaciones" }),
                 PPE({ nombre: "operacionStock", opciones: ["Entrada", "Ajuste"], clase: "requerido" }),
                 P({ nombre: "proveedor", clase: "requerido" }),
                 T({ nombre: "remito", clase: "requerido textoCentrado" }),
@@ -100,7 +101,7 @@ let variablesModeloInventarios = {
             sort: { fecha: 1 }
         },
         formInd: {
-            inputRenglones: [4, 2, `compuesto`, 2, 6],
+            inputRenglones: [4, 3, `compuesto`, 2, 6],
             impresion: {
                 titulo: "Entrada de Inventario",
                 alargar: true,
@@ -307,7 +308,7 @@ let variablesModeloInventarios = {
                 TF("observaciones"),
                 adjunto
             ],
-            titulos: ["Número", "Fecha", "Almacen", "Operaci�n", "Cliente", "movimientoStock", "Observaciones", "Adjunto"],
+            titulos: ["Número", "Fecha", "Almacen", "Operaci�n", "Cliente", "movimientoStock", "Observaciones", "Adjunto"],
             cabeceraAbm: {
                 select: [
                     {
@@ -720,13 +721,56 @@ let variablesModeloInventarios = {
         pest: `Listas de ventas`,
         accion: `listasPrecios`,
         type: "parametrica"
-    }
+    },
+    traspasoUbicaciones: {
+        atributos: {
+            names: [
+                NS("numerador"),
+                FH(),
+                movimientoUbicaciones,
+                TF("observaciones")
+            ],
+            titulos: ["Numero", "Fecha", "movimientoUbicaciones", "Observaciones"],
+        },
+        formInd: {
+            inputRenglones: [2, `compuesto`, 1],
+
+        },
+        funcionesPropias: {
+            formularioIndiv: {
+                traspasosDeUbicaciones: [traspasosDeUbicaciones],
+            }
+
+        },
+
+        imputarcoleccion: {
+            traspasos: {
+                type: "directo",
+                coleccionOrigen: movimientoUbicaciones,
+                identificador: "traspasos",
+                eliminarDesencadenate: ["producto"],//Si cambia este atributo se elimina el desencadenate
+                destino: "stock",
+                nombre: "Traspasos",
+                atributoImputables: {
+
+                    cambioNombre: {
+                        _id: "idComprobante",
+                        almacen: "almacenDestino",
+                        ubicaciones: "ubicacionDestino",
+
+                    },
+                    grabarEnOrigen: { Número: "numerador" },
+                    grabarEnOrigenColeccion: { Número: "numerador" },
+                    grabarEnDestino: { Número: "numerador" },
+                }
+            }
+        },
+        key: "numerador",
+        pest: "Traspaso de ubicaciones",
+        accion: `traspasoUbicaciones`,
+        type: "transaccion",
+        empresa: true,
+        multimoneda: false
+
+    },
 }
-
-
-
-
-
-
-
-
