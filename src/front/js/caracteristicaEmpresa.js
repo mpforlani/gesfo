@@ -1,5 +1,5 @@
 const caracteristicaEmpresa = {
-    nombre: "sbc",
+
     multimoneda: "false",
     monedaBase: "Pesos",
     monedaAlternativa: "Dolar",
