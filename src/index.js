@@ -52,15 +52,15 @@ app.use(multer({ storage }).fields([
 
     // 🔒 Sesión y autenticación (usando el MISMO client de mongoose)
     app.use(session({
-        name: 'sbc.sid',
-        secret: process.env.SESSION_SECRET_MAIN || 'gesHh',
+        name: 'gesfo.sid',
+        secret: process.env.SESSION_SECRET_MAIN || 'gesfo',
         resave: false,
         saveUninitialized: false,
         rolling: true,
         store: MongoStore.create({
             clientPromise: Promise.resolve(mongoose.connection.getClient()),
             ttl: 60 * 60 * 24,
-            collectionName: 'sessions_sbc'
+            collectionName: 'sessions_gesfo'
         }),
         cookie: {
             maxAge: 1000 * 60 * 60 * 24,

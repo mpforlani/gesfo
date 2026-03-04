@@ -9,11 +9,11 @@ mongoose.set('strictQuery', false);//Si strictQuery se establece en true, Mongoo
 const host = process.env.SERVER;           // ej: mongo:27017
 const user = process.env.USERADMIN || '';
 const pwd = process.env.USERPWD || '';
-const db = process.env.DB_NAME || 'sbc'; // <<<<<<<<<<<<<< CLAVE
+const db = process.env.DB_NAME || 'gesfo'; // <<<<<<<<<<<<<< CLAVE
 
 const auth = (user && pwd) ? `${user}:${pwd}@` : '';
 const tail = (user && pwd) ? '?authSource=admin' : '';
-//const MONGODB_URI = `mongodb://db:27017/sbc`;
+//const MONGODB_URI = `mongodb://db:27017/gesfo`;
 const MONGODB_URI = `mongodb://${auth}${host}/${db}${tail}`;
 
 const mongoReady = mongoose.connect(MONGODB_URI)
