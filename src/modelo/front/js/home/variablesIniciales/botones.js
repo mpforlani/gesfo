@@ -30,6 +30,9 @@ const iOkDescargar = `<div class="barraForm "> <span class="material-symbols-out
 //////
 //Recargar pestaña
 const iRecargar = `<div class="barraForm"><span class="material-symbols-outlined botones recargar">autorenew</span></div>`;
+const iResetOrdenFormInd = `<div class="barraForm"><span class="material-symbols-outlined botones resetOrdenFormInd" title="Resetear orden de campos">reset_wrench</span></div>`;
+const iResetResizeAbm = `<div class="barraForm"><span class="material-symbols-outlined botones resetResizeAbm" title="Resetear ancho y orden">reset_wrench</span></div>`;
+const iResetResizeReporte = `<div class="barraForm"><span class="material-symbols-outlined botones resetResizeReporte" title="Resetear ancho y orden">reset_wrench</span></div>`;
 const iPlay = `<div class="barraForm"><span class="material-symbols-outlined botones play">play_arrow</span></div>`;
 /////
 const iSave = `<div class="barraForm"><span class="material-symbols-outlined botones save">save</span></div>`;

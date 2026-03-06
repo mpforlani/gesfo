@@ -14,7 +14,7 @@ $('body').on('click ', `.nav-vert:not(.enEspera) p.menuFormulario`,
                             <div class="logoGesfin_icon cuatro">&nbsp;</div>
 
                         </div><div class="cartelErrorForm noShow"><p>Revisar los campos en rojo</p></div>
-                    <div class="botonesPest">${iHistoria}${iRecargar}${okPlus}${iOk}<div>
+                    <div class="botonesPest">${iHistoria}${iRecargar}${iResetOrdenFormInd}${okPlus}${iOk}<div>
             </div>`;
 
         let idRegistro = aprobar || this.id
@@ -36,7 +36,7 @@ async function clickFormularioIndividualPestana(objeto, numeroFormAnt, consulta,
 
     let pestana = $(p);
 
-    let imgs = im || `<div class="comanderaPestana active" id="bf${numeroForm}" agrupado=${objeto.agrupador || ""}><div class="botonesPest">${iHistoria}${iRecargar}${iLupa}${iImprimir}${iDeshabilitar}${iDelete}${iEdit}${okPlus}${iOk}</div>
+    let imgs = im || `<div class="comanderaPestana active" id="bf${numeroForm}" agrupado=${objeto.agrupador || ""}><div class="botonesPest">${iHistoria}${iRecargar}${iResetOrdenFormInd}${iLupa}${iImprimir}${iDeshabilitar}${iDelete}${iEdit}${okPlus}${iOk}</div>
             </div>`;
 
     let imagenes = $(imgs);
@@ -63,6 +63,9 @@ async function clickFormularioIndividualPestana(objeto, numeroFormAnt, consulta,
 
         } else {
 
+            if (typeof destruirDragCamposFormInd === "function") {
+                destruirDragCamposFormInd(numeroForm)
+            }
             funcionCerrar(this)
         }
     })
@@ -123,6 +126,9 @@ async function clickFormularioIndividualVistaPrevia(objeto, numeroFormAnt, consu
 
     $(`#formularioVistaPrevia .closeForm`).on(`click`, () => {
 
+        if (typeof destruirDragCamposFormInd === "function") {
+            destruirDragCamposFormInd(numeroForm)
+        }
         $(`#formularioVistaPrevia`).css("display", "none");
         $(`#formularioVistaPrevia #t${numeroForm}`).remove();
         $(`#formularioVistaPrevia #bf${numeroForm}`).remove();
@@ -205,3 +211,4 @@ async function clickFormularioIndividualVistaPrevia(objeto, numeroFormAnt, consu
 
     return deferred.promise();
 }
+hy

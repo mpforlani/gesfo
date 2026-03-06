@@ -8,7 +8,6 @@ let variablesModeloInventarios = {
             P("unidadesMedida"),
             N("cantidad"),
             PPE({ nombre: "estado", opciones: ["Ingresado", "Salida parcial", "Salida total"] }),
-
             T({ nombre: "comprobanteOP", oculto: "oculto" }),
             P({ nombre: "operacionStock", oculto: "oculto" }),
             N("disponibles"),
@@ -768,6 +767,66 @@ let variablesModeloInventarios = {
         key: "numerador",
         pest: "Traspaso de ubicaciones",
         accion: `traspasoUbicaciones`,
+        type: "transaccion",
+        empresa: true,
+        multimoneda: false
+
+    },
+    desconsolidaciones: {
+        atributos: {
+            names: [
+                NS("numerador"),
+                FH(),
+                P({ nombre: "productoOrigen", origen: "producto", clase: "requerido", width: "veinte" }),
+                P({ nombre: "marcaOrigen", origen: "marca", clase: "requerido" }),
+                P({ nombre: "unidadesMedidaOrigen", origen: "unidadesMedida", clase: "requerido" }),
+                N({ nombre: "disponiblesOrigen", clase: "requerido" }),
+                T({ nombre: "idComprobante", oculto: "oculto" }),
+                P({ nombre: "almacenDestino", origen: "almacen", clase: "requerido" }),
+                P({ nombre: "ubicacionDestino", origen: "ubicaciones" }),
+                movimientoStock,
+                TF("observaciones")
+            ],
+            titulos: ["Numero", "Fecha", "Producto a desconsolidar", "Marca", "Unidades de Medida", "Disponibles", "ID", "Almacen Destino", "Ubicacion Destino", "movimientoStock", "Observaciones"],
+        },
+        formInd: {
+            inputRenglones: [2, 5, 2, `compuesto`, 1],
+
+        },
+        funcionesPropias: {
+            formularioIndiv: {
+                ocultoSiempre: [ocultoSiempre, ["disponibles", "cantidadSalidas"]],
+                desconsolidar: [desconsolidar],
+                completaConCodigo: [completaConCodigo],
+            }
+
+        },
+
+        /* imputarcoleccion: {
+             traspasos: {
+                 type: "directo",
+                 coleccionOrigen: movimientoUbicaciones,
+                 identificador: "traspasos",
+                 eliminarDesencadenate: ["producto"],//Si cambia este atributo se elimina el desencadenate
+                 destino: "stock",
+                 nombre: "Traspasos",
+                 atributoImputables: {
+ 
+                     cambioNombre: {
+                         _id: "idComprobante",
+                         almacen: "almacenDestino",
+                         ubicaciones: "ubicacionDestino",
+ 
+                     },
+                     grabarEnOrigen: { Número: "numerador" },
+                     grabarEnOrigenColeccion: { Número: "numerador" },
+                     grabarEnDestino: { Número: "numerador" },
+                 }
+             }
+         },*/
+        key: "numerador",
+        pest: "Desconsolidacion",
+        accion: `desconsolidaciones`,
         type: "transaccion",
         empresa: true,
         multimoneda: false

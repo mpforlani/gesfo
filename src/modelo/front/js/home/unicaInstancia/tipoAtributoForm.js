@@ -531,9 +531,9 @@ function coleccionIndForm(objeto, numeroForm, indice, value, titulos, consulta, 
 
     $.each(atributosdelCompuesto, (ind, val) => {
 
-        titulosColec += `<th class="th tituloTablasIndividual ${ind} ${val.clase}" ${widthObject[val.width] || ""} ${ocultoOject[val.oculto] || `ocultoConLugar`}>${titulosCompue?.[titIndex] || ""}</th>`;
-        totalesColec += `<td class="td totales ${ind}" ${widthObject[val.width] || ""} ${ocultoOject[val.oculto] || `ocultoConLugar`}></td>`
-        signosColec += `<td class="td celdaSignoOculto ${ind} ${val.nombre}" ${widthObject[val.width] || ""} ${ocultoOject[val.oculto] || `ocultoConLugar`}><span class="material-symbols-outlined oculto minus" claseOcultar="${ind}">indeterminate_check_box</span></td>`
+        titulosColec += `<th class="th tituloTablasIndividual ${ind} ${val.clase}" data-col-key="${ind}" ${widthObject[val.width] || ""} ${ocultoOject[val.oculto] || `ocultoConLugar`}><div class="tituloColeccionEngloba"><span class="tituloColColeccion">${titulosCompue?.[titIndex] || ""}</span><span class="material-symbols-outlined reorder-col-handle-coleccion" title="Arrastrar para mover columna">drag_indicator</span></div></th>`;
+        totalesColec += `<td class="td totales ${ind}" data-col-key="${ind}" ${widthObject[val.width] || ""} ${ocultoOject[val.oculto] || `ocultoConLugar`}></td>`
+        signosColec += `<td class="td celdaSignoOculto ${ind} ${val.nombre}" data-col-key="${ind}" ${widthObject[val.width] || ""} ${ocultoOject[val.oculto] || `ocultoConLugar`}><span class="material-symbols-outlined oculto minus" claseOcultar="${ind}">indeterminate_check_box</span></td>`
 
         titIndex++
     });
@@ -557,7 +557,7 @@ function coleccionIndForm(objeto, numeroForm, indice, value, titulos, consulta, 
 
             valorColec = val?.[i]?.[pos] || ""
 
-            colec += `<td class="comp ${value.nombre} ${i}" ord="${ord}" ${widthObject[v.width] || ""} ${signo[v.type] || ""} ${ocultoOject[v.oculto] || ``} set=pc${indice}>`;
+            colec += `<td class="comp ${value.nombre} ${i}" data-col-key="${i}" ord="${ord}" ${widthObject[v.width] || ""} ${signo[v.type] || ""} ${ocultoOject[v.oculto] || ``} set=pc${indice}>`;
 
             colec += tipoatributoColecciones[v.type](objeto, numeroForm, i, v, value, ord, indice, disabled, valorColec) || tipoatributoColecciones.default(objeto, numeroForm, i, v, value, ord, indice, disabled, valorColec) || ""
 
@@ -572,7 +572,7 @@ function coleccionIndForm(objeto, numeroForm, indice, value, titulos, consulta, 
 
     $.each(atributosdelCompuesto, (ind, val) => {
 
-        colec += `<td class="vacio ${ind} ${val.nombre}" ord=${ord + 1} ${widthObject[val.width] || ""} ${ocultoOject[val.oculto] || ``} set=pc${indice}>`;
+        colec += `<td class="vacio ${ind} ${val.nombre}" data-col-key="${ind}" ord=${ord + 1} ${widthObject[val.width] || ""} ${ocultoOject[val.oculto] || ``} set=pc${indice}>`;
 
         switch (val.type) {
             case `fecha`:
@@ -774,12 +774,12 @@ function imagenForm(objeto, numeroForm, indice, value, titulos, consulta, disabl
     form += `<div class="contenedorImg">`
     form += `<div class="vistaPrevia">${img || "Vacio"}</div>`
     form += `<div class="botones">
-             <div class="imgCrear">`
-    form += `<label for="imgAdj${numeroForm}" class="botonImg">
-             <img src="/img/iconos/botonAdjunto/adjuntar.svg"></label>
-             <input class="ocultoSiempre"type="file" id="imgAdj${numeroForm}" name="imgAdj" form="f${accion}${numeroForm}" accept="image/*" ${autoCompOff} >`
+             <div class="imgCrear ${disabled}">`
+    form += `<label for="imgAdj${numeroForm}" class="botonImg ${disabled}">
+             <img class="${disabled}" src="/img/iconos/botonAdjunto/adjuntar.svg"></label>
+             <input class="ocultoSiempre"type="file" id="imgAdj${numeroForm}" name="imgAdj" form="f${accion}${numeroForm}" accept="image/*" ${disabled} ${autoCompOff} >`
     form += `</div>`
-    form += `<div class="imgEliminar"><img src="/img/iconos/botonAdjunto/deleteAdj.svg""></div>`
+    form += `<div class="imgEliminar ${disabled}"><img class="${disabled}" src="/img/iconos/botonAdjunto/deleteAdj.svg""></div>`
     form += `</div>`
     form += `</div>`
     form += `<input class="pathImg ocultoSiempre" name="pathImg" value="${consulta.pathImg || ""}" form="f${accion}${numeroForm}" ${disabled} ${autoCompOff} />
@@ -791,9 +791,10 @@ function imagenForm(objeto, numeroForm, indice, value, titulos, consulta, disabl
 
         const nombreDescriptivo = () => {
 
-            if ($(`#t${numeroForm} input._id`).attr(`disabled`)) {
-                editFormulario(objeto, numeroForm);
-                botonesEditarFormInd(numeroForm)
+            const enConsulta = $(`#t${numeroForm} input._id`).attr(`disabled`) && $(`#t${numeroForm} input._id`).val() != "";
+            if (enConsulta) {
+                e.target.value = "";
+                return;
             }
 
             let valorAdjunto = $(e.target).val();
@@ -837,6 +838,11 @@ function imagenForm(objeto, numeroForm, indice, value, titulos, consulta, disabl
         editarAdjNa[permisos]()
     })
     $(`#t${numeroForm}`).on("click", ".imgEliminar", (e) => {
+
+        const enConsulta = $(`#t${numeroForm} input._id`).attr(`disabled`) && $(`#t${numeroForm} input._id`).val() != "";
+        if (enConsulta) {
+            return;
+        }
 
         $(`#t${numeroForm} div.fo.imagen input`).val("")
         $(`#t${numeroForm} div.fo.imagen .vistaPrevia img`).remove()

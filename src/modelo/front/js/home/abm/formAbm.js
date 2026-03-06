@@ -3277,7 +3277,7 @@ function adjuntoCeldaAbm(objeto, numeroForm) {
 const resizeTablaAbmState = {}
 const sortableColumnasAbm = {}
 const sortableFilasAbm = {}
-const resizeCookiePrefixAbm = "gf_resize_abm_v1"
+
 function hashResizeAbm(texto) {
 
     let hash = 5381
@@ -3355,13 +3355,17 @@ function obtenerDeviceResizeIdAbm() {
 }
 function nombreCookieResizeAbm(scopeKey) {
 
-    return `${resizeCookiePrefixAbm}_${hashResizeAbm(scopeKey)}`
+    return `resizeAbm_${hashResizeAbm(scopeKey)}`
 }
 function setCookieResizeAbm(nombre, valor, dias = 365) {
 
     const ms = dias * 24 * 60 * 60 * 1000
     const expires = new Date(Date.now() + ms).toUTCString()
     document.cookie = `${nombre}=${encodeURIComponent(valor)}; expires=${expires}; path=/; SameSite=Lax`
+}
+function deleteCookieResizeAbm(nombre) {
+
+    document.cookie = `${nombre}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=Lax`
 }
 function getCookieResizeAbm(nombre) {
 
@@ -3383,6 +3387,19 @@ function getScopeResizeAbm(objeto) {
     const empresa = empresaSeleccionada?._id || "sin_empresa"
     const entidad = objeto?.nombre || objeto?.accion || "abm"
     return `${usuario}|${dispositivo}|${empresa}|${entidad}`
+}
+function limpiarResizePersistidoAbm(numeroForm, objeto) {
+
+    try {
+        const scopeKey = resizeTablaAbmState[numeroForm]?.scopeKey || getScopeResizeAbm(objeto)
+        const nombre = nombreCookieResizeAbm(scopeKey)
+        deleteCookieResizeAbm(nombre)
+        delete resizeTablaAbmState[numeroForm]
+        return true
+    } catch (error) {
+        console.error("No se pudo limpiar la persistencia de resize ABM", error)
+        return false
+    }
 }
 function cargarResizeCookieAbm(scopeKey) {
 
@@ -3670,7 +3687,7 @@ function aplicarOrdenFilasAbm(numeroForm, ordenGuardado) {
     filas.each((_, fila) => {
         const rowId = $(fila).attr("data-row-id")
         if (!rowId) return
-        ; (mapaFilas[rowId] ??= []).push(fila)
+            ; (mapaFilas[rowId] ??= []).push(fila)
     })
 
     const ordenadas = []

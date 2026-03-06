@@ -222,6 +222,15 @@ async function cabeceraReporte(objeto, numeroForm) {
 
     })
 
+    const contenedorBotones = $(`#bf${numeroForm}.divCabecera.botones`).first()
+    if (contenedorBotones.length) {
+        contenedorBotones.append(iResetResizeReporte)
+    } else {
+        let div = `<div class="divCabecera.botones"></div>`
+        $(div).appendTo(`#bf${numeroForm}`)
+        $(iResetResizeReporte).prependTo(`#bf${numeroForm} div.divCabecera.botones`)
+    }
+
     $(`#bf${numeroForm}`).on("click", `.filtroRapido`, (e) => {
 
         $(e.currentTarget).addClass("botonActivo")
@@ -244,6 +253,7 @@ function cabeceraSimple(objeto, numeroForm) {
 const resizeTablaReportesState = {}
 const sortableColumnasReportes = {}
 const sortableFilasReportes = {}
+const sortableRetryPendienteReportes = {}
 const resizeCookiePrefixReportes = "gf_resize_rep_v1"
 function hashResizeReporte(texto) {
 
@@ -300,7 +310,7 @@ function esHeaderDraggeableReporte(th) {
     if (!th?.length) return false
     if (th.hasClass("_id") || th.hasClass("oculto") || th.hasClass("transparent")) return false
     if (th.attr("oculto") === "true") return false
-    return th.is(":visible")
+    return true
 }
 function normalizarRowIdReporte(valor, indice) {
 
@@ -312,7 +322,47 @@ function esFilaDraggeableReporte(tr) {
 
     if (!tr?.length) return false
     if (tr.hasClass("titulosFila") || tr.hasClass("segunFilaTitulos") || tr.hasClass("filtros") || tr.hasClass("filaTotal")) return false
-    return tr.is(":visible")
+    return true
+}
+function keyRetrySortableReporte(numeroForm, tableKey, tipo) {
+
+    return `${numeroForm}::${tableKey || "sin_key"}::${tipo}`
+}
+function ejecutarInitSortableConRetryReporte(numeroForm, tableKey, tipo, initFn) {
+
+    const ejecutarIntento = (esReintento) => {
+        try {
+            return !!initFn(esReintento)
+        } catch (error) {
+            console.error(`Error inicializando sortable de ${tipo} (${tableKey || "sin_key"})`, error)
+            return false
+        }
+    }
+
+    const okInicial = ejecutarIntento(false)
+    if (okInicial) {
+        delete sortableRetryPendienteReportes[keyRetrySortableReporte(numeroForm, tableKey, tipo)]
+        return true
+    }
+
+    const retryKey = keyRetrySortableReporte(numeroForm, tableKey, tipo)
+    if (sortableRetryPendienteReportes[retryKey]) return false
+    sortableRetryPendienteReportes[retryKey] = true
+
+    const dispararReintento = () => {
+        setTimeout(() => {
+            try {
+                ejecutarIntento(true)
+            } finally {
+                delete sortableRetryPendienteReportes[retryKey]
+            }
+        }, 0)
+    }
+
+    if (typeof requestAnimationFrame === "function") requestAnimationFrame(dispararReintento)
+    else dispararReintento()
+
+    return false
 }
 function normalizarTablaStateReporte(rawState) {
 
@@ -372,6 +422,10 @@ function setCookieResizeReporte(nombre, valor, dias = 365) {
     const expires = new Date(Date.now() + ms).toUTCString()
     document.cookie = `${nombre}=${encodeURIComponent(valor)}; expires=${expires}; path=/; SameSite=Lax`
 }
+function deleteCookieResizeReporte(nombre) {
+
+    document.cookie = `${nombre}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=Lax`
+}
 function getCookieResizeReporte(nombre) {
 
     const nombreEq = `${nombre}=`
@@ -393,6 +447,19 @@ function getScopeResizeReporte(objeto) {
     const reporte = objeto?.nombre || objeto?.accion || objeto?.pest || "reporte"
 
     return `${usuario}|${dispositivo}|${empresa}|${reporte}`
+}
+function limpiarResizePersistidoReporte(numeroForm, objeto) {
+
+    try {
+        const scopeKey = resizeTablaReportesState[numeroForm]?.scopeKey || getScopeResizeReporte(objeto)
+        const nombre = nombreCookieResizeReporte(scopeKey)
+        deleteCookieResizeReporte(nombre)
+        delete resizeTablaReportesState[numeroForm]
+        return true
+    } catch (error) {
+        console.error("No se pudo limpiar la persistencia de resize de reportes", error)
+        return false
+    }
 }
 function cargarResizeCookieReporte(scopeKey) {
 
@@ -439,6 +506,30 @@ function obtenerFilaTitulosReporte(tabla) {
     const filaTitulos = tabla.find("tr.titulosFila").first()
     if (filaTitulos.length) return filaTitulos
     return tabla.find("tr").first()
+}
+function obtenerContenedorFilasReporte(tabla) {
+
+    if (!tabla?.length) return $()
+    const tbody = tabla.children("tbody").first()
+    return tbody.length ? tbody : tabla
+}
+function obtenerFilasTablaReporte(tabla) {
+
+    return obtenerContenedorFilasReporte(tabla).children("tr")
+}
+function obtenerCeldaHandleFilaReporte(tr) {
+
+    if (!tr?.length) return $()
+
+    const celdasPreferidas = tr.children("td, th").filter((_, celda) => {
+        const c = $(celda)
+        if (c.hasClass("_id") || c.hasClass("oculto") || c.hasClass("transparent")) return false
+        if (c.attr("oculto") === "true") return false
+        return true
+    })
+    if (celdasPreferidas.length) return celdasPreferidas.first()
+
+    return tr.children("td, th").first()
 }
 function asignarColIdsTablaReporte(tabla) {
 
@@ -501,7 +592,7 @@ function obtenerFilaIdReporte(tr, indice) {
 }
 function asignarRowIdsTablaReporte(tabla) {
 
-    const filas = tabla.children("tr").filter((_, tr) => esFilaDraggeableReporte($(tr)))
+    const filas = obtenerFilasTablaReporte(tabla).filter((_, tr) => esFilaDraggeableReporte($(tr)))
     const usados = new Set()
 
     filas.each((indice, tr) => {
@@ -532,8 +623,7 @@ function obtenerOrdenHeadersDragReporte(tabla) {
 }
 function obtenerOrdenFilasDragReporte(tabla) {
 
-    return tabla
-        .children("tr")
+    return obtenerFilasTablaReporte(tabla)
         .filter((_, tr) => esFilaDraggeableReporte($(tr)))
         .map((_, tr) => $(tr).attr("data-row-id"))
         .get()
@@ -576,6 +666,34 @@ function normalizarOrdenFilasReporte(ordenGuardado, rowIdsActuales) {
     }
 
     return orden
+}
+function sincronizarOrdenVisualColumnasReporte(tabla, ordenColIds) {
+
+    if (!tabla?.length) return
+    if (!Array.isArray(ordenColIds) || !ordenColIds.length) return
+
+    const ordenPorColId = {}
+    ordenColIds.forEach((colId, indice) => {
+        ordenPorColId[colId] = indice
+    })
+
+    tabla.find("tr").each((_, fila) => {
+        const tr = $(fila)
+        tr.children("th, td").each((_, celda) => {
+            const colId = celda.getAttribute("data-col-id")
+            if (!colId) return
+            if (ordenPorColId[colId] === undefined) return
+
+            const orden = ordenPorColId[colId]
+            celda.style.setProperty("order", `${orden}`, "important")
+
+            const celdaJq = $(celda)
+            const esColumnaSistema = celdaJq.hasClass("_id") || celdaJq.attr("atributo") === "_id" || celdaJq.attr("colum") === "-1"
+            if (!esColumnaSistema) {
+                celdaJq.attr("colum", `${orden}`)
+            }
+        })
+    })
 }
 function aplicarOrdenTablaReporte(tabla, ordenGuardado) {
 
@@ -620,12 +738,15 @@ function aplicarOrdenTablaReporte(tabla, ordenGuardado) {
         tr.append([...ordenadas, ...restantes])
     })
 
+    sincronizarOrdenVisualColumnasReporte(tabla, ordenFinal)
+
     return ordenFinal
 }
 function aplicarOrdenFilasTablaReporte(tabla, ordenGuardado) {
 
     asignarRowIdsTablaReporte(tabla)
-    const filasActuales = tabla.children("tr").filter((_, tr) => esFilaDraggeableReporte($(tr)))
+    const contenedorFilas = obtenerContenedorFilasReporte(tabla)
+    const filasActuales = obtenerFilasTablaReporte(tabla).filter((_, tr) => esFilaDraggeableReporte($(tr)))
     if (!filasActuales.length) return []
 
     const rowIdsActuales = filasActuales
@@ -657,10 +778,10 @@ function aplicarOrdenFilasTablaReporte(tabla, ordenGuardado) {
 
     const restantes = filasActuales.toArray().filter((fila) => !usadas.has(fila))
     const filasFinales = [...ordenadas, ...restantes]
-    const filaTotal = tabla.children("tr.filaTotal").first()
+    const filaTotal = contenedorFilas.children("tr.filaTotal").first()
 
     if (filaTotal.length) filaTotal.before(filasFinales)
-    else tabla.append(filasFinales)
+    else contenedorFilas.append(filasFinales)
 
     return ordenFinal
 }
@@ -723,6 +844,117 @@ function getResizeTableKey(table, index) {
 
     return table.attr("tablaref") || `index_${index}`
 }
+function normalizarNombreStickyColumnaReporte(columna) {
+
+    if (!columna) return ""
+    if (typeof columna === "string") return columna.trim()
+    return `${columna.nombre || columna.atributo || ""}`.trim()
+}
+function aplicarStickyColumnasTablaPorNombresReporte(tabla, columnasNombres) {
+
+    if (!tabla?.length) return
+
+    const columnas = (Array.isArray(columnasNombres) ? columnasNombres : [])
+        .map((columna) => normalizarNombreStickyColumnaReporte(columna))
+        .filter((nombre) => nombre !== "")
+
+    if (!columnas.length) return
+
+    const contenedor = tabla.closest(".tablaReporte")
+    if (!contenedor.length) return
+
+    tabla.find("th.sticky-columna-reporte, td.sticky-columna-reporte")
+        .removeClass("sticky-columna-reporte sticky-columna-reporte-ultima")
+
+    const escapar = (valor) => {
+        if (typeof $.escapeSelector === "function") return $.escapeSelector(valor)
+        return `${valor}`.replace(/([ !"#$%&'()*+,./:;<=>?@[\\\]^`{|}~])/g, "\\$1")
+    }
+
+    const celdasSticky = []
+
+    columnas.forEach((nombre, indice) => {
+        const nombreEscapado = escapar(nombre)
+        const header = tabla
+            .find(`tr.titulosFila > th[atributo="${nombre}"]:not(.transparent), tr.titulosFila > th.${nombreEscapado}:not(.transparent), tr.titulosFila > td[atributo="${nombre}"]:not(.transparent), tr.titulosFila > td.${nombreEscapado}:not(.transparent)`)
+            .first()
+        if (!header.length) return
+
+        const colId = header.attr("data-col-id")
+        let celdas = colId ? tabla.find(`[data-col-id="${colId}"]`) : $()
+        if (!celdas.length) {
+            celdas = tabla.find(`td[atributo="${nombre}"], th[atributo="${nombre}"]:not(.transparent), td.${nombreEscapado}, th.${nombreEscapado}:not(.transparent)`)
+        }
+        if (!celdas.length) return
+
+        celdas.css({
+            position: "relative",
+            "z-index": 12 + (columnas.length - indice),
+            boxSizing: "border-box",
+        })
+        celdas.addClass("sticky-columna-reporte")
+        celdasSticky.push(celdas)
+    })
+
+    if (!celdasSticky.length) return
+    celdasSticky[celdasSticky.length - 1].addClass("sticky-columna-reporte-ultima")
+
+    const tableKey = tabla.attr("data-resize-key") || tabla.attr("tablaref") || "tabla"
+    const contenedorId = contenedor.attr("id") || "contenedor"
+    const namespace = `.stickyColsRep_${contenedorId}_${tableKey}`
+
+    const actualizar = () => {
+        const scrollX = contenedor.scrollLeft() || 0
+        celdasSticky.forEach((celdas) => celdas.css("left", `${scrollX}px`))
+    }
+
+    contenedor.off(`scroll${namespace}`).on(`scroll${namespace}`, actualizar)
+    $(window).off(`resize${namespace}`).on(`resize${namespace}`, actualizar)
+
+    actualizar()
+    if (typeof requestAnimationFrame === "function") requestAnimationFrame(actualizar)
+    else setTimeout(actualizar, 0)
+}
+function reaplicarStickyColumnasRegistradasReportes(numeroForm) {
+
+    const contenedor = $(`#t${numeroForm}`)
+    if (!contenedor.length) return
+
+    contenedor.find("table").each((_, t) => {
+        const tabla = $(t)
+        const columnasSticky = tabla.data("stickyColumnasReportes")
+        if (!Array.isArray(columnasSticky) || !columnasSticky.length) return
+        aplicarStickyColumnasTablaPorNombresReporte(tabla, columnasSticky)
+    })
+}
+function aplicarStickyDesdeConfigReporte(numeroForm, objeto) {
+
+    const contenedor = $(`#t${numeroForm}`)
+    if (!contenedor.length) return
+
+    Object.entries(objeto?.tablas || {}).forEach(([tablaRef, configTabla]) => {
+        const stickyDef = configTabla?.funcionesPropias?.tabla?.asgregarStickyColumnasTabla
+        if (!Array.isArray(stickyDef) || stickyDef.length < 2) return
+
+        const columnasSticky = (Array.isArray(stickyDef[1]) ? stickyDef[1] : [])
+            .map((columna) => normalizarNombreStickyColumnaReporte(columna))
+            .filter((nombre) => nombre !== "")
+        if (!columnasSticky.length) return
+
+        let tabla = contenedor.find(`table[tablaref='${tablaRef}']`).first()
+        if (!tabla.length) {
+            const nombrePrimeraColumna = columnasSticky[0]
+            tabla = contenedor
+                .find("table")
+                .filter((_, t) => $(t).find(`th.${nombrePrimeraColumna}`).length > 0)
+                .first()
+        }
+        if (!tabla.length) return
+
+        tabla.data("stickyColumnasReportes", columnasSticky)
+        aplicarStickyColumnasTablaPorNombresReporte(tabla, columnasSticky)
+    })
+}
 function insertarHandlesResizeReportes(numeroForm) {
 
     const contenedor = $(`#t${numeroForm}`)
@@ -763,8 +995,15 @@ function insertarHandlesResizeReportes(numeroForm) {
             if (!tr.children(".resize-row-handle").length) {
                 tr.append(`<span class="resize-row-handle" title="Arrastrar para cambiar alto"></span>`)
             }
-            if (esFilaDraggeableReporte(tr) && tr.attr("data-row-id") && !tr.children(".reorder-row-handle").length) {
-                tr.append(`<span class="reorder-row-handle" title="Arrastrar para cambiar orden de fila"></span>`)
+            const celdaHandle = obtenerCeldaHandleFilaReporte(tr)
+            if (celdaHandle.length) {
+                if (celdaHandle.css("position") === "static") celdaHandle.css("position", "relative")
+                const handlesEnTr = tr.children(".reorder-row-handle")
+                if (handlesEnTr.length) celdaHandle.append(handlesEnTr)
+            }
+            if (esFilaDraggeableReporte(tr) && tr.attr("data-row-id") && !tr.find(".reorder-row-handle").length) {
+                if (celdaHandle.length) celdaHandle.append(`<span class="reorder-row-handle" title="Arrastrar para cambiar orden de fila"></span>`)
+                else tr.append(`<span class="reorder-row-handle" title="Arrastrar para cambiar orden de fila"></span>`)
             }
         })
     })
@@ -817,48 +1056,73 @@ function inicializarReordenamientoColumnasReportes(numeroForm, objeto) {
         const filaTitulos = obtenerFilaTitulosReporte(tabla)
         if (!filaTitulos.length) return
 
-        if (sortableColumnasReportes[numeroForm]?.[tableKey]?.destroy) {
-            sortableColumnasReportes[numeroForm][tableKey].destroy()
-        }
-
-        const headersDrag = filaTitulos
-            .children("th, td")
-            .filter((_, header) => esHeaderDraggeableReporte($(header)))
-
-        if (headersDrag.length < 2) {
-            delete sortableColumnasReportes[numeroForm][tableKey]
-            return
-        }
-
-        sortableColumnasReportes[numeroForm][tableKey] = new Sortable(filaTitulos.get(0), {
-            animation: 120,
-            draggable: "th:not(._id):not(.oculto):not(.transparent):not([oculto='true'])",
-            handle: ".reorder-col-handle",
-            filter: ".resize-col-handle",
-            preventOnFilter: false,
-            direction: "horizontal",
-            swapThreshold: 0.35,
-            invertSwap: true,
-            ghostClass: "sortable-ghost-item",
-            chosenClass: "sortable-chosen-item",
-            dragClass: "sortable-drag-item",
-            onStart: () => {
-                contenedor.addClass("reordering-col")
-                limpiarPreviewDropReporte(numeroForm)
-            },
-            onMove: (evt) => {
-                marcarPreviewDropReporte(numeroForm, evt, "columna")
-                return true
-            },
-            onEnd: () => {
-                const tableState = getTableStateReporte(state, tableKey)
-                const ordenActual = obtenerOrdenHeadersDragReporte(tabla)
-                tableState.orden = aplicarOrdenTablaReporte(tabla, ordenActual)
-                guardarResizeCookieReporte(state)
-                limpiarPreviewDropReporte(numeroForm)
-                contenedor.removeClass("reordering-col")
+        const initColumnas = () => {
+            const elFilaTitulos = filaTitulos.get(0)
+            if (!elFilaTitulos || !elFilaTitulos.isConnected) {
+                delete sortableColumnasReportes[numeroForm][tableKey]
+                return false
             }
-        })
+            if (sortableColumnasReportes[numeroForm]?.[tableKey]?.destroy) {
+                try {
+                    sortableColumnasReportes[numeroForm][tableKey].destroy()
+                } catch (error) {
+                    console.error(`Error destruyendo sortable de columnas (${tableKey})`, error)
+                }
+            }
+            delete sortableColumnasReportes[numeroForm][tableKey]
+
+            const headersDrag = filaTitulos
+                .children("th, td")
+                .filter((_, header) => esHeaderDraggeableReporte($(header)))
+
+            if (headersDrag.length < 2) {
+                delete sortableColumnasReportes[numeroForm][tableKey]
+                return false
+            }
+
+            try {
+                sortableColumnasReportes[numeroForm][tableKey] = new Sortable(elFilaTitulos, {
+                    animation: 120,
+                    draggable: "th:not(._id):not(.oculto):not(.transparent):not([oculto='true'])",
+                    handle: ".reorder-col-handle",
+                    filter: ".resize-col-handle",
+                    preventOnFilter: false,
+                    direction: "horizontal",
+                    swapThreshold: 0.35,
+                    invertSwap: true,
+                    forceFallback: true,
+                    fallbackOnBody: true,
+                    fallbackTolerance: 2,
+                    ghostClass: "sortable-ghost-item",
+                    chosenClass: "sortable-chosen-item",
+                    dragClass: "sortable-drag-item",
+                    onStart: () => {
+                        contenedor.addClass("reordering-col")
+                        limpiarPreviewDropReporte(numeroForm)
+                    },
+                    onMove: (evt) => {
+                        marcarPreviewDropReporte(numeroForm, evt, "columna")
+                        return true
+                    },
+                    onEnd: () => {
+                        const tableState = getTableStateReporte(state, tableKey)
+                        const ordenActual = obtenerOrdenHeadersDragReporte(tabla)
+                        tableState.orden = aplicarOrdenTablaReporte(tabla, ordenActual)
+                        reaplicarStickyColumnasRegistradasReportes(numeroForm)
+                        guardarResizeCookieReporte(state)
+                        limpiarPreviewDropReporte(numeroForm)
+                        contenedor.removeClass("reordering-col")
+                    }
+                })
+                return true
+            } catch (error) {
+                console.error(`Error creando sortable de columnas (${tableKey})`, error)
+                delete sortableColumnasReportes[numeroForm][tableKey]
+                return false
+            }
+        }
+
+        ejecutarInitSortableConRetryReporte(numeroForm, tableKey, "columna", initColumnas)
     })
 }
 function inicializarReordenamientoFilasReportes(numeroForm, objeto) {
@@ -872,45 +1136,71 @@ function inicializarReordenamientoFilasReportes(numeroForm, objeto) {
         const tableKey = tabla.attr("data-resize-key")
         if (!tableKey) return
 
-        if (sortableFilasReportes[numeroForm]?.[tableKey]?.destroy) {
-            sortableFilasReportes[numeroForm][tableKey].destroy()
-        }
-
-        const filasDrag = tabla.children("tr").filter((_, tr) => esFilaDraggeableReporte($(tr)) && !!$(tr).attr("data-row-id"))
-        if (filasDrag.length < 2) {
-            delete sortableFilasReportes[numeroForm][tableKey]
-            return
-        }
-
-        sortableFilasReportes[numeroForm][tableKey] = new Sortable(tabla.get(0), {
-            animation: 120,
-            draggable: "tr[data-row-id]:not(.titulosFila):not(.segunFilaTitulos):not(.filtros):not(.filaTotal)",
-            handle: ".reorder-row-handle",
-            filter: ".resize-row-handle",
-            preventOnFilter: false,
-            direction: "vertical",
-            swapThreshold: 0.35,
-            invertSwap: true,
-            ghostClass: "sortable-ghost-item",
-            chosenClass: "sortable-chosen-item",
-            dragClass: "sortable-drag-item",
-            onStart: () => {
-                contenedor.addClass("reordering-row")
-                limpiarPreviewDropReporte(numeroForm)
-            },
-            onMove: (evt) => {
-                marcarPreviewDropReporte(numeroForm, evt, "fila")
-                return true
-            },
-            onEnd: () => {
-                const tableState = getTableStateReporte(state, tableKey)
-                const ordenActual = obtenerOrdenFilasDragReporte(tabla)
-                tableState.filas = aplicarOrdenFilasTablaReporte(tabla, ordenActual)
-                guardarResizeCookieReporte(state)
-                limpiarPreviewDropReporte(numeroForm)
-                contenedor.removeClass("reordering-row")
+        const initFilas = () => {
+            const contenedorFilas = obtenerContenedorFilasReporte(tabla)
+            const elContenedorFilas = contenedorFilas.get(0)
+            if (!elContenedorFilas || !elContenedorFilas.isConnected) {
+                delete sortableFilasReportes[numeroForm][tableKey]
+                return false
             }
-        })
+
+            if (sortableFilasReportes[numeroForm]?.[tableKey]?.destroy) {
+                try {
+                    sortableFilasReportes[numeroForm][tableKey].destroy()
+                } catch (error) {
+                    console.error(`Error destruyendo sortable de filas (${tableKey})`, error)
+                }
+            }
+            delete sortableFilasReportes[numeroForm][tableKey]
+
+            const filasDrag = obtenerFilasTablaReporte(tabla).filter((_, tr) => esFilaDraggeableReporte($(tr)) && !!$(tr).attr("data-row-id"))
+            if (filasDrag.length < 2) {
+                delete sortableFilasReportes[numeroForm][tableKey]
+                return false
+            }
+
+            try {
+                sortableFilasReportes[numeroForm][tableKey] = new Sortable(elContenedorFilas, {
+                    animation: 120,
+                    draggable: "tr[data-row-id]:not(.titulosFila):not(.segunFilaTitulos):not(.filtros):not(.filaTotal)",
+                    handle: ".reorder-row-handle",
+                    filter: ".resize-row-handle",
+                    preventOnFilter: false,
+                    direction: "vertical",
+                    swapThreshold: 0.35,
+                    invertSwap: true,
+                    forceFallback: true,
+                    fallbackOnBody: true,
+                    fallbackTolerance: 2,
+                    ghostClass: "sortable-ghost-item",
+                    chosenClass: "sortable-chosen-item",
+                    dragClass: "sortable-drag-item",
+                    onStart: () => {
+                        contenedor.addClass("reordering-row")
+                        limpiarPreviewDropReporte(numeroForm)
+                    },
+                    onMove: (evt) => {
+                        marcarPreviewDropReporte(numeroForm, evt, "fila")
+                        return true
+                    },
+                    onEnd: () => {
+                        const tableState = getTableStateReporte(state, tableKey)
+                        const ordenActual = obtenerOrdenFilasDragReporte(tabla)
+                        tableState.filas = aplicarOrdenFilasTablaReporte(tabla, ordenActual)
+                        guardarResizeCookieReporte(state)
+                        limpiarPreviewDropReporte(numeroForm)
+                        contenedor.removeClass("reordering-row")
+                    }
+                })
+                return true
+            } catch (error) {
+                console.error(`Error creando sortable de filas (${tableKey})`, error)
+                delete sortableFilasReportes[numeroForm][tableKey]
+                return false
+            }
+        }
+
+        ejecutarInitSortableConRetryReporte(numeroForm, tableKey, "fila", initFilas)
     })
 }
 function inicializarResizeTablaReportes(numeroForm, objeto) {
@@ -920,8 +1210,10 @@ function inicializarResizeTablaReportes(numeroForm, objeto) {
 
     insertarHandlesResizeReportes(numeroForm)
     restaurarResizeReportes(numeroForm, objeto)
+    aplicarStickyDesdeConfigReporte(numeroForm, objeto)
     inicializarReordenamientoColumnasReportes(numeroForm, objeto)
     inicializarReordenamientoFilasReportes(numeroForm, objeto)
+    reaplicarStickyColumnasRegistradasReportes(numeroForm)
 
     contenedor.off(".resizeRep")
     $(document).off(`.resizeRep${numeroForm}`)
@@ -998,6 +1290,7 @@ function inicializarResizeTablaReportes(numeroForm, objeto) {
 
         if (drag.tipo === "columna") {
             guardarResizeCookieReporte(state)
+            reaplicarStickyColumnasRegistradasReportes(numeroForm)
         }
         terminarDrag()
     })
@@ -1159,6 +1452,43 @@ function administrarAtributoTabla(objeto, numeroForm, mo) {
         $(e.target).parents('table').find('tr.filtros').toggleClass('active');
         actualizarBarraRegistros($tabla);
     }
+    const parsearValorNumericoSeleccionReporte = ($celda) => {
+        if (!$celda?.length) return null;
+
+        const texto = ($celda.text() ?? "").toString().trim();
+        if (!texto) return null;
+
+        const tipoCelda = (($celda.attr("type") || "").toString().toLowerCase().trim());
+        const esNumericoPorTipo = esTipoNumerico(tipoCelda);
+        if (!esNumericoPorTipo && /[a-zA-Z]/.test(texto)) return null;
+
+        const numeroDirecto = Number(texto.replace(/\s+/g, ""));
+        if (!Number.isNaN(numeroDirecto)) return numeroDirecto;
+
+        const numeroLocal = Number(stringANumero(texto));
+        if (!Number.isNaN(numeroLocal)) return numeroLocal;
+
+        return null;
+    };
+    const calcularSumaSeleccionReporte = ($tabla) => {
+        if (!$tabla?.length) return { suma: 0, cantidad: 0 };
+
+        let suma = 0;
+        let cantidad = 0;
+
+        $tabla.find("td.seleccionada:visible").each((_, celda) => {
+            const numero = parsearValorNumericoSeleccionReporte($(celda));
+            if (numero == null) return;
+            suma += numero;
+            cantidad++;
+        });
+
+        return { suma, cantidad };
+    };
+    const contarCeldasSeleccionadasReporte = ($tabla) => {
+        if (!$tabla?.length) return 0;
+        return $tabla.find("td.seleccionada").length;
+    };
     const actualizarBarraRegistros = ($tabla) => {
         if (!$tabla?.length) return;
 
@@ -1170,7 +1500,43 @@ function administrarAtributoTabla(objeto, numeroForm, mo) {
         const barra = $tabla.nextAll(".barraCalculada").first();
         if (!barra.length) return;
 
-        barra.find(".datosCalculados p").first().text(`Registros: ${registrosVisibles}`);
+        const datosCalculados = barra.find(".datosCalculados").first();
+        if (!datosCalculados.length) return;
+
+        let pRegistros = datosCalculados.find("p.registrosCalculados").first();
+        if (!pRegistros.length) {
+            pRegistros = datosCalculados.find("p").first();
+            if (pRegistros.length) pRegistros.addClass("registrosCalculados");
+            else pRegistros = $(`<p class="registrosCalculados"></p>`).appendTo(datosCalculados);
+        }
+        pRegistros.text(`Registros: ${registrosVisibles}`);
+
+        let pCeldasSel = datosCalculados.find("p.celdasSeleccionadasCalculadas").first();
+        if (!pCeldasSel.length) {
+            pCeldasSel = $(`<p class="celdasSeleccionadasCalculadas"></p>`);
+            pCeldasSel.css("margin-left", "1rem");
+            datosCalculados.append(pCeldasSel);
+        }
+        const cantidadCeldasSeleccionadas = contarCeldasSeleccionadasReporte($tabla);
+        if (cantidadCeldasSeleccionadas > 0) {
+            pCeldasSel.text(`Celdas: ${cantidadCeldasSeleccionadas}`).show();
+        } else {
+            pCeldasSel.hide();
+        }
+
+        let pSuma = datosCalculados.find("p.sumaSeleccionCalculada").first();
+        if (!pSuma.length) {
+            pSuma = $(`<p class="sumaSeleccionCalculada"></p>`);
+            pSuma.css("margin-left", "1rem");
+            datosCalculados.append(pSuma);
+        }
+        const { suma, cantidad } = calcularSumaSeleccionReporte($tabla);
+        const mostrarSuma = cantidad > 0 && Math.abs(Number(suma) || 0) > 1e-10;
+        if (mostrarSuma) {
+            pSuma.text(`Suma: ${numeroAString(suma)}`).show();
+        } else {
+            pSuma.hide();
+        }
     };
     const cerrarFiltrosConCruz = (e) => {
         e.stopPropagation();
@@ -1344,6 +1710,11 @@ function administrarAtributoTabla(objeto, numeroForm, mo) {
     const esObjetivoInteractivoReporte = (target) => {
         return $(target).closest("input, textarea, select, button, a, [contenteditable=true]").length > 0;
     };
+    const esObjetivoDragResizeReporte = (target) => {
+        return $(target).closest(
+            ".reorder-row-handle, .resize-row-handle, .reorder-col-handle, .resize-col-handle"
+        ).length > 0;
+    };
     const limpiarSeleccionCeldasReporte = ($tabla) => {
         if ($tabla?.length) $tabla.find("td.seleccionada").removeClass("seleccionada");
         else $contenedorReporte.find("table td.seleccionada").removeClass("seleccionada");
@@ -1396,6 +1767,8 @@ function administrarAtributoTabla(objeto, numeroForm, mo) {
                 }
             });
         });
+
+        actualizarBarraRegistros($tablaInicio);
     };
 
     let arrastrandoCeldasReporte = false;
@@ -1406,7 +1779,12 @@ function administrarAtributoTabla(objeto, numeroForm, mo) {
 
     $contenedorReporte.off("mousedown.seleccionCeldaRep", "table td");
     $contenedorReporte.on("mousedown.seleccionCeldaRep", "table td", function (e) {
-        if (e.button !== 0 || !esCeldaSeleccionableReporte(this) || esObjetivoInteractivoReporte(e.target)) return;
+        if (
+            e.button !== 0 ||
+            !esCeldaSeleccionableReporte(this) ||
+            esObjetivoInteractivoReporte(e.target) ||
+            esObjetivoDragResizeReporte(e.target)
+        ) return;
 
         e.preventDefault();
         e.stopPropagation();
@@ -1448,11 +1826,19 @@ function administrarAtributoTabla(objeto, numeroForm, mo) {
             marcarRangoCeldasReporte(celdaInicioReporte, ultimaCeldaReporte);
         }
 
+        if (celdaInicioReporte?.length) {
+            actualizarBarraRegistros(celdaInicioReporte.closest("table"));
+        }
+
         arrastrandoCeldasReporte = false;
         celdaInicioReporte = null;
         ultimaCeldaReporte = null;
         seInicioEnCeldaSeleccionadaReporte = false;
         huboArrastreSeleccionReporte = false;
+    });
+
+    $contenedorReporte.find("table").each((_, tabla) => {
+        actualizarBarraRegistros($(tabla));
     });
 
     $(`#t${numeroForm}`).on("click", `.flechasOrden span.arriba:not(.active)`, ordenarAscendente)
@@ -1627,33 +2013,32 @@ function asgregarStickyColumnas(objeto, numeroForm, columnas) {
 }
 function asgregarStickyColumnasTabla(objeto, numeroForm, columnas) {
 
-    let stickyposition = 0
+    const columnasSticky = (Array.isArray(columnas) ? columnas : [])
+        .map((columna) => normalizarNombreStickyColumnaReporte(columna))
+        .filter((nombre) => nombre !== "")
+    if (!columnasSticky.length) return
 
-    $.each(columnas, (indice, value) => {
+    const contenedor = $(`#t${numeroForm}`)
+    if (!contenedor.length) return
 
-        $(`#t${numeroForm} td.${value.nombre},
-           #t${numeroForm} th.${value.nombre}:not(.transparent)`).css({
-            'position': 'sticky',
-            'left': `${stickyposition}px`, // Ajusta según el ancho de las columnas anteriores
-            'backdrop-filter': 'blur(30px)',
-            'z-index': 10,
-            "boxSizing": 'border-box',
-        });
+    const nombrePrimeraColumna = columnasSticky[0]
+    let tablasObjetivo = contenedor.find("table")
+    if (nombrePrimeraColumna) {
+        const filtradas = tablasObjetivo.filter((_, t) => $(t).find(`th.${nombrePrimeraColumna}`).length > 0)
+        if (filtradas.length) tablasObjetivo = filtradas
+    }
 
-        let th = $(`#t${numeroForm} th.${value.nombre}:first`)
-        const width = th.width() || 0; // contenido
-        const borderLeft = parseFloat(th.css("border-left-width")) || 0;
-        const borderRight = parseFloat(th.css("border-right-width")) || 0;
-
-
-        const anchoTotal =
-            width +
-            borderLeft +
-            borderRight;
-
-        stickyposition += anchoTotal
-
+    tablasObjetivo.each((_, t) => {
+        const tabla = $(t)
+        tabla.data("stickyColumnasReportes", columnasSticky)
+        aplicarStickyColumnasTablaPorNombresReporte(tabla, columnasSticky)
     })
+
+    if (typeof requestAnimationFrame === "function") {
+        requestAnimationFrame(() => reaplicarStickyColumnasRegistradasReportes(numeroForm))
+    } else {
+        setTimeout(() => reaplicarStickyColumnasRegistradasReportes(numeroForm), 0)
+    }
 }
 function asgregarStickyDiv(objeto, numeroForm, div) {
 

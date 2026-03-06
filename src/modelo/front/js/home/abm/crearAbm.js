@@ -51,7 +51,7 @@ $('body').on('click ', `.nav-vert:not(.enEspera) .menuSelectAbm`, async function
     let p = `<div id=p${numeroForm} class="pestana active"><div class="palabraPest">${objeto.pest}</div><div class="close" id="${numeroForm}">+</div></div>`; //definicion de pestaña
     let pestana = $(p);
 
-    let imgs = `<div class="comand" id="bf${contador}" agrupado=${indice} linea="uno"><div class="comandPrimeraLinea">${iHistoria}${iRecargar}${iDeshabilitar}${iDelete}${iEdit}${iCrearInd}${iCruz}${iOk}
+    let imgs = `<div class="comand" id="bf${contador}" agrupado=${indice} linea="uno"><div class="comandPrimeraLinea">${iHistoria}${iRecargar}${iResetResizeAbm}${iDeshabilitar}${iDelete}${iEdit}${iCrearInd}${iCruz}${iOk}
       <div class="fechaTablaAbm oculto">
       <div><p>De:</p><input type="date" class="fechaTextoDeAbm" ${autoCompOff} ></div>
       <div><p>Hasta:</p><input type="date" class="fechaTextoHastaAbm" ${autoCompOff} ></div></div>
@@ -586,6 +586,30 @@ $('body').on('click ', `.nav-vert:not(.enEspera) .menuSelectAbm`, async function
             }, 2000);
 
         }
+    })
+    $(`#bf${numeroForm}`).on('click', `.resetResizeAbm:visible`, (e) => {
+
+        e.preventDefault();
+
+        const limpio = limpiarResizePersistidoAbm(numeroForm, objeto)
+        if (!limpio) {
+            let cartel = cartelInforUnaLinea("No se pudo resetear la configuración de tabla", "❌", { cartel: "infoChiquito rojo", close: "ocultoSiempre" })
+            $(cartel).appendTo(`#bf${numeroForm}`)
+            removeCartelInformativo(objeto, numeroForm)
+            return
+        }
+
+        $(`#t${numeroForm}`).remove()
+        consultaGet[numeroForm] = reCrearTabla(numeroForm, objeto)
+
+        formatoCeldas(objeto, numeroForm);
+        active(numeroForm);
+        eliminarDeshabilitar(objeto, numeroForm)
+        signoAlternativa(objeto, numeroForm)
+
+        let cartel = cartelInforUnaLinea("Se reseteó ancho/orden de esta tabla", "☑️", { cartel: "infoChiquito verde", close: "ocultoSiempre" })
+        $(cartel).appendTo(`#bf${numeroForm}`)
+        removeCartelInformativo(objeto, numeroForm)
     })
     $(`#bf${numeroForm}`).on('click', `.historia:visible`, (e) => {
 

@@ -397,6 +397,24 @@ async function creacionReportes(e) {
 
         cartelEnviarReporte(objeto, numeroForm)
     })
+    $(`#bf${numeroForm}`).on("click", `.resetResizeReporte:visible`, async (e) => {
+
+        e.preventDefault();
+
+        const limpio = limpiarResizePersistidoReporte(numeroForm, objeto)
+        if (!limpio) {
+            let cartel = cartelInforUnaLinea("No se pudo resetear la configuración de este reporte", "❌", { cartel: "infoChiquito rojo", close: "ocultoSiempre" })
+            $(cartel).appendTo(`#bf${numeroForm}`)
+            removeCartelInformativo(objeto, numeroForm)
+            return
+        }
+
+        await crearCuerpoReporte(objeto, numeroForm)
+
+        let cartel = cartelInforUnaLinea("Se reseteó ancho/orden de este reporte", "☑️", { cartel: "infoChiquito verde", close: "ocultoSiempre" })
+        $(cartel).appendTo(`#bf${numeroForm}`)
+        removeCartelInformativo(objeto, numeroForm)
+    })
     $(`#bf${numeroForm} `).on("click", `.okfLupa:not(enEspera)`, (e) => {
 
         formularioIndividualImpresion(objeto, numeroForm, consultaGet[numeroForm]);

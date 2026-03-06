@@ -842,6 +842,7 @@ const movimientoUbicaciones = {
   },
   titulosComponentes: ["Almacen origen", "Ubicacion origen", "Producto", "Cantidad", "Almacen destino", "Ubicacion destino", "ID", "unidadesMedida", "cantidad"],
 };
+
 const costosInventarios = {
   titulos: `Lista de precios`,
   nombre: `costosInventarios`,

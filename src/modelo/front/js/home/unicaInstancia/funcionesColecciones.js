@@ -1,4 +1,198 @@
+var sortableFilasColeccionPorForm = {};
+var sortableColumnasColeccionPorForm = {};
+var ordenBaseColumnasColeccionPorForm = {};
+const ORDEN_COLUMNAS_COLECCION_COOKIE_PREFIX = "ordColFormInd_";
+const ORDEN_COLUMNAS_COLECCION_COOKIE_DIAS = 7300;
 
+function hashOrdenColeccionFormInd(texto) {
+
+    let hash = 5381;
+    const value = `${texto || ""}`;
+
+    for (let i = 0; i < value.length; i++) {
+        hash = ((hash << 5) + hash) + value.charCodeAt(i);
+    }
+
+    return (hash >>> 0).toString(36);
+}
+function normalizarOrderKeysColumnasColeccion(orderKeys) {
+
+    if (!Array.isArray(orderKeys)) {
+        return [];
+    }
+
+    return orderKeys
+        .map((value) => `${value || ""}`.trim())
+        .filter((value) => value.length > 0);
+}
+function getScopeOrdenColumnasColeccionFormInd(objeto) {
+
+    const usuario = usu || "anonimo";
+    const entidad = `${objeto?.nombre || "sin_nombre"}|${objeto?.accion || "sin_accion"}`;
+    return `${usuario}|${entidad}`;
+}
+function nombreCookieOrdenColumnasColeccion(scope, compuesto) {
+
+    const key = `${scope || "sin_scope"}|${compuesto || "sin_compuesto"}`;
+    return `${ORDEN_COLUMNAS_COLECCION_COOKIE_PREFIX}${hashOrdenColeccionFormInd(key)}`;
+}
+function setCookieOrdenColumnasColeccion(nombre, valor, dias = ORDEN_COLUMNAS_COLECCION_COOKIE_DIAS) {
+
+    try {
+        const ms = Number(dias || 0) * 24 * 60 * 60 * 1000;
+        const expires = new Date(Date.now() + ms).toUTCString();
+        document.cookie = `${nombre}=${encodeURIComponent(valor)}; expires=${expires}; path=/; SameSite=Lax`;
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
+function getCookieOrdenColumnasColeccion(nombre) {
+
+    try {
+        const nombreEq = `${nombre}=`;
+        const partes = document.cookie.split(";");
+
+        for (const parte of partes) {
+            const cookie = parte.trim();
+            if (cookie.indexOf(nombreEq) === 0) {
+                return decodeURIComponent(cookie.substring(nombreEq.length));
+            }
+        }
+    } catch (error) {
+    }
+
+    return "";
+}
+function deleteCookieOrdenColumnasColeccion(nombre) {
+
+    try {
+        document.cookie = `${nombre}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=Lax`;
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
+function getOrderKeysCabeceraColeccion(tabla) {
+
+    if (!tabla) {
+        return [];
+    }
+
+    return normalizarOrderKeysColumnasColeccion(
+        Array.from(tabla.querySelectorAll("tr.titulos th.tituloTablasIndividual[data-col-key]"))
+            .map((th) => th.getAttribute("data-col-key"))
+    );
+}
+function aplicarOrdenCabeceraColeccion(tabla, orderKeys) {
+
+    const filaTitulos = tabla?.querySelector("tr.titulos");
+    const ordenNormalizado = normalizarOrderKeysColumnasColeccion(orderKeys);
+    if (!filaTitulos || !ordenNormalizado.length) {
+        return;
+    }
+
+    const headers = Array.from(filaTitulos.children || []);
+    if (!headers.length) {
+        return;
+    }
+
+    const mapaHeaders = new Map();
+    for (const header of headers) {
+        const key = (header.getAttribute("data-col-key") || "").trim();
+        if (key) {
+            mapaHeaders.set(key, header);
+        }
+    }
+
+    if (!mapaHeaders.size) {
+        return;
+    }
+
+    const headersMenu = headers.filter((header) => header.classList?.contains("menuFila"));
+    const headersFijos = headers.filter((header) => {
+        const key = (header.getAttribute("data-col-key") || "").trim();
+        return !key && !header.classList?.contains("menuFila");
+    });
+    const fragmento = document.createDocumentFragment();
+    const keysAplicadas = new Set();
+
+    for (const headerMenu of headersMenu) {
+        fragmento.appendChild(headerMenu);
+    }
+
+    for (const key of ordenNormalizado) {
+        const header = mapaHeaders.get(key);
+        if (!header) {
+            continue;
+        }
+        fragmento.appendChild(header);
+        keysAplicadas.add(key);
+    }
+
+    for (const [key, header] of mapaHeaders.entries()) {
+        if (!keysAplicadas.has(key)) {
+            fragmento.appendChild(header);
+        }
+    }
+
+    for (const headerFijo of headersFijos) {
+        fragmento.appendChild(headerFijo);
+    }
+
+    filaTitulos.appendChild(fragmento);
+}
+function guardarOrdenBaseColumnasColeccion(numeroForm, tabla) {
+
+    const compuesto = (tabla?.getAttribute("compuesto") || "").trim();
+    if (!compuesto) {
+        return [];
+    }
+
+    if (!ordenBaseColumnasColeccionPorForm[numeroForm]) {
+        ordenBaseColumnasColeccionPorForm[numeroForm] = {};
+    }
+
+    if (!Array.isArray(ordenBaseColumnasColeccionPorForm[numeroForm][compuesto]) || ordenBaseColumnasColeccionPorForm[numeroForm][compuesto].length === 0) {
+        ordenBaseColumnasColeccionPorForm[numeroForm][compuesto] = getOrderKeysCabeceraColeccion(tabla);
+    }
+
+    return ordenBaseColumnasColeccionPorForm[numeroForm][compuesto] || [];
+}
+function getCookieOrdenColumnasColeccionPersistido(scope, compuesto) {
+
+    try {
+        const nombre = nombreCookieOrdenColumnasColeccion(scope, compuesto);
+        const raw = getCookieOrdenColumnasColeccion(nombre);
+        if (!raw) {
+            return [];
+        }
+
+        const parsed = JSON.parse(raw);
+        return normalizarOrderKeysColumnasColeccion(parsed);
+    } catch (error) {
+        return [];
+    }
+}
+function setCookieOrdenColumnasColeccionPersistido(scope, compuesto, orderKeys) {
+
+    try {
+        const nombre = nombreCookieOrdenColumnasColeccion(scope, compuesto);
+        const normalizado = normalizarOrderKeysColumnasColeccion(orderKeys);
+        return setCookieOrdenColumnasColeccion(nombre, JSON.stringify(normalizado), ORDEN_COLUMNAS_COLECCION_COOKIE_DIAS);
+    } catch (error) {
+        return false;
+    }
+}
+function deleteCookieOrdenColumnasColeccionPersistido(scope, compuesto) {
+
+    try {
+        const nombre = nombreCookieOrdenColumnasColeccion(scope, compuesto);
+        return deleteCookieOrdenColumnasColeccion(nombre);
+    } catch (error) {
+        return false;
+    }
+}
 function editarCompuestoFormInd(objeto, numeroForm, id, self, ordInput) {//dic
 
     let oculto = objeto.ocultroAtributosSeguridad
@@ -34,7 +228,7 @@ function editarCompuestoFormInd(objeto, numeroForm, id, self, ordInput) {//dic
 
     $.each(valorCompuesto.componentes, (indice, value) => {
 
-        colec += `<td class="vacio ${indice} ${value.nombre} ${valorCompuesto?.clases?.[indice] || ""}" ${widthObject[value.width] || ""} ${ocultoOject[value.oculto] || ""}  ord="${ord}" set="${fatherTable.attr("id")}">`;
+        colec += `<td class="vacio ${indice} ${value.nombre} ${valorCompuesto?.clases?.[indice] || ""}" data-col-key="${indice}" ${widthObject[value.width] || ""} ${ocultoOject[value.oculto] || ""}  ord="${ord}" set="${fatherTable.attr("id")}">`;
 
         if (value.valorInicial != null) {
             $(`input.${value.nombre}`, father).val(typeof value.valorInicial === 'function' ? value.valorInicial() : value.valorInicial).trigger("change").trigger("input");
@@ -173,6 +367,7 @@ function editarCompuestoFormInd(objeto, numeroForm, id, self, ordInput) {//dic
         $(`tr.last td.${name}`, fatherTable).addClass(`ocltable`)
     })
 
+    ordenarColumnasColeccionSegunCabecera(fatherTable.get(0));
     $(`input[class^="position"]:first`, father).trigger("dblclick")//Este trigger se agrega porque todo las funciones que se tiene que reevaluar por la nueva fila,
 
 };
@@ -1188,47 +1383,226 @@ function estadoFacturacionRemito(objeto, numeroForm) {
     }
 
 }
+function destruirSortablesColecciones(numeroForm) {
+    const filasSortables = sortableFilasColeccionPorForm[numeroForm] || [];
+    const columnasSortables = sortableColumnasColeccionPorForm[numeroForm] || [];
+
+    for (const sortable of filasSortables) {
+        try {
+            sortable?.destroy?.();
+        } catch (error) {
+        }
+    }
+
+    for (const sortable of columnasSortables) {
+        try {
+            sortable?.destroy?.();
+        } catch (error) {
+        }
+    }
+
+    delete sortableFilasColeccionPorForm[numeroForm];
+    delete sortableColumnasColeccionPorForm[numeroForm];
+}
+function ordenarColumnasColeccionSegunCabecera(tabla) {
+    if (!tabla) {
+        return;
+    }
+
+    const ordenCabecera = Array.from(tabla.querySelectorAll("tr.titulos th.tituloTablasIndividual[data-col-key]"))
+        .map((th) => (th.getAttribute("data-col-key") || "").trim())
+        .filter(Boolean);
+
+    if (!ordenCabecera.length) {
+        return;
+    }
+
+    const filas = tabla.querySelectorAll("tr");
+    for (const fila of filas) {
+        const celdas = Array.from(fila.children || []);
+        if (!celdas.length) {
+            continue;
+        }
+
+        const mapaCeldas = new Map();
+        for (const celda of celdas) {
+            const key = (celda.getAttribute("data-col-key") || "").trim();
+            if (key) {
+                mapaCeldas.set(key, celda);
+            }
+        }
+
+        if (!mapaCeldas.size) {
+            continue;
+        }
+
+        const celdasMenu = celdas.filter((celda) => celda.classList?.contains("menuFila"));
+        const celdasFijas = celdas.filter((celda) => {
+            const key = (celda.getAttribute("data-col-key") || "").trim();
+            return !key && !celda.classList?.contains("menuFila");
+        });
+        const fragmento = document.createDocumentFragment();
+        const keysAplicadas = new Set();
+
+        for (const celdaMenu of celdasMenu) {
+            fragmento.appendChild(celdaMenu);
+        }
+
+        for (const key of ordenCabecera) {
+            const celda = mapaCeldas.get(key);
+            if (!celda) {
+                continue;
+            }
+
+            fragmento.appendChild(celda);
+            keysAplicadas.add(key);
+        }
+
+        for (const [key, celda] of mapaCeldas.entries()) {
+            if (!keysAplicadas.has(key)) {
+                fragmento.appendChild(celda);
+            }
+        }
+
+        for (const celdaFija of celdasFijas) {
+            fragmento.appendChild(celdaFija);
+        }
+
+        fila.appendChild(fragmento);
+    }
+}
+function crearSortableColumnasColeccion(tabla, objeto) {
+    const filaTitulos = tabla?.querySelector("tr.titulos");
+    if (!filaTitulos) {
+        return null;
+    }
+
+    const columnasDraggables = filaTitulos.querySelectorAll("th.tituloTablasIndividual[data-col-key]");
+    if (!columnasDraggables.length) {
+        return null;
+    }
+
+    const scope = getScopeOrdenColumnasColeccionFormInd(objeto);
+    const compuesto = (tabla.getAttribute("compuesto") || "").trim();
+
+    return new Sortable(filaTitulos, {
+        animation: 120,
+        direction: "horizontal",
+        draggable: 'th.tituloTablasIndividual[data-col-key]:not(.oculto):not(.ocultoConLugar):not(.ocultoSiempre):not(.ocultoSeguridad):not([oculto="true"])',
+        handle: ".reorder-col-handle-coleccion",
+        ghostClass: "sortable-ghost-item",
+        chosenClass: "sortable-chosen-item",
+        dragClass: "sortable-drag-item",
+        onEnd: () => {
+            ordenarColumnasColeccionSegunCabecera(tabla);
+            if (compuesto) {
+                setCookieOrdenColumnasColeccionPersistido(scope, compuesto, getOrderKeysCabeceraColeccion(tabla));
+            }
+        }
+    });
+}
 function sorteableTablas(objeto, numeroForm) {
-    let tablas = document.querySelectorAll(`#t${numeroForm} table tbody`)
+    if (typeof Sortable !== "function") {
+        return;
+    }
+
+    destruirSortablesColecciones(numeroForm);
+    sortableFilasColeccionPorForm[numeroForm] = [];
+    sortableColumnasColeccionPorForm[numeroForm] = [];
+
+    let tablas = document.querySelectorAll(`#t${numeroForm} table.tablaCompuesto`);
+    const scope = getScopeOrdenColumnasColeccionFormInd(objeto);
 
     for (const tabla of tablas) {
+        const compuesto = (tabla.getAttribute("compuesto") || "").trim();
+        guardarOrdenBaseColumnasColeccion(numeroForm, tabla);
 
-        new Sortable(tabla, {
-            animation: 150,
-            handle: 'td', // arrastrás desde cualquier celda
-            filter: '', // NO mover estas filas
-            preventOnFilter: false,
-            draggable: 'tr.mainBody:not(.last)',
-            onEnd: function (evt) {
-
-                // Obtener la tabla contenedora
-                let tabla = evt.item.closest("table");
-
-                // Seleccionar las filas tr.mainBody que no tengan clase 'last'
-                let filas = tabla.querySelectorAll("tr.mainBody:not(.last)");
-
-                let index = 0;
-                for (const fila of filas) {
-
-                    // Setear atributo q al <tr>
-                    fila.setAttribute("q", index);
-
-                    // Setear atributo q a todos los <td> dentro del <tr>
-                    const celdas = fila.querySelectorAll("td");
-                    for (const td of celdas) {
-                        td.setAttribute("q", index);
-                    }
-
-                    // Buscar input con clase "position" y setear el valor
-                    const input = fila.querySelector("input.position");
-                    if (input) {
-                        input.value = index;
-                    }
-
-                    index++;
-                }
+        if (compuesto) {
+            const ordenCookie = getCookieOrdenColumnasColeccionPersistido(scope, compuesto);
+            if (ordenCookie.length > 0) {
+                aplicarOrdenCabeceraColeccion(tabla, ordenCookie);
             }
-        });
+        }
+
+        ordenarColumnasColeccionSegunCabecera(tabla);
+
+        const tbody = tabla.querySelector("tbody");
+        if (tbody) {
+            const sortableFilas = new Sortable(tbody, {
+                animation: 150,
+                handle: "td", // arrastrás desde cualquier celda
+                filter: "", // NO mover estas filas
+                preventOnFilter: false,
+                draggable: "tr.mainBody:not(.last)",
+                onEnd: function (evt) {
+
+                    // Obtener la tabla contenedora
+                    let tabla = evt.item.closest("table");
+
+                    // Seleccionar las filas tr.mainBody que no tengan clase 'last'
+                    let filas = tabla.querySelectorAll("tr.mainBody:not(.last)");
+
+                    let index = 0;
+                    for (const fila of filas) {
+
+                        // Setear atributo q al <tr>
+                        fila.setAttribute("q", index);
+
+                        // Setear atributo q a todos los <td> dentro del <tr>
+                        const celdas = fila.querySelectorAll("td");
+                        for (const td of celdas) {
+                            td.setAttribute("q", index);
+                        }
+
+                        // Buscar input con clase "position" y setear el valor
+                        const input = fila.querySelector("input.position");
+                        if (input) {
+                            input.value = index;
+                        }
+
+                        index++;
+                    }
+                }
+            });
+
+            sortableFilasColeccionPorForm[numeroForm].push(sortableFilas);
+        }
+
+        const sortableColumnas = crearSortableColumnasColeccion(tabla, objeto);
+        if (sortableColumnas) {
+            sortableColumnasColeccionPorForm[numeroForm].push(sortableColumnas);
+        }
+    }
+}
+function resetOrdenColeccionesFormInd(objeto, numeroForm) {
+
+    try {
+        let resultado = true;
+        const scope = getScopeOrdenColumnasColeccionFormInd(objeto);
+        const tablas = document.querySelectorAll(`#t${numeroForm} table.tablaCompuesto`);
+
+        for (const tabla of tablas) {
+            const compuesto = (tabla.getAttribute("compuesto") || "").trim();
+            if (!compuesto) {
+                continue;
+            }
+
+            const limpioCookie = deleteCookieOrdenColumnasColeccionPersistido(scope, compuesto);
+            if (!limpioCookie) {
+                resultado = false;
+            }
+
+            const ordenBase = normalizarOrderKeysColumnasColeccion(ordenBaseColumnasColeccionPorForm?.[numeroForm]?.[compuesto]);
+            if (ordenBase.length > 0) {
+                aplicarOrdenCabeceraColeccion(tabla, ordenBase);
+            }
+
+            ordenarColumnasColeccionSegunCabecera(tabla);
+        }
+
+        return resultado;
+    } catch (error) {
+        return false;
     }
 }
 function reAsingnarQfilas(objeto, numeroForm, table) {
@@ -1732,6 +2106,83 @@ function traspasosDeUbicaciones(objeto, numeroForm) {
                 $("input.unidadesMedida", ingresoPendiente).val($("td.unidadesMedida", value).html().trim()).trigger("input").addClass("transparente");
 
                 $(`#t${numeroForm} .movimientoUbicaciones .closePop`).trigger(`click`);
+            });
+        }
+    });
+}
+function desconsolidar(objeto, numeroForm) {
+    function cartelIngresos(e) {
+        $(`#t${numeroForm} .cartelComplemento.desconsolidarStock`).remove();
+
+        const productoOrigen = $(`#t${numeroForm} .divSelectInput[name='productoOrigen']`).val();
+        if (!productoOrigen) return;
+
+        let preFiltros = {
+
+            estado: ["Ingresado", "Salida parcial"]
+        };
+
+        const filtros = `&filtros=${JSON.stringify(preFiltros)}`;
+        fetch(`/get?base=stock${filtros}`)
+            .then(response => response.json())
+            .then(data => {
+                console.log(data)
+                cartelComplementoConCortina(objeto, numeroForm, { bloques: 2, claseCartel: "desconsolidarStock" });
+
+                let titulo = "<div><h4>Movimientos disponibles</h4></div>";
+                $(titulo).appendTo(`#t${numeroForm} .bloque0`);
+
+                let cuerpoPrincipal = "";
+                cuerpoPrincipal += `<table>`;
+                cuerpoPrincipal += `<tr class="titulosTable">`;
+                cuerpoPrincipal += `<th class="oculto">ID</th><th>Fecha</th><th>Producto</th><th>Marca</th><th>Unidad</th><th>Disponibles</th><th>Almacen</th><th>Ubicaciones</th>`;
+                cuerpoPrincipal += `</tr>`;
+
+                $.each(data, (indice, value) => {
+                    cuerpoPrincipal += `<tr class="filaTable">`;
+                    cuerpoPrincipal += `<td class="oculto idComprobante">${value._id}</td><td class="oculto idProducto">${value.producto || ""}</td><td class="oculto idMarca">${value.marca || ""}</td><td class="oculto idUnidadesMedida">${value.unidadesMedida || ""}</td><td class="oculto idAlmacen">${value.almacen || ""}</td><td class="oculto idUbicaciones">${value.ubicaciones || ""}</td><td class="fecha" fechaFormateada="${dateNowAFechaddmmyyyy(value.fecha, "y-m-d")}">${dateNowAFechaddmmyyyy(value.fecha, "d/m/y")}</td><td class="producto">${consultaPestanas?.producto?.[value.producto]?.name || ""}</td><td class="marca">${consultaPestanas?.marca?.[value.marca]?.name || ""}</td><td class="unidadesMedida">${consultaPestanas?.unidadesMedida?.[value.unidadesMedida]?.name || ""}</td><td class="disponibles">${value.disponibles || 0}</td><td class="almacen">${consultaPestanas?.almacen?.[value.almacen]?.name || ""}</td><td class="ubicaciones">${consultaPestanas?.ubicaciones?.[value.ubicaciones]?.name || ""}</td>`;
+                    cuerpoPrincipal += `</tr>`;
+                });
+                $(cuerpoPrincipal).appendTo(`#t${numeroForm} .bloque1`);
+            })
+            .catch(error => console.error('Error de red:', error));
+    }
+
+    function seleccionarMovimiento(e) {
+        $(e.currentTarget).toggleClass(`seleccionado`);
+        $(e.currentTarget).siblings().removeClass(`seleccionado`);
+    }
+
+    $(`#t${numeroForm}`).on("click", ".desconsolidarStock tr.filaTable", seleccionarMovimiento);
+    $(`#t${numeroForm}`).on("change", ".divSelectInput[name='productoOrigen']:not(.autoValor)", cartelIngresos);
+    $(`#t${numeroForm}`).on("click", ".desconsolidarStock .okBoton", () => {
+        let filaSeleccionada = $(`#t${numeroForm} .desconsolidarStock tr.seleccionado`);
+
+        if (filaSeleccionada.length > 0) {
+            $.each(filaSeleccionada, (indice, value) => {
+                const productoOrigenInput = $(`#t${numeroForm} input.divSelectInput[name='productoOrigen']`);
+                const marcaOrigenInput = $(`#t${numeroForm} input.divSelectInput[name='marcaOrigen']`);
+                const unidadesMedidaOrigenInput = $(`#t${numeroForm} input.divSelectInput[name='unidadesMedidaOrigen']`);
+                const almacenDestinoInput = $(`#t${numeroForm} input.divSelectInput[name='almacenDestino']`);
+                const ubicacionesDestinoInput = $(`#t${numeroForm} input.divSelectInput[name='ubicacionesDestino']`);
+
+                productoOrigenInput.addClass("autoValor");
+                productoOrigenInput.val($("td.idProducto", value).html()?.trim()).trigger("change");
+                $(`#t${numeroForm} input.inputSelect.productoOrigen`).addClass("transparente").trigger("change");
+                productoOrigenInput.removeClass("autoValor");
+
+                marcaOrigenInput.val($("td.idMarca", value).html()?.trim())
+                $(`#t${numeroForm} input.inputSelect.marcaOrigen`).addClass("transparente").trigger("change");
+                unidadesMedidaOrigenInput.val($("td.idUnidadesMedida", value).html()?.trim())
+                $(`#t${numeroForm} input.inputSelect.unidadesMedidaOrigen`).addClass("transparente").trigger("change");
+                $(`#t${numeroForm} input.disponiblesOrigen`).val($("td.disponibles", value).html()?.trim()).trigger("input").addClass("transparente");
+                $(`#t${numeroForm} input.idComprobante`).val($("td.idComprobante", value).html()?.trim()).trigger("change");
+                almacenDestinoInput.val($("td.idAlmacen", value).html()?.trim()).trigger("change");
+                $(`#t${numeroForm} input.inputSelect.almacenDestino`).trigger("change");
+                ubicacionesDestinoInput.val($("td.idUbicaciones", value).html()?.trim()).trigger("change");
+                $(`#t${numeroForm} input.inputSelect.ubicacionesDestino`).trigger("change");
+
+                $(`#t${numeroForm} .desconsolidarStock .closePop`).trigger(`click`);
             });
         }
     });

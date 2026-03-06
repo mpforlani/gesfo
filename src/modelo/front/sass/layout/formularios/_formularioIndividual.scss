@@ -207,6 +207,22 @@
     border-top: transparent;
 }
 
+.input-resize-ready {
+    cursor: ew-resize !important;
+}
+
+.input-resize-handle {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    z-index: 30;
+    cursor: ew-resize;
+    user-select: none;
+    touch-action: none;
+    background: transparent;
+}
+
 .formularioPestana.active,
 .formulario {
     width: 100%;
@@ -231,6 +247,91 @@
 
     &.enEspera {
         cursor: wait !important;
+    }
+
+    &.input-resizing {
+        user-select: none;
+    }
+
+    &.reordering-fo {
+        user-select: none;
+    }
+
+    .sortable-ghost-item {
+        opacity: 0.35 !important;
+    }
+
+    .sortable-chosen-item {
+        outline: 1px dashed rgba(9, 26, 44, 0.7);
+    }
+
+    .sortable-drag-item {
+        opacity: 0.9;
+    }
+
+    div.fo.fo-draggable {
+        position: relative;
+
+        .tituloEngloba {
+            --drag-handle-space: 1.6rem;
+            position: relative;
+            width: 100%;
+            box-sizing: border-box;
+
+            >h2 {
+                margin: 0;
+                display: block;
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                text-align: center;
+            }
+        }
+    }
+
+    .reorder-fo-handle {
+        position: absolute;
+        right: 0;
+        top: 50%;
+        display: flex;
+        opacity: 0;
+        pointer-events: none;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+        z-index: 32;
+        font-size: 1rem;
+        border-radius: 3px;
+        padding: 0.1rem;
+        color: rgb(14, 37, 70);
+        cursor: grab;
+        user-select: none;
+        touch-action: none;
+        transition: transform 0.15s ease, opacity 0.15s ease;
+        transform: translateY(-50%);
+
+        &:hover {
+            transform: translateY(-50%) scale(1.05);
+        }
+
+        &:active {
+            cursor: grabbing;
+            transform: translateY(-50%) scale(0.98);
+        }
+    }
+
+    div.fo.fo-draggable:hover .reorder-fo-handle,
+    div.fo.fo-draggable:focus-within .reorder-fo-handle {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    div.fo.fo-draggable:hover .tituloEngloba,
+    div.fo.fo-draggable:focus-within .tituloEngloba {
+        padding-right: var(--drag-handle-space);
     }
 
     &.desHabilitado {
@@ -437,6 +538,73 @@
                         border: transparent;
                         font-family: $letra-pestana, sans-serif;
                         white-space: nowrap;
+
+                        &.tituloTablasIndividual {
+                            position: relative;
+                            min-width: 0;
+
+                            .tituloColeccionEngloba {
+                                --drag-handle-space: 1.4rem;
+                                position: relative;
+                                display: block;
+                                width: 100%;
+                                box-sizing: border-box;
+                            }
+
+                            .tituloColColeccion {
+                                margin: 0;
+                                display: block;
+                                width: 100%;
+                                max-width: 100%;
+                                min-width: 0;
+                                box-sizing: border-box;
+                                overflow: hidden;
+                                text-overflow: ellipsis;
+                                white-space: nowrap;
+                                text-align: center;
+                            }
+
+                            .reorder-col-handle-coleccion {
+                                position: absolute;
+                                right: 0;
+                                top: 50%;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                line-height: 1;
+                                opacity: 0;
+                                pointer-events: none;
+                                z-index: 8;
+                                font-size: 0.95rem;
+                                padding: 0.08rem;
+                                color: rgb(14, 37, 70);
+                                cursor: grab;
+                                user-select: none;
+                                touch-action: none;
+                                transform: translateY(-50%);
+                                transition: transform 0.15s ease, opacity 0.15s ease;
+
+                                &:hover {
+                                    transform: translateY(-50%) scale(1.05);
+                                }
+
+                                &:active {
+                                    cursor: grabbing;
+                                    transform: translateY(-50%) scale(0.98);
+                                }
+                            }
+
+                            &:hover .reorder-col-handle-coleccion,
+                            &:focus-within .reorder-col-handle-coleccion {
+                                opacity: 1;
+                                pointer-events: auto;
+                            }
+
+                            &:hover .tituloColeccionEngloba,
+                            &:focus-within .tituloColeccionEngloba {
+                                padding-right: var(--drag-handle-space);
+                            }
+                        }
                     }
 
                     tr {
@@ -956,6 +1124,13 @@
 
                 .botones {
                     display: block;
+
+                    .imgCrear.disabled,
+                    .imgEliminar.disabled,
+                    .botonImg.disabled {
+                        pointer-events: none;
+                        opacity: 0.6;
+                    }
 
                     img {
                         width: 1.5rem;

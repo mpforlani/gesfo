@@ -3042,6 +3042,22 @@ div[color=Amarillo]::before {
   border-top: transparent;
 }
 
+.input-resize-ready {
+  cursor: ew-resize !important;
+}
+
+.input-resize-handle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  height: 100%;
+  z-index: 30;
+  cursor: ew-resize;
+  user-select: none;
+  touch-action: none;
+  background: transparent;
+}
+
 .formularioPestana.active,
 .formulario {
   width: 100%;
@@ -3067,6 +3083,93 @@ div[color=Amarillo]::before {
 .formularioPestana.active.enEspera,
 .formulario.enEspera {
   cursor: wait !important;
+}
+.formularioPestana.active.input-resizing,
+.formulario.input-resizing {
+  user-select: none;
+}
+.formularioPestana.active.reordering-fo,
+.formulario.reordering-fo {
+  user-select: none;
+}
+.formularioPestana.active .sortable-ghost-item,
+.formulario .sortable-ghost-item {
+  opacity: 0.35 !important;
+}
+.formularioPestana.active .sortable-chosen-item,
+.formulario .sortable-chosen-item {
+  outline: 1px dashed rgba(9, 26, 44, 0.7);
+}
+.formularioPestana.active .sortable-drag-item,
+.formulario .sortable-drag-item {
+  opacity: 0.9;
+}
+.formularioPestana.active div.fo.fo-draggable,
+.formulario div.fo.fo-draggable {
+  position: relative;
+}
+.formularioPestana.active div.fo.fo-draggable .tituloEngloba,
+.formulario div.fo.fo-draggable .tituloEngloba {
+  --drag-handle-space: 1.6rem;
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+}
+.formularioPestana.active div.fo.fo-draggable .tituloEngloba > h2,
+.formulario div.fo.fo-draggable .tituloEngloba > h2 {
+  margin: 0;
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+}
+.formularioPestana.active .reorder-fo-handle,
+.formulario .reorder-fo-handle {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  display: inline-flex;
+  opacity: 0;
+  pointer-events: none;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  z-index: 32;
+  font-size: 1rem;
+  border-radius: 3px;
+  padding: 0.1rem;
+  color: rgb(14, 37, 70);
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+  transform: translateY(-50%);
+}
+.formularioPestana.active div.fo.fo-draggable:hover .reorder-fo-handle,
+.formularioPestana.active div.fo.fo-draggable:focus-within .reorder-fo-handle,
+.formulario div.fo.fo-draggable:hover .reorder-fo-handle,
+.formulario div.fo.fo-draggable:focus-within .reorder-fo-handle {
+  opacity: 1;
+  pointer-events: auto;
+}
+.formularioPestana.active div.fo.fo-draggable:hover .tituloEngloba,
+.formularioPestana.active div.fo.fo-draggable:focus-within .tituloEngloba,
+.formulario div.fo.fo-draggable:hover .tituloEngloba,
+.formulario div.fo.fo-draggable:focus-within .tituloEngloba {
+  padding-right: var(--drag-handle-space);
+}
+.formularioPestana.active .reorder-fo-handle:hover,
+.formulario .reorder-fo-handle:hover {
+  transform: translateY(-50%) scale(1.05);
+}
+.formularioPestana.active .reorder-fo-handle:active,
+.formulario .reorder-fo-handle:active {
+  cursor: grabbing;
+  transform: translateY(-50%) scale(0.98);
 }
 .formularioPestana.active.desHabilitado,
 .formulario.desHabilitado {
@@ -3259,6 +3362,75 @@ div[color=Amarillo]::before {
   border: transparent;
   font-family: "Noto Sans JP", sans-serif;
   white-space: nowrap;
+}
+.formularioPestana.active div.renglon:not(:empty).compuesto .tableCol table.tablaCompuesto th.tituloTablasIndividual,
+.formulario div.renglon:not(:empty).compuesto .tableCol table.tablaCompuesto th.tituloTablasIndividual {
+  position: relative;
+  min-width: 0;
+}
+.formularioPestana.active div.renglon:not(:empty).compuesto .tableCol table.tablaCompuesto th.tituloTablasIndividual .tituloColeccionEngloba,
+.formulario div.renglon:not(:empty).compuesto .tableCol table.tablaCompuesto th.tituloTablasIndividual .tituloColeccionEngloba {
+  --drag-handle-space: 1.4rem;
+  position: relative;
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+}
+.formularioPestana.active div.renglon:not(:empty).compuesto .tableCol table.tablaCompuesto th.tituloTablasIndividual .tituloColColeccion,
+.formulario div.renglon:not(:empty).compuesto .tableCol table.tablaCompuesto th.tituloTablasIndividual .tituloColColeccion {
+  margin: 0;
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+}
+.formularioPestana.active div.renglon:not(:empty).compuesto .tableCol table.tablaCompuesto th.tituloTablasIndividual .reorder-col-handle-coleccion,
+.formulario div.renglon:not(:empty).compuesto .tableCol table.tablaCompuesto th.tituloTablasIndividual .reorder-col-handle-coleccion {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 8;
+  font-size: 0.95rem;
+  padding: 0.08rem;
+  color: rgb(14, 37, 70);
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+  transform: translateY(-50%);
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+.formularioPestana.active div.renglon:not(:empty).compuesto .tableCol table.tablaCompuesto th.tituloTablasIndividual .reorder-col-handle-coleccion:hover,
+.formulario div.renglon:not(:empty).compuesto .tableCol table.tablaCompuesto th.tituloTablasIndividual .reorder-col-handle-coleccion:hover {
+  transform: translateY(-50%) scale(1.05);
+}
+.formularioPestana.active div.renglon:not(:empty).compuesto .tableCol table.tablaCompuesto th.tituloTablasIndividual .reorder-col-handle-coleccion:active,
+.formulario div.renglon:not(:empty).compuesto .tableCol table.tablaCompuesto th.tituloTablasIndividual .reorder-col-handle-coleccion:active {
+  cursor: grabbing;
+  transform: translateY(-50%) scale(0.98);
+}
+.formularioPestana.active div.renglon:not(:empty).compuesto .tableCol table.tablaCompuesto th.tituloTablasIndividual:hover .reorder-col-handle-coleccion,
+.formularioPestana.active div.renglon:not(:empty).compuesto .tableCol table.tablaCompuesto th.tituloTablasIndividual:focus-within .reorder-col-handle-coleccion,
+.formulario div.renglon:not(:empty).compuesto .tableCol table.tablaCompuesto th.tituloTablasIndividual:hover .reorder-col-handle-coleccion,
+.formulario div.renglon:not(:empty).compuesto .tableCol table.tablaCompuesto th.tituloTablasIndividual:focus-within .reorder-col-handle-coleccion {
+  opacity: 1;
+  pointer-events: auto;
+}
+.formularioPestana.active div.renglon:not(:empty).compuesto .tableCol table.tablaCompuesto th.tituloTablasIndividual:hover .tituloColeccionEngloba,
+.formularioPestana.active div.renglon:not(:empty).compuesto .tableCol table.tablaCompuesto th.tituloTablasIndividual:focus-within .tituloColeccionEngloba,
+.formulario div.renglon:not(:empty).compuesto .tableCol table.tablaCompuesto th.tituloTablasIndividual:hover .tituloColeccionEngloba,
+.formulario div.renglon:not(:empty).compuesto .tableCol table.tablaCompuesto th.tituloTablasIndividual:focus-within .tituloColeccionEngloba {
+  padding-right: var(--drag-handle-space);
 }
 .formularioPestana.active div.renglon:not(:empty).compuesto .tableCol table.tablaCompuesto tr.fltrosOcultCol td,
 .formulario div.renglon:not(:empty).compuesto .tableCol table.tablaCompuesto tr.fltrosOcultCol td {
@@ -3818,6 +3990,15 @@ div[color=Amarillo]::before {
 .formularioPestana.active div.fo.imagen .contenedorImg .botones,
 .formulario div.fo.imagen .contenedorImg .botones {
   display: block;
+}
+.formularioPestana.active div.fo.imagen .contenedorImg .botones .imgCrear.disabled,
+.formularioPestana.active div.fo.imagen .contenedorImg .botones .imgEliminar.disabled,
+.formularioPestana.active div.fo.imagen .contenedorImg .botones .botonImg.disabled,
+.formulario div.fo.imagen .contenedorImg .botones .imgCrear.disabled,
+.formulario div.fo.imagen .contenedorImg .botones .imgEliminar.disabled,
+.formulario div.fo.imagen .contenedorImg .botones .botonImg.disabled {
+  pointer-events: none;
+  opacity: 0.6;
 }
 .formularioPestana.active div.fo.imagen .contenedorImg .botones img,
 .formulario div.fo.imagen .contenedorImg .botones img {
@@ -4787,6 +4968,17 @@ div[color=Amarillo]::before {
 .tablaReporte table.trBordes tr:not(:last-child) {
   border-bottom: 2px solid #000000;
 }
+.tablaReporte table:not(.white) tr.titulosFila > th .resize-col-handle {
+  border-left: 1px solid transparent;
+  background-color: transparent;
+  transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+}
+.tablaReporte table:not(.white) tr.titulosFila > th:hover .resize-col-handle, .tablaReporte table:not(.white) tr.titulosFila > th:focus-within .resize-col-handle,
+.tablaReporte table:not(.white) tr.titulosFila > th .resize-col-handle:hover {
+  border-left: 1px solid rgba(9, 26, 44, 0.9);
+  background-color: rgba(9, 26, 44, 0.12);
+  box-shadow: 1px 0 0 rgba(255, 255, 255, 0.5);
+}
 .tablaReporte table.white {
   border-radius: 5px;
   border-collapse: separate;
@@ -4811,6 +5003,16 @@ div[color=Amarillo]::before {
 .tablaReporte table.white tr.titulosFila th {
   background-color: rgb(3, 3, 56) !important;
   color: white;
+}
+.tablaReporte table.white tr.titulosFila th .resize-col-handle {
+  border-left: 1px solid transparent;
+  background-color: transparent;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+.tablaReporte table.white tr.titulosFila th:hover .resize-col-handle, .tablaReporte table.white tr.titulosFila th:focus-within .resize-col-handle,
+.tablaReporte table.white tr.titulosFila th .resize-col-handle:hover {
+  border-left: 1px solid rgba(255, 255, 255, 0.9);
+  background-color: rgba(255, 255, 255, 0.1);
 }
 .tablaReporte table.white tr:not(.modificado):not(.titulosFila):not(.filtros):not(.segunFilaTitulos):hover {
   background-color: rgb(237, 239, 247) !important;
@@ -4861,6 +5063,31 @@ div[color=Amarillo]::before {
   position: relative;
   padding-top: 0.3rem;
   padding-bottom: 0.3rem;
+}
+.tablaReporte table tr th.sticky-columna-reporte,
+.tablaReporte table tr td.sticky-columna-reporte {
+  background-color: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background-clip: padding-box;
+}
+.tablaReporte table tr th.sticky-columna-reporte-ultima,
+.tablaReporte table tr td.sticky-columna-reporte-ultima {
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.18), 10px 0 16px -10px rgba(9, 26, 44, 0.65);
+}
+.tablaReporte table tr.titulosFila th.sticky-columna-reporte .resize-col-handle {
+  border-left-color: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+.tablaReporte table tr.titulosFila th.sticky-columna-reporte:hover .resize-col-handle, .tablaReporte table tr.titulosFila th.sticky-columna-reporte:focus-within .resize-col-handle,
+.tablaReporte table tr.titulosFila th.sticky-columna-reporte .resize-col-handle:hover {
+  border-left-color: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+.tablaReporte table tr.titulosFila th.sticky-columna-reporte-ultima {
+  box-shadow: inset -1px 0 0 rgba(3, 3, 56, 0.75), 10px 0 16px -10px rgba(9, 26, 44, 0.65);
 }
 .tablaReporte table tr.filtros {
   display: none !important;
@@ -5358,6 +5585,7 @@ div[color=Amarillo]::before {
   height: 100%;
   display: flex;
   align-items: center;
+  margin-left: 0.5rem;
 }
 .navegacionSupHomeLog .primeraParteNavegacion .contenedorLogo img {
   height: 3rem;

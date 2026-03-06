@@ -110,6 +110,7 @@ const modulosTotales = {
             entradaInventario: variablesModelo.entradaInventario,
             salidaInventario: variablesModelo.salidaInventario,
             traspasoUbicaciones: variablesModelo.traspasoUbicaciones,
+            desconsolidaciones: variablesModelo.desconsolidaciones,
             listaDeVenta: variablesModelo.listaDeVenta,
             listaProveedores: variablesModelo.listaProveedores,
             existenciasRep: variablesModelo.existencias,
@@ -559,7 +560,22 @@ async function escribirMenu(permisObject, empresasHabilitadas) {
     modulosTotales.testing.componentes.testing.tablaDobleEntrada.fila = modulosLocales
     modulosTotales.aplicacion.componentes.grupoSeguridad.tablaDobleEntrada.fila = modulosLocales
 }
+function verCookies() {
+    const out = {};
+    if (!document.cookie) return out;
 
+    document.cookie.split('; ').forEach((par) => {
+        const i = par.indexOf('=');
+        const key = decodeURIComponent(par.slice(0, i));
+        const val = decodeURIComponent(par.slice(i + 1));
+        out[key] = val;
+    });
+
+    return out;
+}
+
+// Uso:
+console.table(verCookies());
 
 
 
