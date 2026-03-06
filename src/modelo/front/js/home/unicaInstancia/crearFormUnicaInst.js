@@ -211,4 +211,3 @@ async function clickFormularioIndividualVistaPrevia(objeto, numeroFormAnt, consu
 
     return deferred.promise();
 }
-hy

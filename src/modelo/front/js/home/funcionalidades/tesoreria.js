@@ -297,7 +297,7 @@ let variablesModeloTesoreria = {
         tablas: {
             cotizacion: {
                 atributos: [
-                    T({ nombre: "moneda" }),
+                    T({ nombre: "moneda", width: "quince" }),
                     F("fecha"),
                     N("compra"),
                     N("venta")
@@ -312,7 +312,7 @@ let variablesModeloTesoreria = {
             },
         },
         cabeceraCont: {
-            //  parametrica: [{ atributo: P("moneda"), titulo: "Moneda" }],
+
             parametricaDef: {
                 moneda: {
                     nombre: "moneda",

@@ -132,8 +132,9 @@ let variablesModeloLogistica = {
                                 type: [itemsComprobantesDiv, [[
                                     N({ nombre: "cantidadCotizacion", clase: "textoCentrado centroVertical", width: "cinco" }),
                                     P({ nombre: "unidadesMedida", clase: "centroVertical", width: "diez" }),
-                                    P({ nombre: "itemVenta", clase: "centroVertical", width: "quince" }),
+                                    P({ nombre: "itemVenta", clase: "centroVertical", width: "doce" }),
                                     P({ nombre: "monedaComp", clase: "textoCentrado centroVertical monedaTabla", origen: "moneda", width: "siete" }),
+                                    { nombre: "importeCincoCotizacion", titulo: "Unitario", clase: "textoCentrado centroVertical", width: "ocho" },
                                     I({ nombre: "importeSeisCotizacion", clase: "textoCentrado centroVertical", width: "cinco" })],
                                     cotizacionLogistica, { filas: "renglonMarcado", titulo: "mayuscula fsUno textoCentrado", celda: "fsUno padding-top-med padding-bot-med mayusculaPrimerLetra" }]]
 

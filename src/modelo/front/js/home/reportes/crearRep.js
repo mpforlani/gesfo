@@ -344,6 +344,7 @@ async function crearCuerpoReporte(objeto, numeroForm) {
         });
     })
     administrarAtributoTabla(objeto, numeroForm);
+    asgregarStickyColumnasTabla(objeto, numeroForm, []);
     $(`#t${numeroForm}`).on("change", "input", function (e) {
 
         $(e.currentTarget).parents("tr").addClass("modificado")

@@ -2113,12 +2113,14 @@ function traspasosDeUbicaciones(objeto, numeroForm) {
 function desconsolidar(objeto, numeroForm) {
     function cartelIngresos(e) {
         $(`#t${numeroForm} .cartelComplemento.desconsolidarStock`).remove();
+        let almacenDestino = $(`#t${numeroForm} .divSelectInput[name='almacenDestino']`).val();
+        let ubicacionDestino = $(`#t${numeroForm} .divSelectInput[name='ubicacionDestino']`).val();
 
-        const productoOrigen = $(`#t${numeroForm} .divSelectInput[name='productoOrigen']`).val();
-        if (!productoOrigen) return;
+        if (!ubicacionDestino) return;
 
         let preFiltros = {
-
+            ubicaciones: [ubicacionDestino],
+            almacen: [almacenDestino],
             estado: ["Ingresado", "Salida parcial"]
         };
 
@@ -2135,12 +2137,12 @@ function desconsolidar(objeto, numeroForm) {
                 let cuerpoPrincipal = "";
                 cuerpoPrincipal += `<table>`;
                 cuerpoPrincipal += `<tr class="titulosTable">`;
-                cuerpoPrincipal += `<th class="oculto">ID</th><th>Fecha</th><th>Producto</th><th>Marca</th><th>Unidad</th><th>Disponibles</th><th>Almacen</th><th>Ubicaciones</th>`;
+                cuerpoPrincipal += `<th class="oculto">ID</th><th>Fecha</th><th>Producto</th><th>Marca</th><th>Unidad</th><th>Disponibles</th><th>Almacen</th><th>Ubicaciones</th><th>Proveedor</th><th>Remito</th>`;
                 cuerpoPrincipal += `</tr>`;
 
                 $.each(data, (indice, value) => {
                     cuerpoPrincipal += `<tr class="filaTable">`;
-                    cuerpoPrincipal += `<td class="oculto idComprobante">${value._id}</td><td class="oculto idProducto">${value.producto || ""}</td><td class="oculto idMarca">${value.marca || ""}</td><td class="oculto idUnidadesMedida">${value.unidadesMedida || ""}</td><td class="oculto idAlmacen">${value.almacen || ""}</td><td class="oculto idUbicaciones">${value.ubicaciones || ""}</td><td class="fecha" fechaFormateada="${dateNowAFechaddmmyyyy(value.fecha, "y-m-d")}">${dateNowAFechaddmmyyyy(value.fecha, "d/m/y")}</td><td class="producto">${consultaPestanas?.producto?.[value.producto]?.name || ""}</td><td class="marca">${consultaPestanas?.marca?.[value.marca]?.name || ""}</td><td class="unidadesMedida">${consultaPestanas?.unidadesMedida?.[value.unidadesMedida]?.name || ""}</td><td class="disponibles">${value.disponibles || 0}</td><td class="almacen">${consultaPestanas?.almacen?.[value.almacen]?.name || ""}</td><td class="ubicaciones">${consultaPestanas?.ubicaciones?.[value.ubicaciones]?.name || ""}</td>`;
+                    cuerpoPrincipal += `<td class="oculto idComprobante">${value._id}</td><td class="fecha" fechaFormateada="${dateNowAFechaddmmyyyy(value.fecha, "y-m-d")}">${dateNowAFechaddmmyyyy(value.fecha, "d/m/y")}</td><td class="producto">${consultaPestanas?.producto?.[value.producto]?.name || ""}</td><td class="marca">${consultaPestanas?.marca?.[value.marca]?.name || ""}</td><td class="unidadesMedida">${consultaPestanas?.unidadesMedida?.[value.unidadesMedida]?.name || ""}</td><td class="disponibles">${value.disponibles || 0}</td><td class="almacen">${consultaPestanas?.almacen?.[value.almacen]?.name || ""}</td><td class="ubicaciones">${consultaPestanas?.ubicaciones?.[value.ubicaciones]?.name || ""}</td><td class="proveedor">${consultaPestanas?.proveedor?.[value.proveedor]?.name || ""}</td><td class="remito">${value.remito || ""}</td>`;
                     cuerpoPrincipal += `</tr>`;
                 });
                 $(cuerpoPrincipal).appendTo(`#t${numeroForm} .bloque1`);
@@ -2154,34 +2156,26 @@ function desconsolidar(objeto, numeroForm) {
     }
 
     $(`#t${numeroForm}`).on("click", ".desconsolidarStock tr.filaTable", seleccionarMovimiento);
-    $(`#t${numeroForm}`).on("change", ".divSelectInput[name='productoOrigen']:not(.autoValor)", cartelIngresos);
+    $(`#t${numeroForm}`).on("change", ".divSelectInput[name='ubicacionDestino']:not(.autoValor)", cartelIngresos);
     $(`#t${numeroForm}`).on("click", ".desconsolidarStock .okBoton", () => {
         let filaSeleccionada = $(`#t${numeroForm} .desconsolidarStock tr.seleccionado`);
 
         if (filaSeleccionada.length > 0) {
             $.each(filaSeleccionada, (indice, value) => {
-                const productoOrigenInput = $(`#t${numeroForm} input.divSelectInput[name='productoOrigen']`);
-                const marcaOrigenInput = $(`#t${numeroForm} input.divSelectInput[name='marcaOrigen']`);
-                const unidadesMedidaOrigenInput = $(`#t${numeroForm} input.divSelectInput[name='unidadesMedidaOrigen']`);
-                const almacenDestinoInput = $(`#t${numeroForm} input.divSelectInput[name='almacenDestino']`);
-                const ubicacionesDestinoInput = $(`#t${numeroForm} input.divSelectInput[name='ubicacionesDestino']`);
+                const ubiInput = $(`#t${numeroForm} .divSelectInput[name='ubicacionDestino']`);
+                ubiInput.addClass("autoValor");
+                $(`#t${numeroForm} input.ubicacionDestino`).val($("td.ubicaciones", value).html()?.trim()).trigger("change").addClass("soloLectura");
+                ubiInput.removeClass("autoValor");
 
-                productoOrigenInput.addClass("autoValor");
-                productoOrigenInput.val($("td.idProducto", value).html()?.trim()).trigger("change");
-                $(`#t${numeroForm} input.inputSelect.productoOrigen`).addClass("transparente").trigger("change");
-                productoOrigenInput.removeClass("autoValor");
-
-                marcaOrigenInput.val($("td.idMarca", value).html()?.trim())
-                $(`#t${numeroForm} input.inputSelect.marcaOrigen`).addClass("transparente").trigger("change");
-                unidadesMedidaOrigenInput.val($("td.idUnidadesMedida", value).html()?.trim())
-                $(`#t${numeroForm} input.inputSelect.unidadesMedidaOrigen`).addClass("transparente").trigger("change");
-                $(`#t${numeroForm} input.disponiblesOrigen`).val($("td.disponibles", value).html()?.trim()).trigger("input").addClass("transparente");
+                $(`#t${numeroForm} input.marcaOrigen`).val($("td.marca", value).html()?.trim()).trigger("change").addClass("soloLectura");
+                $(`#t${numeroForm} input.unidadesMedidaOrigen`).val($("td.unidadesMedida", value).html()?.trim()).trigger("change");
+                $(`#t${numeroForm} input.disponiblesOrigen`).val($("td.disponibles", value).html()?.trim()).trigger("input");
+                $(`#t${numeroForm} input.almacenDestino`).val($("td.almacen", value).html()?.trim()).trigger("change").addClass("soloLectura");
+                $(`#t${numeroForm} input.productoOrigen`).val($("td.producto", value).html()?.trim()).trigger("change").addClass("soloLectura");
                 $(`#t${numeroForm} input.idComprobante`).val($("td.idComprobante", value).html()?.trim()).trigger("change");
-                almacenDestinoInput.val($("td.idAlmacen", value).html()?.trim()).trigger("change");
-                $(`#t${numeroForm} input.inputSelect.almacenDestino`).trigger("change");
-                ubicacionesDestinoInput.val($("td.idUbicaciones", value).html()?.trim()).trigger("change");
-                $(`#t${numeroForm} input.inputSelect.ubicacionesDestino`).trigger("change");
-
+                $(`#t${numeroForm} input.cantidadSalidasOrigen`).val(1).trigger("input");
+                $(`#t${numeroForm} input.proveedor`).val($("td.proveedor", value).html()?.trim()).trigger("change");
+                $(`#t${numeroForm} input.remito`).val($("td.remito", value).html()?.trim()).trigger("input");
                 $(`#t${numeroForm} .desconsolidarStock .closePop`).trigger(`click`);
             });
         }

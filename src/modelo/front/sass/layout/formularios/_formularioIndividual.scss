@@ -269,6 +269,71 @@
         opacity: 0.9;
     }
 
+    div.renglon.renglon-destino-drag {
+        background-color: rgba(46, 124, 199, 0.14);
+        border-radius: 0.25rem;
+    }
+
+    div.renglon.renglon-draggable {
+        position: relative;
+        box-sizing: border-box;
+        padding-left: 0.9rem;
+    }
+
+    .reorder-renglon-handle {
+        position: absolute;
+        left: 0;
+        top: 50%;
+        display: flex;
+        opacity: 0;
+        pointer-events: none;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+        z-index: 33;
+        font-size: 0.95rem;
+        border-radius: 3px;
+        padding: 0.1rem;
+        color: rgb(146, 82, 0);
+        background-color: rgba(255, 193, 75, 0.22);
+        border: 1px solid rgba(146, 82, 0, 0.34);
+        cursor: grab;
+        user-select: none;
+        touch-action: none;
+        transition: transform 0.15s ease, opacity 0.15s ease;
+        transform: translateY(-50%);
+
+        &:hover {
+            transform: translateY(-50%) scale(1.05);
+            background-color: rgba(255, 193, 75, 0.3);
+        }
+
+        &:active {
+            cursor: grabbing;
+            transform: translateY(-50%) scale(0.98);
+        }
+    }
+
+    div.renglon.renglon-draggable:hover .reorder-renglon-handle,
+    div.renglon.renglon-draggable:focus-within .reorder-renglon-handle {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    div.renglon.renglon-drop-final {
+        display: none;
+    }
+
+    &.reordering-fo div.renglon.renglon-drop-final {
+        display: flex;
+        width: 100%;
+        min-height: 1.4rem;
+        margin: 0.25rem 0;
+        border: 1px dashed rgba(9, 26, 44, 0.28);
+        border-radius: 0.25rem;
+        box-sizing: border-box;
+    }
+
     div.fo.fo-draggable {
         position: relative;
 

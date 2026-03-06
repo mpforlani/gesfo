@@ -76,7 +76,7 @@ let variablesModeloInventarios = {
                 NS("numerador"),
                 FH(),
                 P({ nombre: "almacen", clase: "requerido" }),
-                P({ nombre: "ubicaciones" }),
+                P({ nombre: "ubicaciones", clase: "requerido" }),
                 PPE({ nombre: "operacionStock", opciones: ["Entrada", "Ajuste"], clase: "requerido" }),
                 P({ nombre: "proveedor", clase: "requerido" }),
                 T({ nombre: "remito", clase: "requerido textoCentrado" }),
@@ -307,7 +307,7 @@ let variablesModeloInventarios = {
                 TF("observaciones"),
                 adjunto
             ],
-            titulos: ["Número", "Fecha", "Almacen", "Operaci�n", "Cliente", "movimientoStock", "Observaciones", "Adjunto"],
+            titulos: ["Número", "Fecha", "Almacen", "Operación", "Cliente", "movimientoStock", "Observaciones", "Adjunto"],
             cabeceraAbm: {
                 select: [
                     {
@@ -777,20 +777,24 @@ let variablesModeloInventarios = {
             names: [
                 NS("numerador"),
                 FH(),
+                P({ nombre: "almacenDestino", origen: "almacen", clase: "requerido" }),
+                P({ nombre: "ubicacionDestino", origen: "ubicaciones", clase: "requerido" }),
                 P({ nombre: "productoOrigen", origen: "producto", clase: "requerido", width: "veinte" }),
                 P({ nombre: "marcaOrigen", origen: "marca", clase: "requerido" }),
-                P({ nombre: "unidadesMedidaOrigen", origen: "unidadesMedida", clase: "requerido" }),
-                N({ nombre: "disponiblesOrigen", clase: "requerido" }),
+                P({ nombre: "unidadesMedidaOrigen", origen: "unidadesMedida", oculto: "oculto" }),
+                N({ nombre: "disponiblesOrigen", oculto: "oculto" }),
+                N({ nombre: "cantidadSalidasOrigen", oculto: "oculto" }),
+                P({ nombre: "proveedor", oculto: "oculto" }),
+                T({ nombre: "remito", oculto: "oculto" }),
                 T({ nombre: "idComprobante", oculto: "oculto" }),
-                P({ nombre: "almacenDestino", origen: "almacen", clase: "requerido" }),
-                P({ nombre: "ubicacionDestino", origen: "ubicaciones" }),
+
                 movimientoStock,
                 TF("observaciones")
             ],
-            titulos: ["Numero", "Fecha", "Producto a desconsolidar", "Marca", "Unidades de Medida", "Disponibles", "ID", "Almacen Destino", "Ubicacion Destino", "movimientoStock", "Observaciones"],
+            titulos: ["Numero", "Fecha", "Almacen", "Ubicacion", "Producto a desconsolidar", "Marca", "Unidades de Medida", "Disponibles", "Cantidad a desconsolidar", "Proveedor", "Remito", "ID", "movimientoStock", "Observaciones"],
         },
         formInd: {
-            inputRenglones: [2, 5, 2, `compuesto`, 1],
+            inputRenglones: [4, 7, `compuesto`, 1],
 
         },
         funcionesPropias: {
@@ -801,29 +805,62 @@ let variablesModeloInventarios = {
             }
 
         },
+        desencadenaColeccion: {
+            movimientoStock: {
+                type: "directo",
+                coleccionOrigen: movimientoStock,
+                identificador: "desonsolidaciones",
+                destino: "stock",
+                nombre: "Desconsolidaciones",
+                atributosColeccion: {
+                    funcion: {
+                        marca: [buscarAtributosParamentricos, "marca", "producto"]
+                    },
+                    valorFijo: {
+                        estado: "Ingresado",
+                        estadoFacturacion: "Pendiente",
+                    },
+                    cambiarAtributos: {
+                        disponibles: "cantidad",
+                        almacen: "almacenDestino",
+                        ubicaciones: "ubicacionDestino"
+                    },
+                    grabarEnOrigen: { Número: "numerador" },
+                    grabarEnOrigenColeccion: { Número: "numerador" },
+                    grabarEnDestino: { Número: "numerador" },
+                },
+                grabarEnDestino: { Número: "numerador" },
+                grabarEnOrigenColeccion: { Número: "numerador" }, //se pone primer el atributo en el origen segundo en el destino
 
-        /* imputarcoleccion: {
-             traspasos: {
-                 type: "directo",
-                 coleccionOrigen: movimientoUbicaciones,
-                 identificador: "traspasos",
-                 eliminarDesencadenate: ["producto"],//Si cambia este atributo se elimina el desencadenate
-                 destino: "stock",
-                 nombre: "Traspasos",
-                 atributoImputables: {
- 
-                     cambioNombre: {
-                         _id: "idComprobante",
-                         almacen: "almacenDestino",
-                         ubicaciones: "ubicacionDestino",
- 
-                     },
-                     grabarEnOrigen: { Número: "numerador" },
-                     grabarEnOrigenColeccion: { Número: "numerador" },
-                     grabarEnDestino: { Número: "numerador" },
-                 }
-             }
-         },*/
+            }
+        },
+        imputarcoleccion: {
+            salidaInventario: {
+                type: "directo",
+                coleccionOrigen: movimientoStock,
+                identificador: "desconsolidaciones",
+                eliminarDesencadenate: ["producto"],//Si cambia este atributo se elimina el desencadenate
+                destino: "stock",
+                nombre: "Desconsolidaciones",
+                atributoImputables: {
+
+                    funcion: {
+                        disponibles: [pagoParcialImporte, "cantidadSalidasOrigen", "disponiblesOrigen"],
+                        estado: [pagoParcialString, "cantidadSalidasOrigen", { parcial: "Salida parcial", cerrado: "Salida total" }],
+
+                    },
+                    cambioNombre: {
+                        _id: "idComprobante",
+                        almacen: "almacenDestino",
+                        ubicaciones: "ubicacionDestino",
+                    },
+                },
+                grabarEnOrigen: { Número: "numerador" },
+                grabarEnOrigenColeccion: { Número: "numerador" },
+                grabarEnDestino: { Número: "numerador" },
+
+            },
+        },
         key: "numerador",
         pest: "Desconsolidacion",
         accion: `desconsolidaciones`,

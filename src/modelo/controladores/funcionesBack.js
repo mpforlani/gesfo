@@ -343,15 +343,31 @@ function monedasCotis(monedas) {
 
     let monedasReturn = ""
 
-    if (monedas) {
+    const tieneReal = monedas.some(moneda => String(moneda).toLowerCase() === "real")
+
+    if (tieneReal) {
+        for (let i = monedas.length - 1; i >= 0; i--) {
+            if (String(monedas[i]).toLowerCase() === "real") {
+                monedas.splice(i, 1)
+            }
+        }
+
+        const tieneDolar = monedas.some(moneda => String(moneda).toLowerCase() === "dolar")
+        if (!tieneDolar) {
+            monedas.push("dolar")
+        }
+    }
+
+    if (monedas.length) {
 
         for (const moneda of monedas) {
 
             monedasReturn += `&filtro${moneda}=1`
         }
+
     } else {
 
-        monedasReturn += `&filtroDolar=1&filtroEuro=1&filtroReal=1`
+        monedasReturn += `&filtroDolar=1&filtroEuro=1`
 
     }
 

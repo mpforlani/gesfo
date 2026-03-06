@@ -427,8 +427,43 @@ function itemsComprobantes(data, objeto, numeroForm, atributos, tabla, clases, a
 }
 function itemsComprobantesDiv(data, objeto, numeroForm, atributos, tabla, clases, atributoCondicion) {
 
+    const widthMapImpresion = {
+        dos: "2rem",
+        tres: "3rem",
+        cuatroCinco: "4.5rem",
+        cinco: "5rem",
+        seis: "6rem",
+        siete: "7rem",
+        ocho: "8rem",
+        nueve: "9rem",
+        diez: "10rem",
+        once: "11rem",
+        doce: "12rem",
+        quince: "15rem",
+        veinte: "20rem",
+        treinta: "30rem",
+        "10porc": "10%",
+        "15porc": "15%",
+        "20porc": "20%",
+        "30porc": "30%",
+        "40porc": "40%",
+        "50porc": "50%",
+        "60porc": "60%",
+        "70porc": "70%",
+        "80porc": "80%",
+        "85porc": "85%",
+        "90porc": "90%",
+        "100porc": "100%",
+    }
+    const templateColumnas = atributos
+        .map((atributo) => widthMapImpresion[atributo?.width] || "minmax(0, 1fr)")
+        .join(" ")
+    const styleTemplate = templateColumnas.length > 0
+        ? ` style="grid-template-columns:${templateColumnas}"`
+        : ""
+
     let tableItems = `<div class="table tableItems ${tabla.nombre}">`//table
-    tableItems += `<div class="tr titulosTable">`//tr
+    tableItems += `<div class="tr titulosTable"${styleTemplate}>`//tr
     $.each(atributos, (indice, value) => {
 
         tableItems += `<div class="th ${value.nombre || value} ${clases?.titulo || ""}" width="${value.width || ""}">${value.titulo || $(`#t${numeroForm} table.${tabla.nombre} th.${value.nombre || value}`).html()}</div>`
@@ -440,7 +475,7 @@ function itemsComprobantesDiv(data, objeto, numeroForm, atributos, tabla, clases
 
         if (atributoCondicion == undefined || data?.[atributoCondicion]?.[indice] > 0) {
 
-            tableItems += `<div class="tr filasRegistros ${clases?.filas || ""}">`
+            tableItems += `<div class="tr filasRegistros ${clases?.filas || ""}"${styleTemplate}>`
             $.each(atributos, (ind, val) => {
 
                 let valor = data[val.nombre || val][indice]

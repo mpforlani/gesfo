@@ -23,6 +23,7 @@ const DesconsolidacionesSchema = new Schema({
         default: ""
     },
     disponiblesOrigen: { type: Number },
+    cantidadSalidasOrigen: { type: Number },
     almacenDestino: {
         type: String,
         ref: "almacen",
@@ -35,7 +36,14 @@ const DesconsolidacionesSchema = new Schema({
         sparse: true,
         default: ""
     },
-
+    proveedor: {
+        type: String,
+        ref: "proveedor",
+        sparse: true,
+        default: ""
+    },
+    remito: { type: String },
+    idComprobante: { type: String },
     // compuesto movimientoStock
     cantidad: { type: [Number] },
     unidadesMedida: {

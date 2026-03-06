@@ -118,7 +118,6 @@ let variablesModeloReportes = {
                 },
                 funcionesPropias: {
                     tabla: {
-                        asgregarStickyColumnas: [asgregarStickyColumnas, [P("producto")]],
 
                     }
                 }
@@ -723,7 +722,6 @@ let variablesModeloReportes = {
                 },
                 funcionesPropias: {
                     tabla: {
-                        asgregarStickyColumnas: [asgregarStickyColumnas, [P("cajas")]],
 
                     },
 
@@ -788,7 +786,6 @@ let variablesModeloReportes = {
                 },
                 funcionesPropias: {
                     tabla: {
-                        asgregarStickyColumnas: [asgregarStickyColumnas, [P("cuentasBancarias")]],
 
                     },
 
@@ -911,7 +908,6 @@ let variablesModeloReportes = {
                 },
                 funcionesPropias: {
                     tabla: {
-                        asgregarStickyColumnas: [asgregarStickyColumnas, [P("itemVenta")]],
                         totalVerticalManual: [totalVerticalManual, ["facturacionMensual"]],
                     },
 
@@ -1050,7 +1046,6 @@ let variablesModeloReportes = {
                 ordenDefault: [F("fecha"), "arriba"],
                 funcionesPropias: {
                     tabla: {
-                        asgregarStickyColumnasTabla: [asgregarStickyColumnasTabla, [P("cliente")]],
                         asignacionSaldosCabecera: [asignacionSaldosCabeceraCC, "cuentaCorrienteClientes", "cliente", "cuentaCorrienteClientes"],
                     },
 
@@ -1136,7 +1131,6 @@ let variablesModeloReportes = {
                 ordenDefault: [F("fecha"), "arriba"],
                 funcionesPropias: {
                     tabla: {
-                        asgregarStickyColumnasTabla: [asgregarStickyColumnasTabla, [P("proveedor")]],
                         asignacionSaldosCabecera: [asignacionSaldosCabeceraCC, "cuentaCorrienteProveedores", "proveedor", "cuentaCorrienteProveedores"],
                     },
 

@@ -18,65 +18,55 @@ instalar mi sitio web y el demo
 responsive
 Ver inteligencia artifical o web simplified
 ---------Funciones especificas
-61 - Chequear todos los reportes SBC
-60 - Hacer certificacones
-59 - Tipo de cambio
-57 - arreglar formato oculto, que sea lindo priemro cuando se va(alguna transition), y segundo que que tenga en cuenta solo los visibles para los renglones
-56 - Ver si confirmo operación q se esta editando, en otro reigsotro, cierra esa o que hago.
-55 - Ver de sugerir destinatarios en email, y poner firma 
-54 - Ver filtro totales en reportes, que sale corrido cuando pongo filtros en totales de algunos reportes  o de los que tiene totales
-53 - Ver lo de importe siempre tenga dos decimales asi me queda alineado en reportes e impresiones----
-52 - Ver acumuladores cuando no le mandas mnoneda alternativa porque no funciona con multimoneda
-51 - Ver el TC en moneda base cuando no es multimoneda, en SBc no me sugiere tipo de cambios en tesoreria
-50 - Ver imputacion multiples desde facturacion proveedores
-49 - Ingresar factura a proveedores, centrar el estado
-48 - Ver duplicidad clase en colecciones
-47 - Pagos cta ctte y cobros cta tte ver que se corre el renglon del tc por oculto
-46 - El largo de adjuntos, si se estira el formulario no lo cubre todo, estasria bueno si lo cubre
-45 - en cobros que no se pueda cobrar mas que el saldo - PROBAR
-44 - moneda que no aparece por ejemplo en detalle flete signo dolar
-43 - Ver deposito que el total es de ambas moneda -- Le dije a cheni poco usado
-42 - Ver como calcular moneda alternativa si no estar cargarda la moneda alternativa
-41 - Ver obtener cotizacioens automaticas de internet y registrarla
-40 - Ver borrar o desinputar
-39 - Arreglar multimoneda, no tiene cheques
-38 - Agregar scroll y maximo de largo chequear cartel de cheques con 20 cheques, que pasa
-37 - Ver lo de de renglones sea por atributos que no estan ocultos
-36 - desinputar cheque repetido
-35 - Ingresar registros que repite por ejmeplo nombre, tira error perono dice porque, es como si se tildaria
-34 - No anda ninguna tipo de adjunto en pagos y corbros verifiar porque puede estar pasando lo msimo en sbc
-33 - arreglar el nombre de tipo de cambio, sacarñp de indice y darle un lugar demtrp de tesoreria
-32 - ver porque busca 4 veces la cotizacon despues
-31 - Refrescar tipo de cambio cuando se ingresa uno nuevo
-30 - revisar abm de cobros, observaciones esta muy a la izquierda, y ver la tipo de cambio que esta raro
-29 - Ver como guarda o muestra el tc en cobros, de minima en la parte de meio de pagos, ver en cabecra tambien
-28 - Ver lo de objeto fusion eso no existe mas ya que fusiono cuando creo
-27 - Ver los de filaAbmEditada y edita registro del abm como hacer para q quede uno
-26 - ver tc en cheques o en todo el circuito que trabaja cheni de sacar el tc en el abm
-25 - Ver formato texto importe tipoPago
-24 - Traer medio de pago en formularioAbm, (ver colecciones en formularioABM)
-23 - Ver en provincia, que se me pone la pestaña arriba, y no entra se corta, mirar bien, ante la duda ir abajo
-22 - Crear algo para cuando abra la entidad espere a que termine asi obtengo el numero de operacion, tipo (Esto en testing)
-21 - Ver como calcula los impuestos la transformacion de factura
-20 - Arreglar los del tab, porque si pongo cartel seguro, me deja tabular a otros lados
-19 - Arreglar impresion, sacar la imagen porque sino todo el tiempo tengo que hacer doble con el print
-18 - Ver lo de abrir muchas pestañas 
-17 - ver de arreglar lo de tab index en coleccion, agregandole coma, para la carga rapida:
-16 - Ver lo del tab index, que pase por adjunto
-15 - Ver text area, enriquecerlo con negrita etc
-14 - hacer por default que la parametricas solo puedan desabilitarse y las transaccionales eliminarse
-13 - actualizao mongo
-12 - actualizar node
-11 - ver filtro y orden igualarlo al de reportes
-10 - Click ruedita cierre pestaña
-9 - Sacar reversion rechazo en las aprobaciones.
-8 - Ver lo del historial ver que paso, no marca los cambios y ver regenerar. en colección gemela
-7 - Ver el boton cruz, que no te vuelve atras form individual.
-6 - No dejar cerrar la pestana si esta enviando registro.
-5 - Regenera abm y me tira error al buscar historial.
+50 - Ver text area, enriquecerlo con negrita etc
+49 - Chequear todos los reportes SBC
+48 - Hacer certificacones
+47 - Tipo de cambio
+46 - arreglar formato oculto, que sea lindo priemro cuando se va(alguna transition), y segundo que que tenga en cuenta solo los visibles para los renglones
+45 - Ver si confirmo operación q se esta editando, en otro reigsotro, cierra esa o que hago.
+44 - Ver de sugerir destinatarios en email, y poner firma 
+43 - Ver filtro totales en reportes, que sale corrido cuando pongo filtros en totales de algunos reportes  o de los que tiene totales
+42 - Ver lo de importe siempre tenga dos decimales asi me queda alineado en reportes e impresiones----
+41 - Ver acumuladores cuando no le mandas mnoneda alternativa porque no funciona con multimoneda
+40 - Ver el TC en moneda base cuando no es multimoneda, en SBc no me sugiere tipo de cambios en tesoreria
+39 - Ver imputacion multiples desde facturacion proveedores
+38 - Ingresar factura a proveedores, centrar el estado
+37 - Ver duplicidad clase en colecciones
+36 - Pagos cta ctte y cobros cta tte ver que se corre el renglon del tc por oculto
+35 - El largo de adjuntos, si se estira el formulario no lo cubre todo, estasria bueno si lo cubre
+34 - en cobros que no se pueda cobrar mas que el saldo - PROBAR
+33 - moneda que no aparece por ejemplo en detalle flete signo dolar
+32 - Ver deposito que el total es de ambas moneda -- Le dije a cheni poco usado
+31 - Ver como calcular moneda alternativa si no estar cargarda la moneda alternativa
+30 - Ver borrar o desinputar
+29 - Arreglar multimoneda, no tiene cheques
+28 - Agregar scroll y maximo de largo chequear cartel de cheques con 20 cheques, que pasa
+27 - Ver lo de de renglones sea por atributos que no estan ocultos
+26 - desinputar cheque repetido
+25 - Ingresar registros que repite por ejmeplo nombre, tira error perono dice porque, es como si se tildaria
+24 - No anda ninguna tipo de adjunto en pagos y corbros verifiar porque puede estar pasando lo msimo en sbc
+23 - arreglar el nombre de tipo de cambio, sacarñp de indice y darle un lugar demtrp de tesoreria
+22 - ver porque busca 4 veces la cotizacon despues
+21 - Refrescar tipo de cambio cuando se ingresa uno nuevo
+20 - revisar abm de cobros, observaciones esta muy a la izquierda, y ver la tipo de cambio que esta raro
+19 - Ver como guarda o muestra el tc en cobros, de minima en la parte de meio de pagos, ver en cabecra tambien
+18 - Ver lo de objeto fusion eso no existe mas ya que fusiono cuando creo
+17 - Ver los de filaAbmEditada y edita registro del abm como hacer para q quede uno
+16 - ver tc en cheques o en todo el circuito que trabaja cheni de sacar el tc en el abm
+15 - Ver formato texto importe tipoPago
+14 - Traer medio de pago en formularioAbm, (ver colecciones en formularioABM)
+13 - Ver en provincia, que se me pone la pestaña arriba, y no entra se corta, mirar bien, ante la duda ir abajo
+12 - Crear algo para cuando abra la entidad espere a que termine asi obtengo el numero de operacion, tipo (Esto en testing)
+11 - ver de arreglar lo de tab index en coleccion, agregandole coma, para la carga rapida:
+10 - Ver lo del tab index, que pase por adjunto
+9 - hacer por default que la parametricas solo puedan desabilitarse y las transaccionales eliminarse
+8 - actualizao mongo
+7 - actualizar node
+6 - Click ruedita cierre pestaña
+5 - Sacar reversion rechazo en las aprobaciones.
 4 - Ojo con lo que tiene permisos editar, porque dice seguridad none, entonces podria borrar seguridad, ver como solucionar eso, seria con la que no te deja ver el codigo o como. 
 3 - Ver las imagenes adjuntos el tamaño es cualquiera.
-2 - historias y desencadenantes chequear.
+2 - historia
 1 - Ver que por default cantidad da = 1. es para no multiplicar por cero, pero tampoco esta bien que de uno, ver en operaciones y cotizaciones
 0 - Ver los botones y funcionalidades del 2do click.
 
@@ -138,6 +128,7 @@ docker exec -it mongo mongosh -u martinAdmin -p Pa@To_1254 --authenticationDatab
 docker system prune 
 -------------------------
 1 - docker compose build sbc-gesfin
+1 - docker compose build gesfo-gesfin
 2a - docker compose up -d sbc-gesfin 
 docker compose up -d gesfo-gesfin 
 2b - docker compose up -d --no-deps sbc-gesfin ==> solo sbc no toco las otras 

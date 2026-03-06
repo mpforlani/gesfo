@@ -145,6 +145,19 @@
     letter-spacing: 0.3px;
     word-spacing: 0.5px;
 
+    .reorder-col-handle,
+    .resize-col-handle,
+    .reorder-row-handle,
+    .resize-row-handle,
+    .reorder-col-handle-coleccion,
+    .reorder-fo-handle,
+    .input-resize-handle {
+        display: none !important;
+        opacity: 0 !important;
+        pointer-events: none !important;
+        background-image: none !important;
+    }
+
     .alargar {
         flex: 1;
         height: 100%;
@@ -425,6 +438,20 @@
                         &.chico {
                             font-size: 0.6rem;
                         }
+                    }
+                }
+            }
+
+            &.tableItems.cotizacionLogistica {
+                .tr {
+                    .th.importeCincoCotizacion,
+                    .td.importeCincoCotizacion,
+                    .th.importeSeisCotizacion,
+                    .td.importeSeisCotizacion {
+                        white-space: nowrap;
+                        word-wrap: normal;
+                        word-break: normal;
+                        hyphens: none;
                     }
                 }
             }

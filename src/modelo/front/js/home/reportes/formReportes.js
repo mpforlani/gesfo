@@ -222,14 +222,11 @@ async function cabeceraReporte(objeto, numeroForm) {
 
     })
 
-    const contenedorBotones = $(`#bf${numeroForm}.divCabecera.botones`).first()
-    if (contenedorBotones.length) {
-        contenedorBotones.append(iResetResizeReporte)
-    } else {
-        let div = `<div class="divCabecera.botones"></div>`
-        $(div).appendTo(`#bf${numeroForm}`)
-        $(iResetResizeReporte).prependTo(`#bf${numeroForm} div.divCabecera.botones`)
+    let contenedorBotones = $(`#bf${numeroForm} .divCabecera.botones`)
+    if (!contenedorBotones.length) {
+        contenedorBotones = $(`<div class="divCabecera botones"></div>`).appendTo(`#bf${numeroForm}`)
     }
+    $(iResetResizeReporte).prependTo(contenedorBotones)
 
     $(`#bf${numeroForm}`).on("click", `.filtroRapido`, (e) => {
 
@@ -367,10 +364,22 @@ function ejecutarInitSortableConRetryReporte(numeroForm, tableKey, tipo, initFn)
 function normalizarTablaStateReporte(rawState) {
 
     if (!rawState || typeof rawState !== "object" || Array.isArray(rawState)) {
-        return { columnas: {}, orden: [], filas: [] }
+        return { columnas: {}, orden: [], filas: [], sticky: [], stickyPersistido: false }
     }
 
-    if (rawState.columnas !== undefined || rawState.orden !== undefined || rawState.filas !== undefined) {
+    const stickyPersistido = (
+        rawState?.stickyPersistido === true ||
+        Object.prototype.hasOwnProperty.call(rawState, "sticky") ||
+        Object.prototype.hasOwnProperty.call(rawState, "stickyColumns") ||
+        (
+            rawState?.columnas &&
+            typeof rawState.columnas === "object" &&
+            !Array.isArray(rawState.columnas) &&
+            Object.prototype.hasOwnProperty.call(rawState.columnas, "sticky")
+        )
+    )
+
+    if (rawState.columnas !== undefined || rawState.orden !== undefined || rawState.filas !== undefined || rawState.sticky !== undefined || rawState.stickyPersistido !== undefined) {
         return {
             columnas: (typeof rawState.columnas === "object" && !Array.isArray(rawState.columnas)) ? rawState.columnas : {},
             orden: normalizarOrdenDesdeCookieReporte(
@@ -382,14 +391,22 @@ function normalizarTablaStateReporte(rawState) {
                 rawState?.filas ??
                 rawState?.rows ??
                 rawState?.rowOrder
-            )
+            ),
+            sticky: normalizarOrdenDesdeCookieReporte(
+                rawState?.sticky ??
+                rawState?.stickyColumns ??
+                rawState?.columnas?.sticky
+            ),
+            stickyPersistido,
         }
     }
 
     return {
         columnas: rawState,
         orden: [],
-        filas: []
+        filas: [],
+        sticky: [],
+        stickyPersistido: false,
     }
 }
 function getTableStateReporte(state, tableKey) {
@@ -850,66 +867,267 @@ function normalizarNombreStickyColumnaReporte(columna) {
     if (typeof columna === "string") return columna.trim()
     return `${columna.nombre || columna.atributo || ""}`.trim()
 }
+function normalizarListaStickyColumnasReporte(columnas) {
+
+    return (Array.isArray(columnas) ? columnas : [])
+        .map((columna) => normalizarNombreStickyColumnaReporte(columna))
+        .filter((nombre) => nombre !== "")
+}
+function resolverColumnasStickyObjetivoReporte(tableState, columnasConfig) {
+
+    const columnasPersistidas = normalizarListaStickyColumnasReporte(tableState?.sticky)
+    const columnasDefecto = normalizarListaStickyColumnasReporte(columnasConfig)
+    const usarPersistidas = tableState?.stickyPersistido === true
+    return usarPersistidas ? columnasPersistidas : columnasDefecto
+}
+function sincronizarBaseStickyColumnasTablaReporte(tabla, columnasNombres) {
+
+    if (!tabla?.length) return
+
+    const columnasBaseActuales = Array.isArray(tabla.data("stickyColumnasReportesBase"))
+        ? tabla.data("stickyColumnasReportesBase")
+        : []
+    const base = new Set(
+        columnasBaseActuales
+            .map((columna) => normalizarNombreStickyColumnaReporte(columna))
+            .filter((nombre) => nombre !== "")
+    )
+
+    ; (Array.isArray(columnasNombres) ? columnasNombres : [])
+        .map((columna) => normalizarNombreStickyColumnaReporte(columna))
+        .filter((nombre) => nombre !== "")
+        .forEach((nombre) => base.add(nombre))
+
+    tabla.data("stickyColumnasReportesBase", Array.from(base))
+}
+function escaparSelectorStickyReporte(valor) {
+
+    if (typeof $.escapeSelector === "function") return $.escapeSelector(valor)
+    return `${valor}`.replace(/([ !"#$%&'()*+,./:;<=>?@[\\\]^`{|}~])/g, "\\$1")
+}
+function obtenerNombreHeaderStickyReporte(header) {
+
+    const th = $(header)
+    if (!th?.length) return ""
+    return normalizarNombreStickyColumnaReporte(th.attr("data-col-id") || th.attr("atributo") || th.attr("colum") || "")
+}
+function obtenerHeaderPorReferenciaStickyReporte(tabla, referencia) {
+
+    const filaTitulos = obtenerFilaTitulosReporte(tabla)
+    if (!filaTitulos.length) return $()
+
+    const ref = normalizarNombreStickyColumnaReporte(referencia)
+    if (!ref) return $()
+
+    let header = filaTitulos
+        .children("th, td")
+        .filter((_, h) => $(h).attr("data-col-id") === ref && !$(h).hasClass("transparent"))
+        .first()
+    if (header.length) return header
+
+    const refEsc = escaparSelectorStickyReporte(ref)
+    header = filaTitulos
+        .find(`> th[atributo="${ref}"]:not(.transparent), > th.${refEsc}:not(.transparent), > td[atributo="${ref}"]:not(.transparent), > td.${refEsc}:not(.transparent)`)
+        .first()
+    if (header.length) return header
+
+    return filaTitulos
+        .children("th, td")
+        .filter((_, h) => $(h).attr("colum") === ref && !$(h).hasClass("transparent"))
+        .first()
+}
+function normalizarOrdenStickySegunTablaReporte(tabla, columnasNombres) {
+
+    const columnas = normalizarListaStickyColumnasReporte(columnasNombres)
+    if (!tabla?.length) return columnas
+
+    const filaTitulos = obtenerFilaTitulosReporte(tabla)
+    if (!filaTitulos.length) return columnas
+
+    const ordenVisualHeaders = new Map()
+    filaTitulos.children("th, td").each((indice, header) => {
+        const th = $(header)
+        if (th.hasClass("transparent") || th.hasClass("oculto")) return
+        if (th.attr("oculto") === "true") return
+
+        const clave = obtenerNombreHeaderStickyReporte(th)
+        if (!clave || ordenVisualHeaders.has(clave)) return
+        ordenVisualHeaders.set(clave, indice)
+    })
+
+    const columnasNormalizadas = []
+    const columnasAgregadas = new Set()
+
+    columnas.forEach((referencia, ordenEntrada) => {
+        const header = obtenerHeaderPorReferenciaStickyReporte(tabla, referencia)
+        if (!header.length) return
+        if (header.hasClass("transparent") || header.hasClass("oculto")) return
+        if (header.attr("oculto") === "true") return
+
+        const clave = obtenerNombreHeaderStickyReporte(header)
+        if (!clave || columnasAgregadas.has(clave)) return
+
+        const ordenVisual = ordenVisualHeaders.has(clave)
+            ? ordenVisualHeaders.get(clave)
+            : filaTitulos.children("th, td").index(header)
+        if (ordenVisual < 0) return
+
+        columnasAgregadas.add(clave)
+        columnasNormalizadas.push({ clave, ordenVisual, ordenEntrada })
+    })
+
+    return columnasNormalizadas
+        .sort((a, b) => (a.ordenVisual - b.ordenVisual) || (a.ordenEntrada - b.ordenEntrada))
+        .map((columna) => columna.clave)
+}
+function obtenerColumnasStickyTablaReporte(tabla) {
+
+    if (!tabla?.length) return []
+    return normalizarOrdenStickySegunTablaReporte(tabla, tabla.data("stickyColumnasReportes"))
+}
+function actualizarIconoStickyColumnasReporte(tabla) {
+
+    if (!tabla?.length) return
+
+    const columnasSticky = new Set(obtenerColumnasStickyTablaReporte(tabla))
+    const filaTitulos = obtenerFilaTitulosReporte(tabla)
+    if (!filaTitulos.length) return
+
+    filaTitulos.children("th, td").each((_, header) => {
+        const th = $(header)
+        if (th.hasClass("_id") || th.hasClass("oculto") || th.hasClass("transparent")) return
+        if (th.attr("oculto") === "true") return
+
+        const contenido = th.children(".th-contenido").first()
+        if (!contenido.length) return
+        const iconos = contenido.children(".iconos").first()
+        if (!iconos.length) return
+
+        const nombreColumna = obtenerNombreHeaderStickyReporte(th)
+        if (!nombreColumna) return
+
+        let botonSticky = iconos.children(".toggle-sticky-columna").first()
+
+        if (!botonSticky.length) {
+            botonSticky = $(`<span class="material-symbols-outlined toggle-sticky-columna" role="button" tabindex="0"></span>`)
+            iconos.append(botonSticky)
+        }
+
+        const fija = columnasSticky.has(nombreColumna)
+        botonSticky
+            .attr("data-sticky-columna", nombreColumna)
+            .attr("title", fija ? "Quitar columna fija" : "Fijar columna")
+            .attr("aria-label", fija ? "Quitar columna fija" : "Fijar columna")
+            .toggleClass("activa", fija)
+            .text(fija ? "keep_off" : "keep")
+    })
+}
 function aplicarStickyColumnasTablaPorNombresReporte(tabla, columnasNombres) {
 
     if (!tabla?.length) return
 
-    const columnas = (Array.isArray(columnasNombres) ? columnasNombres : [])
-        .map((columna) => normalizarNombreStickyColumnaReporte(columna))
-        .filter((nombre) => nombre !== "")
-
-    if (!columnas.length) return
+    const columnas = normalizarOrdenStickySegunTablaReporte(tabla, columnasNombres)
 
     const contenedor = tabla.closest(".tablaReporte")
     if (!contenedor.length) return
-
-    tabla.find("th.sticky-columna-reporte, td.sticky-columna-reporte")
-        .removeClass("sticky-columna-reporte sticky-columna-reporte-ultima")
-
-    const escapar = (valor) => {
-        if (typeof $.escapeSelector === "function") return $.escapeSelector(valor)
-        return `${valor}`.replace(/([ !"#$%&'()*+,./:;<=>?@[\\\]^`{|}~])/g, "\\$1")
-    }
-
-    const celdasSticky = []
-
-    columnas.forEach((nombre, indice) => {
-        const nombreEscapado = escapar(nombre)
-        const header = tabla
-            .find(`tr.titulosFila > th[atributo="${nombre}"]:not(.transparent), tr.titulosFila > th.${nombreEscapado}:not(.transparent), tr.titulosFila > td[atributo="${nombre}"]:not(.transparent), tr.titulosFila > td.${nombreEscapado}:not(.transparent)`)
-            .first()
-        if (!header.length) return
-
-        const colId = header.attr("data-col-id")
-        let celdas = colId ? tabla.find(`[data-col-id="${colId}"]`) : $()
-        if (!celdas.length) {
-            celdas = tabla.find(`td[atributo="${nombre}"], th[atributo="${nombre}"]:not(.transparent), td.${nombreEscapado}, th.${nombreEscapado}:not(.transparent)`)
-        }
-        if (!celdas.length) return
-
-        celdas.css({
-            position: "relative",
-            "z-index": 12 + (columnas.length - indice),
-            boxSizing: "border-box",
-        })
-        celdas.addClass("sticky-columna-reporte")
-        celdasSticky.push(celdas)
-    })
-
-    if (!celdasSticky.length) return
-    celdasSticky[celdasSticky.length - 1].addClass("sticky-columna-reporte-ultima")
-
     const tableKey = tabla.attr("data-resize-key") || tabla.attr("tablaref") || "tabla"
     const contenedorId = contenedor.attr("id") || "contenedor"
     const namespace = `.stickyColsRep_${contenedorId}_${tableKey}`
 
+    tabla.find("th.sticky-columna-reporte, td.sticky-columna-reporte")
+        .removeClass("sticky-columna-reporte sticky-columna-reporte-ultima")
+        .css({
+            left: "",
+            position: "",
+            "z-index": "",
+            boxSizing: "",
+        })
+
+    const celdasSticky = []
+    const columnasAplicadas = []
+    const columnasUsadas = new Set()
+
+    columnas.forEach((referencia) => {
+        const header = obtenerHeaderPorReferenciaStickyReporte(tabla, referencia)
+        if (!header.length) return
+
+        const clave = obtenerNombreHeaderStickyReporte(header)
+        if (!clave || columnasUsadas.has(clave)) return
+
+        const colId = header.attr("data-col-id")
+        let celdas = colId ? tabla.find(`[data-col-id="${colId}"]`) : $()
+        if (!celdas.length) {
+            const referenciaEsc = escaparSelectorStickyReporte(referencia)
+            const claveEsc = escaparSelectorStickyReporte(clave)
+            celdas = tabla.find(`td[atributo="${referencia}"], th[atributo="${referencia}"]:not(.transparent), td.${referenciaEsc}, th.${referenciaEsc}:not(.transparent), td[atributo="${clave}"], th[atributo="${clave}"]:not(.transparent), td.${claveEsc}, th.${claveEsc}:not(.transparent)`)
+        }
+        if (!celdas.length) return
+
+        columnasUsadas.add(clave)
+        celdasSticky.push({ celdas, header, clave })
+        columnasAplicadas.push(clave)
+    })
+
+    celdasSticky.forEach((item, indice) => {
+        item.celdas.css({
+            position: "relative",
+            "z-index": 12 + (celdasSticky.length - indice),
+            boxSizing: "border-box",
+        })
+        item.celdas.addClass("sticky-columna-reporte")
+    })
+
+    tabla.data("stickyColumnasReportes", columnasAplicadas)
+    actualizarIconoStickyColumnasReporte(tabla)
+    contenedor.off(`scroll${namespace}`)
+    $(window).off(`resize${namespace}`)
+    if (!celdasSticky.length) return
+    celdasSticky[celdasSticky.length - 1].celdas.addClass("sticky-columna-reporte-ultima")
+
+    const scrollActual = contenedor.scrollLeft() || 0
+    const contenedorEl = contenedor.get(0)
+    const contRect = contenedorEl?.getBoundingClientRect?.()
+    const stickyMeta = celdasSticky.map((item) => {
+        const headerEl = item.header?.get(0) || item.celdas.first()?.get(0)
+        const headerRect = headerEl?.getBoundingClientRect?.()
+        const naturalStart = headerRect && contRect
+            ? (headerRect.left - contRect.left + scrollActual)
+            : (headerEl?.offsetLeft || 0)
+        const width = Math.max(0, Math.round(
+            headerRect?.width ||
+            item.header?.outerWidth() ||
+            item.celdas.first()?.outerWidth() ||
+            0
+        ))
+        return {
+            celdas: item.celdas,
+            naturalStart,
+            width,
+        }
+    })
+
     const actualizar = () => {
-        const scrollX = contenedor.scrollLeft() || 0
-        celdasSticky.forEach((celdas) => celdas.css("left", `${scrollX}px`))
+        const scrollX = Math.round(contenedor.scrollLeft() || 0)
+        let rightAnterior = 0
+
+        stickyMeta.forEach((item, indice) => {
+            const naturalVisible = item.naturalStart - scrollX
+            const xTarget = indice === 0
+                ? Math.max(naturalVisible, 0)
+                : Math.max(naturalVisible, rightAnterior)
+            const left = Math.round(xTarget - naturalVisible)
+            const widthActual = Math.max(
+                0,
+                Math.round(item.celdas.first()?.get(0)?.getBoundingClientRect?.().width || item.width || 0)
+            )
+
+            item.celdas.css("left", `${left}px`)
+            rightAnterior = xTarget + widthActual
+        })
     }
 
-    contenedor.off(`scroll${namespace}`).on(`scroll${namespace}`, actualizar)
-    $(window).off(`resize${namespace}`).on(`resize${namespace}`, actualizar)
+    contenedor.on(`scroll${namespace}`, actualizar)
+    $(window).on(`resize${namespace}`, actualizar)
 
     actualizar()
     if (typeof requestAnimationFrame === "function") requestAnimationFrame(actualizar)
@@ -923,36 +1141,36 @@ function reaplicarStickyColumnasRegistradasReportes(numeroForm) {
     contenedor.find("table").each((_, t) => {
         const tabla = $(t)
         const columnasSticky = tabla.data("stickyColumnasReportes")
-        if (!Array.isArray(columnasSticky) || !columnasSticky.length) return
-        aplicarStickyColumnasTablaPorNombresReporte(tabla, columnasSticky)
+        aplicarStickyColumnasTablaPorNombresReporte(tabla, Array.isArray(columnasSticky) ? columnasSticky : [])
     })
 }
 function aplicarStickyDesdeConfigReporte(numeroForm, objeto) {
 
     const contenedor = $(`#t${numeroForm}`)
     if (!contenedor.length) return
+    const state = getResizeStateReportes(numeroForm, objeto)
 
-    Object.entries(objeto?.tablas || {}).forEach(([tablaRef, configTabla]) => {
+    contenedor.find("table").each((_, t) => {
+        const tabla = $(t)
+        const tableKey = tabla.attr("data-resize-key") || tabla.attr("tablaref") || "tabla"
+        const tableState = getTableStateReporte(state, tableKey)
+        const tablaRef = tabla.attr("tablaref")
+        const configTabla = tablaRef ? objeto?.tablas?.[tablaRef] : null
         const stickyDef = configTabla?.funcionesPropias?.tabla?.asgregarStickyColumnasTabla
-        if (!Array.isArray(stickyDef) || stickyDef.length < 2) return
 
-        const columnasSticky = (Array.isArray(stickyDef[1]) ? stickyDef[1] : [])
-            .map((columna) => normalizarNombreStickyColumnaReporte(columna))
-            .filter((nombre) => nombre !== "")
-        if (!columnasSticky.length) return
+        const columnasConfig = normalizarListaStickyColumnasReporte(stickyDef?.[1])
 
-        let tabla = contenedor.find(`table[tablaref='${tablaRef}']`).first()
-        if (!tabla.length) {
-            const nombrePrimeraColumna = columnasSticky[0]
-            tabla = contenedor
-                .find("table")
-                .filter((_, t) => $(t).find(`th.${nombrePrimeraColumna}`).length > 0)
-                .first()
-        }
-        if (!tabla.length) return
+        if (columnasConfig.length) sincronizarBaseStickyColumnasTablaReporte(tabla, columnasConfig)
 
-        tabla.data("stickyColumnasReportes", columnasSticky)
-        aplicarStickyColumnasTablaPorNombresReporte(tabla, columnasSticky)
+        const columnasObjetivo = normalizarOrdenStickySegunTablaReporte(
+            tabla,
+            resolverColumnasStickyObjetivoReporte(tableState, columnasConfig)
+        )
+        tabla.data("stickyColumnasReportes", columnasObjetivo)
+        aplicarStickyColumnasTablaPorNombresReporte(tabla, columnasObjetivo)
+
+        tableState.sticky = obtenerColumnasStickyTablaReporte(tabla)
+        if (tableState.stickyPersistido !== true) tableState.stickyPersistido = false
     })
 }
 function insertarHandlesResizeReportes(numeroForm) {
@@ -1083,7 +1301,7 @@ function inicializarReordenamientoColumnasReportes(numeroForm, objeto) {
             try {
                 sortableColumnasReportes[numeroForm][tableKey] = new Sortable(elFilaTitulos, {
                     animation: 120,
-                    draggable: "th:not(._id):not(.oculto):not(.transparent):not([oculto='true'])",
+                    draggable: "th:not(._id):not(.oculto):not(.transparent):not([oculto='true']):not(.sticky-columna-reporte):not(.sticky-columna-reporte-ultima)",
                     handle: ".reorder-col-handle",
                     filter: ".resize-col-handle",
                     preventOnFilter: false,
@@ -1844,6 +2062,42 @@ function administrarAtributoTabla(objeto, numeroForm, mo) {
     $(`#t${numeroForm}`).on("click", `.flechasOrden span.arriba:not(.active)`, ordenarAscendente)
     $(`#t${numeroForm}`).on("click", `.flechasOrden span.abajo:not(.active)`, ordenarDescendente)
     $(`#t${numeroForm}`).on("click", `.flechasOrden span.active`, quitarActive)
+    $(`#t${numeroForm}`).off("click.stickyRep", `th .iconos .toggle-sticky-columna`)
+    $(`#t${numeroForm}`).on("click.stickyRep", `th .iconos .toggle-sticky-columna`, (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+
+        const boton = $(e.currentTarget)
+        const th = boton.closest("th, td")
+        const tabla = boton.closest("table")
+        if (!th.length || !tabla.length) return
+
+        const nombreColumna = obtenerNombreHeaderStickyReporte(th)
+        if (!nombreColumna) return
+
+        const actuales = obtenerColumnasStickyTablaReporte(tabla)
+        const estabaFija = actuales.includes(nombreColumna)
+        let nuevas = actuales.filter((nombre) => nombre !== nombreColumna)
+
+        if (!estabaFija) nuevas.push(nombreColumna)
+        nuevas = normalizarOrdenStickySegunTablaReporte(tabla, nuevas)
+
+        const state = getResizeStateReportes(numeroForm, objeto)
+        const tableKey = tabla.attr("data-resize-key") || tabla.attr("tablaref") || "tabla"
+        const tableState = getTableStateReporte(state, tableKey)
+
+        tabla.data("stickyColumnasReportes", nuevas)
+        aplicarStickyColumnasTablaPorNombresReporte(tabla, nuevas)
+        tableState.stickyPersistido = true
+        tableState.sticky = obtenerColumnasStickyTablaReporte(tabla)
+        guardarResizeCookieReporte(state)
+    })
+    $(`#t${numeroForm}`).off("keydown.stickyRep", `th .iconos .toggle-sticky-columna`)
+    $(`#t${numeroForm}`).on("keydown.stickyRep", `th .iconos .toggle-sticky-columna`, (e) => {
+        if (e.key !== "Enter" && e.key !== " ") return
+        e.preventDefault()
+        $(e.currentTarget).trigger("click")
+    })
     $(`#t${numeroForm}`).off("click.filtroRep", `th .iconos .filtro span.filtro`)
     $(`#t${numeroForm}`).on("click.filtroRep", `th .iconos .filtro span.filtro`, filaFiltroOculto)
     $(`#t${numeroForm}`).off("click.filtroRep", `tr.filtros td.filtro .closeFiltro`)
@@ -2013,25 +2267,32 @@ function asgregarStickyColumnas(objeto, numeroForm, columnas) {
 }
 function asgregarStickyColumnasTabla(objeto, numeroForm, columnas) {
 
-    const columnasSticky = (Array.isArray(columnas) ? columnas : [])
-        .map((columna) => normalizarNombreStickyColumnaReporte(columna))
-        .filter((nombre) => nombre !== "")
-    if (!columnasSticky.length) return
+    const columnasSticky = normalizarListaStickyColumnasReporte(columnas)
 
     const contenedor = $(`#t${numeroForm}`)
     if (!contenedor.length) return
+    const state = getResizeStateReportes(numeroForm, objeto)
 
-    const nombrePrimeraColumna = columnasSticky[0]
     let tablasObjetivo = contenedor.find("table")
+    const nombrePrimeraColumna = columnasSticky[0]
     if (nombrePrimeraColumna) {
-        const filtradas = tablasObjetivo.filter((_, t) => $(t).find(`th.${nombrePrimeraColumna}`).length > 0)
+        const filtradas = tablasObjetivo.filter((_, t) => obtenerHeaderPorReferenciaStickyReporte($(t), nombrePrimeraColumna).length > 0)
         if (filtradas.length) tablasObjetivo = filtradas
     }
 
     tablasObjetivo.each((_, t) => {
         const tabla = $(t)
-        tabla.data("stickyColumnasReportes", columnasSticky)
-        aplicarStickyColumnasTablaPorNombresReporte(tabla, columnasSticky)
+        const tableKey = tabla.attr("data-resize-key") || tabla.attr("tablaref") || "tabla"
+        const tableState = getTableStateReporte(state, tableKey)
+        if (columnasSticky.length) sincronizarBaseStickyColumnasTablaReporte(tabla, columnasSticky)
+        const columnasObjetivo = normalizarOrdenStickySegunTablaReporte(
+            tabla,
+            resolverColumnasStickyObjetivoReporte(tableState, columnasSticky)
+        )
+        tabla.data("stickyColumnasReportes", columnasObjetivo)
+        aplicarStickyColumnasTablaPorNombresReporte(tabla, columnasObjetivo)
+        tableState.sticky = obtenerColumnasStickyTablaReporte(tabla)
+        if (tableState.stickyPersistido !== true) tableState.stickyPersistido = false
     })
 
     if (typeof requestAnimationFrame === "function") {

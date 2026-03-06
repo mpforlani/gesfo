@@ -293,13 +293,15 @@ async function crearFormulario(objeto, numeroForm, consult) {//doc
         const scopeLegacy = getOrderScopeFormInd(objeto);
         const scopeStorage = getOrderScopeStorageFormInd(objeto);
         const scopeCookie = getOrderScopeCookieFormInd(objeto);
+        const scopeRowLayout = getRowLayoutScopeFormInd(objeto);
         const limpioStorageNuevo = clearOrderStateFormInd(scopeStorage);
         const limpioStorageLegacy = clearOrderStateFormInd(scopeLegacy);
         const limpioCookie = clearOrderStateCookieFormInd(scopeCookie);
+        const limpioRowLayout = clearRowLayoutCookieFormInd(scopeRowLayout);
         const limpioColecciones = (typeof resetOrdenColeccionesFormInd === "function")
             ? resetOrdenColeccionesFormInd(objeto, numeroForm)
             : false;
-        const limpio = limpioStorageNuevo && limpioStorageLegacy && limpioCookie && limpioColecciones;
+        const limpio = limpioStorageNuevo && limpioStorageLegacy && limpioCookie && limpioRowLayout && limpioColecciones;
         const ordenBase = ordenBaseCamposFormInd[numeroForm] || capturarOrdenBaseCamposFormInd(numeroForm);
 
         if (!limpio) {
@@ -310,6 +312,7 @@ async function crearFormulario(objeto, numeroForm, consult) {//doc
         }
 
         aplicarOrdenDraggablesFormInd(numeroForm, ordenBase);
+        $(`#t${numeroForm} div.renglon.autoRenglon`).remove();
         renglones(objeto, numeroForm);
         inicializarDragCamposFormInd(objeto, numeroForm, { restaurarPersistido: false });
         inicializarResizeCamposFormInd(objeto, numeroForm);
@@ -891,6 +894,7 @@ async function crearFormulario(objeto, numeroForm, consult) {//doc
     validarFormulario(objeto, numeroForm);
     activePestana(objeto, numeroForm);
     renglones(objeto, numeroForm);
+    aplicarLayoutRenglonesDesdeCookie(objeto, numeroForm);
     capturarOrdenBaseCamposFormInd(numeroForm);
     inicializarDragCamposFormInd(objeto, numeroForm);
     inicializarResizeCamposFormInd(objeto, numeroForm);
@@ -3132,10 +3136,17 @@ function chequeGrupo(objeto, numeroForm) {
 const FORM_IND_ORDER_STORAGE_KEY = "gesfin_form_indiv_order_v1";
 const FORM_IND_ORDER_COOKIE_PREFIX = "ordFormInd_";
 const FORM_IND_ORDER_COOKIE_DAYS = 7300;
+const FORM_IND_ROW_LAYOUT_COOKIE_PREFIX = "rowLayFormInd_";
+const FORM_IND_ROW_LAYOUT_COOKIE_DAYS = 7300;
 const SORTABLE_FO_GROUP_FORM_IND = "fo-campos-form-ind";
 const DEVICE_LAYOUT_KEY_FORM_IND = "gesfin_device_resize_id";
+const CLASE_RENGLON_DROP_FINAL_FORM_IND = "renglon-drop-final";
+const CLASE_RENGLON_DESTINO_DRAG_FORM_IND = "renglon-destino-drag";
+const CLASE_RENGLON_DRAG_FORM_IND = "renglon-draggable";
+const CLASE_HANDLE_RENGLON_DRAG_FORM_IND = "reorder-renglon-handle";
 const sortableCamposFormInd = {};
 const ordenBaseCamposFormInd = {};
+const debounceResizeAutoRenglonesFormInd = {};
 const clasesNoDraggablesFormInd = [
     "auditoria",
     "coleccionSimple",
@@ -3323,6 +3334,492 @@ function loadPreferredOrderStateFormInd(objeto) {
         scopeLegacy
     };
 }
+function getRowLayoutScopeFormInd(objeto) {
+
+    return getOrderScopeCookieFormInd(objeto);
+}
+function nombreCookieRowLayoutFormInd(scope) {
+
+    return `${FORM_IND_ROW_LAYOUT_COOKIE_PREFIX}${hashLayoutFormInd(scope)}`;
+}
+function normalizarLayoutRenglonesFormInd(layout) {
+
+    if (!layout || typeof layout !== "object" || Array.isArray(layout)) {
+        return null;
+    }
+
+    if (!Array.isArray(layout.rows)) {
+        return null;
+    }
+
+    const rows = layout.rows
+        .map((row) => normalizarOrderKeysFormInd(row))
+        .filter((row) => row.length > 0);
+
+    if (!rows.length) {
+        return null;
+    }
+
+    return {
+        version: 1,
+        rows
+    };
+}
+function loadRowLayoutCookieFormInd(scope) {
+
+    try {
+        const nombre = nombreCookieRowLayoutFormInd(scope);
+        const raw = getCookieOrderFormInd(nombre);
+        if (!raw) {
+            return null;
+        }
+
+        const parsed = JSON.parse(raw);
+        return normalizarLayoutRenglonesFormInd(parsed);
+    } catch (error) {
+        return null;
+    }
+}
+function saveRowLayoutCookieFormInd(scope, data) {
+
+    try {
+        const nombre = nombreCookieRowLayoutFormInd(scope);
+        const normalizado = normalizarLayoutRenglonesFormInd(data);
+        if (!normalizado) {
+            return false;
+        }
+
+        return setCookieOrderFormInd(nombre, JSON.stringify(normalizado), FORM_IND_ROW_LAYOUT_COOKIE_DAYS);
+    } catch (error) {
+        return false;
+    }
+}
+function clearRowLayoutCookieFormInd(scope) {
+
+    try {
+        const nombre = nombreCookieRowLayoutFormInd(scope);
+        return deleteCookieOrderFormInd(nombre);
+    } catch (error) {
+        return false;
+    }
+}
+function getLayoutFoKeyFormInd($fo, fallback = 0) {
+
+    const existente = ($fo.attr("data-row-layout-key") || "").trim();
+    if (existente) {
+        return existente;
+    }
+
+    const base = getDraggableFoKey($fo, fallback) || `${obtenerClasePrincipalFoFormInd($fo)}|idx_${fallback}`;
+    return `${base}`.trim();
+}
+function listarCamposLayoutRenglonesFormInd(numeroForm, opciones = {}) {
+
+    const incluirOcultos = opciones.incluirOcultos !== false;
+    const campos = [];
+    const usados = new Set();
+    const selector = `#t${numeroForm} div.fo:not(.auditoria):not(.textoDiv):not(.textoDov)`;
+
+    $(selector).each((indice, elemento) => {
+        const $fo = $(elemento);
+
+        if ($fo.closest("div.renglon.compuesto").length) {
+            return;
+        }
+
+        if (!incluirOcultos) {
+            if (!$fo.is(":visible")) {
+                return;
+            }
+            if ($fo.is(".oculto, .ocultoSiempre, .ocultoSeguridad")) {
+                return;
+            }
+            if ($fo.attr("oculto") === "true") {
+                return;
+            }
+        }
+
+        let keyBase = getLayoutFoKeyFormInd($fo, indice);
+        let key = keyBase || `fo_layout|idx_${indice}`;
+        let intento = 1;
+
+        while (usados.has(key)) {
+            key = `${keyBase}__${intento}`;
+            intento++;
+        }
+
+        usados.add(key);
+        $fo.attr("data-row-layout-key", key);
+
+        const order = obtenerOrderFoFormInd($fo, indice);
+        const renglonRaw = $fo.closest("div.renglon").attr("renglon");
+        const renglon = Number.parseInt(`${renglonRaw || ""}`, 10);
+
+        campos.push({
+            $fo,
+            key,
+            order,
+            indice,
+            renglon: Number.isFinite(renglon) ? renglon : null
+        });
+    });
+
+    return campos.sort((a, b) => {
+        if (a.order < b.order) return -1;
+        if (a.order > b.order) return 1;
+        return a.indice - b.indice;
+    });
+}
+function obtenerRenglonesNoCompuestosFormInd(numeroForm) {
+
+    return $(`#t${numeroForm} div.renglon`)
+        .filter((_, renglon) => {
+            const $r = $(renglon);
+            if ($r.hasClass("compuesto")) return false;
+            if ($r.attr("reg") === "compuesto") return false;
+            if ($r.attr("renglon") === "fullTexto") return false;
+            return true;
+        });
+}
+function asegurarRenglonNoCompuestoFormInd(numeroForm, indiceRenglon) {
+
+    const target = Number.parseInt(`${indiceRenglon || 0}`, 10);
+    const numero = Number.isFinite(target) ? target : 0;
+
+    let $renglon = obtenerRenglonesNoCompuestosFormInd(numeroForm).filter((_, renglon) => {
+        return Number.parseInt(`${$(renglon).attr("renglon") || ""}`, 10) === numero;
+    }).first();
+
+    if ($renglon.length) {
+        return $renglon;
+    }
+
+    $renglon = $(`<div class="renglon ${numero} autoRenglon" renglon="${numero}" reg="auto"></div>`);
+    const $contenedor = $(`#t${numeroForm}`);
+    const $compuesto = $contenedor.find(`div.renglon[reg="compuesto"]`).first();
+
+    if ($compuesto.length) {
+        $renglon.insertBefore($compuesto);
+    } else {
+        $renglon.appendTo($contenedor);
+    }
+
+    return $renglon;
+}
+function limpiarRenglonesAutoVaciosFormInd(numeroForm) {
+
+    $(`#t${numeroForm} div.renglon.autoRenglon`).each((_, renglon) => {
+        const $renglon = $(renglon);
+        if ($renglon.children("div.fo").length === 0) {
+            $renglon.remove();
+        }
+    });
+}
+function obtenerProximoIndiceRenglonFormInd(numeroForm) {
+
+    const renglonesNumericos = obtenerRenglonesNoCompuestosFormInd(numeroForm).toArray()
+        .map((renglon) => Number.parseInt(`${$(renglon).attr("renglon") || ""}`, 10))
+        .filter((value) => Number.isFinite(value));
+
+    if (!renglonesNumericos.length) {
+        return 0;
+    }
+
+    return Math.max(...renglonesNumericos) + 1;
+}
+function limpiarRenglonDropFinalFormInd(numeroForm) {
+
+    $(`#t${numeroForm} div.renglon.${CLASE_RENGLON_DROP_FINAL_FORM_IND}`).each((_, renglon) => {
+        const $renglon = $(renglon);
+        if ($renglon.children("div.fo.fo-draggable").length === 0) {
+            $renglon.remove();
+        }
+    });
+}
+function asegurarRenglonDropFinalFormInd(numeroForm) {
+
+    const $contenedor = $(`#t${numeroForm}`);
+    if (!$contenedor.length) {
+        return $();
+    }
+
+    let $drop = $contenedor.children(`div.renglon.${CLASE_RENGLON_DROP_FINAL_FORM_IND}`).first();
+    if (!$drop.length) {
+        const indice = obtenerProximoIndiceRenglonFormInd(numeroForm);
+        $drop = $(`<div class="renglon autoRenglon ${CLASE_RENGLON_DROP_FINAL_FORM_IND}" renglon="${indice}" reg="auto"></div>`);
+
+        const $auditoria = $contenedor.children("div.renglon.auditoria").first();
+        const $compuesto = $contenedor.children(`div.renglon[reg="compuesto"]`).first();
+
+        if ($auditoria.length) {
+            $drop.insertBefore($auditoria);
+        } else if ($compuesto.length) {
+            $drop.insertBefore($compuesto);
+        } else {
+            $drop.appendTo($contenedor);
+        }
+    } else {
+        $drop.attr("renglon", `${obtenerProximoIndiceRenglonFormInd(numeroForm)}`);
+    }
+
+    return $drop;
+}
+function normalizarIndicesRenglonesFormInd(numeroForm) {
+
+    let indice = 0;
+    obtenerRenglonesNoCompuestosFormInd(numeroForm).each((_, renglon) => {
+        const $renglon = $(renglon);
+
+        if ($renglon.hasClass("auditoria")) {
+            return;
+        }
+        if ($renglon.hasClass(CLASE_RENGLON_DROP_FINAL_FORM_IND)) {
+            return;
+        }
+
+        $renglon.attr("renglon", `${indice}`);
+        indice++;
+    });
+}
+function listarRenglonesDraggablesFormInd(numeroForm) {
+
+    return obtenerRenglonesNoCompuestosFormInd(numeroForm).filter((_, renglon) => {
+        const $renglon = $(renglon);
+
+        if ($renglon.hasClass("auditoria")) {
+            return false;
+        }
+        if ($renglon.hasClass(CLASE_RENGLON_DROP_FINAL_FORM_IND)) {
+            return false;
+        }
+
+        return $renglon.children("div.fo.fo-draggable").length > 0;
+    });
+}
+function marcarRenglonesDraggablesFormInd(numeroForm) {
+
+    const $contenedor = $(`#t${numeroForm}`);
+    if (!$contenedor.length) {
+        return $();
+    }
+
+    $contenedor.find(`div.renglon .${CLASE_HANDLE_RENGLON_DRAG_FORM_IND}`).remove();
+    $contenedor.find(`div.renglon.${CLASE_RENGLON_DRAG_FORM_IND}`).removeClass(CLASE_RENGLON_DRAG_FORM_IND);
+
+    const renglones = listarRenglonesDraggablesFormInd(numeroForm);
+    renglones.each((_, renglon) => {
+        const $renglon = $(renglon);
+        $renglon.addClass(CLASE_RENGLON_DRAG_FORM_IND);
+
+        if (!$renglon.children(`.${CLASE_HANDLE_RENGLON_DRAG_FORM_IND}`).length) {
+            $renglon.prepend(`<span class="material-symbols-outlined ${CLASE_HANDLE_RENGLON_DRAG_FORM_IND}" title="Arrastrar renglon">drag_indicator</span>`);
+        }
+    });
+
+    return renglones;
+}
+function capturarLayoutRenglonesFormInd(numeroForm) {
+
+    const rows = [];
+    const renglones = obtenerRenglonesNoCompuestosFormInd(numeroForm).toArray().sort((a, b) => {
+        const ra = Number.parseInt(`${$(a).attr("renglon") || ""}`, 10);
+        const rb = Number.parseInt(`${$(b).attr("renglon") || ""}`, 10);
+        const va = Number.isFinite(ra) ? ra : Number.MAX_SAFE_INTEGER;
+        const vb = Number.isFinite(rb) ? rb : Number.MAX_SAFE_INTEGER;
+        return va - vb;
+    });
+
+    renglones.forEach((renglon, indice) => {
+        const keys = [];
+
+        $(renglon).children(`div.fo:not(.auditoria):not(.textoDiv):not(.textoDov)`).each((idx, fo) => {
+            const $fo = $(fo);
+            const key = getLayoutFoKeyFormInd($fo, idx + (indice * 1000));
+
+            if (!key) {
+                return;
+            }
+
+            $fo.attr("data-row-layout-key", key);
+            keys.push(key);
+        });
+
+        if (keys.length > 0) {
+            rows.push(keys);
+        }
+    });
+
+    if (!rows.length) {
+        return null;
+    }
+
+    return {
+        version: 1,
+        rows
+    };
+}
+function aplicarLayoutRenglonesDesdeCookie(objeto, numeroForm, layoutOpcional = null) {
+
+    const scope = getRowLayoutScopeFormInd(objeto);
+    const layout = normalizarLayoutRenglonesFormInd(layoutOpcional) || loadRowLayoutCookieFormInd(scope);
+
+    if (!layout) {
+        return false;
+    }
+
+    const campos = listarCamposLayoutRenglonesFormInd(numeroForm, { incluirOcultos: true });
+    if (!campos.length) {
+        return false;
+    }
+
+    const mapaCampos = new Map();
+    campos.forEach((campo) => mapaCampos.set(campo.key, campo.$fo));
+
+    let huboMatch = false;
+    let ultimoRenglon = -1;
+    layout.rows.forEach((rowKeys, rowIndex) => {
+        const normalizados = normalizarOrderKeysFormInd(rowKeys);
+        const keysPresentes = normalizados.filter((key) => mapaCampos.has(key));
+
+        if (!keysPresentes.length) {
+            return;
+        }
+
+        const $renglon = asegurarRenglonNoCompuestoFormInd(numeroForm, rowIndex);
+        keysPresentes.forEach((key) => {
+            const $fo = mapaCampos.get(key);
+            if (!$fo?.length) {
+                return;
+            }
+
+            $renglon.append($fo);
+            mapaCampos.delete(key);
+            huboMatch = true;
+        });
+
+        ultimoRenglon = rowIndex;
+    });
+
+    if (!huboMatch) {
+        return false;
+    }
+
+    const remanentes = campos.filter((campo) => mapaCampos.has(campo.key));
+    if (remanentes.length > 0) {
+        const destino = Math.max(ultimoRenglon, 0);
+        const $renglonDestino = asegurarRenglonNoCompuestoFormInd(numeroForm, destino);
+
+        remanentes.forEach((campo) => {
+            $renglonDestino.append(campo.$fo);
+        });
+    }
+
+    limpiarRenglonesAutoVaciosFormInd(numeroForm);
+    return true;
+}
+function obtenerAnchoFoRenglonFormInd($fo) {
+
+    let ancho = Math.ceil(Number($fo.outerWidth(true)) || 0);
+    if (!(ancho > 0)) {
+        const el = $fo.get(0);
+        if (el) {
+            ancho = Math.ceil(Number(el.getBoundingClientRect()?.width) || 0);
+        }
+    }
+    if (!(ancho > 0)) {
+        ancho = Math.ceil(Number.parseFloat($fo.css("width")) || 0);
+    }
+
+    return Math.max(24, ancho || 24);
+}
+function obtenerAnchoDisponibleRenglonFormInd(numeroForm, $renglon) {
+
+    const $contenedor = $(`#t${numeroForm}`);
+    const ancho = Math.floor(
+        Number($renglon?.innerWidth()) ||
+        Number($renglon?.width()) ||
+        Number($contenedor.innerWidth()) ||
+        Number($contenedor.width()) ||
+        320
+    );
+
+    return Math.max(120, ancho - 2);
+}
+function recalcularRenglonesPorAncho(objeto, numeroForm) {
+
+    const campos = listarCamposLayoutRenglonesFormInd(numeroForm, { incluirOcultos: false });
+    if (!campos.length) {
+        return false;
+    }
+
+    limpiarRenglonDropFinalFormInd(numeroForm);
+
+    const renglonesNumericos = campos
+        .map((campo) => Number.parseInt(`${campo.renglon || ""}`, 10))
+        .filter((value) => Number.isFinite(value));
+    const indiceInicial = renglonesNumericos.length ? Math.min(...renglonesNumericos) : 0;
+    const anchoPorRenglon = new Map();
+    const usoPorRenglon = new Map();
+    const gap = 4;
+    let renglonMinimoPermitido = indiceInicial;
+
+    const obtenerContextoRenglon = (indiceRenglon) => {
+        const indice = Number.parseInt(`${indiceRenglon || 0}`, 10);
+        const renglon = Number.isFinite(indice) ? indice : 0;
+
+        let $renglon = asegurarRenglonNoCompuestoFormInd(numeroForm, renglon);
+        if (!anchoPorRenglon.has(renglon)) {
+            anchoPorRenglon.set(renglon, obtenerAnchoDisponibleRenglonFormInd(numeroForm, $renglon));
+        }
+        if (!usoPorRenglon.has(renglon)) {
+            usoPorRenglon.set(renglon, 0);
+        }
+
+        return {
+            renglon,
+            $renglon,
+            anchoDisponible: anchoPorRenglon.get(renglon),
+            anchoUsado: usoPorRenglon.get(renglon)
+        };
+    };
+
+    campos.forEach((campo) => {
+        const anchoCampo = obtenerAnchoFoRenglonFormInd(campo.$fo);
+
+        const renglonActual = Number.parseInt(`${campo.renglon || ""}`, 10);
+        let renglonDestino = Number.isFinite(renglonActual)
+            ? Math.max(renglonActual, renglonMinimoPermitido)
+            : renglonMinimoPermitido;
+
+        while (true) {
+            const contexto = obtenerContextoRenglon(renglonDestino);
+            const gapAplicado = contexto.anchoUsado > 0 ? gap : 0;
+            const entra = contexto.anchoUsado === 0
+                ? true
+                : (contexto.anchoUsado + gapAplicado + anchoCampo <= contexto.anchoDisponible);
+
+            if (entra) {
+                contexto.$renglon.append(campo.$fo);
+                usoPorRenglon.set(contexto.renglon, contexto.anchoUsado + gapAplicado + anchoCampo);
+                renglonMinimoPermitido = Math.max(renglonMinimoPermitido, contexto.renglon);
+                break;
+            }
+
+            renglonDestino++;
+        }
+    });
+
+    limpiarRenglonesAutoVaciosFormInd(numeroForm);
+    normalizarIndicesRenglonesFormInd(numeroForm);
+    const scope = getRowLayoutScopeFormInd(objeto);
+    const layout = capturarLayoutRenglonesFormInd(numeroForm);
+
+    if (layout) {
+        saveRowLayoutCookieFormInd(scope, layout);
+    }
+
+    return true;
+}
 function loadOrderStateFormInd(scope) {
 
     try {
@@ -3487,6 +3984,11 @@ function esFoSimpleDraggable($fo) {
         return false;
     }
 
+    const esAdjuntoCabecera = $fo.hasClass("adjunto") && $fo.children(".botonDescriptivo").length > 0;
+    if (esAdjuntoCabecera) {
+        return true;
+    }
+
     const tieneCampoSimple = $fo.find(`input.form:not([type=hidden]),
                                        textarea.form,
                                        select.form,
@@ -3637,14 +4139,23 @@ function destruirDragCamposFormInd(numeroForm, opciones = {}) {
 
     const contenedor = $(`#t${numeroForm}`);
     contenedor.removeClass("reordering-fo");
+    contenedor.find(`div.renglon.${CLASE_RENGLON_DESTINO_DRAG_FORM_IND}`).removeClass(CLASE_RENGLON_DESTINO_DRAG_FORM_IND);
+    limpiarRenglonDropFinalFormInd(numeroForm);
+    contenedor.find(`div.renglon .${CLASE_HANDLE_RENGLON_DRAG_FORM_IND}`).remove();
+    contenedor.find(`div.renglon.${CLASE_RENGLON_DRAG_FORM_IND}`).removeClass(CLASE_RENGLON_DRAG_FORM_IND);
     contenedor.find("div.fo .reorder-fo-handle").remove();
     contenedor.find("div.fo.fo-draggable").removeClass("fo-draggable");
+    $(window).off(`.autoRenglonesFormInd${numeroForm}`);
+    clearTimeout(debounceResizeAutoRenglonesFormInd[numeroForm]);
+    delete debounceResizeAutoRenglonesFormInd[numeroForm];
 
     if (!opciones.preservarBase) {
         delete ordenBaseCamposFormInd[numeroForm];
     }
 }
-function normalizarOrdenGlobalCamposFormInd(objeto, numeroForm) {
+function normalizarOrdenGlobalCamposFormInd(objeto, numeroForm, opciones = {}) {
+
+    const mantenerRenglonesActuales = opciones.mantenerRenglonesActuales === true;
 
     let orden = 0;
     $(`#t${numeroForm} div.renglon:not(.compuesto)`).each((_, renglon) => {
@@ -3660,7 +4171,10 @@ function normalizarOrdenGlobalCamposFormInd(objeto, numeroForm) {
         });
     });
 
-    renglones(objeto, numeroForm);
+    if (!mantenerRenglonesActuales) {
+        renglones(objeto, numeroForm);
+    }
+
     return listarCamposDraggablesFormInd(numeroForm).map((campo) => campo.key);
 }
 function inicializarDragCamposFormInd(objeto, numeroForm, opciones = {}) {
@@ -3691,6 +4205,7 @@ function inicializarDragCamposFormInd(objeto, numeroForm, opciones = {}) {
             saveOrderStateFormInd(scopeStorage, ordenAplicado);
             saveOrderStateFormInd(scopeLegacy, ordenAplicado);
             renglones(objeto, numeroForm);
+            aplicarLayoutRenglonesDesdeCookie(objeto, numeroForm);
             campos = marcarCamposDraggablesFormInd(numeroForm);
 
             if (!campos.length) {
@@ -3699,15 +4214,76 @@ function inicializarDragCamposFormInd(objeto, numeroForm, opciones = {}) {
         }
     }
 
-    const renglonesDraggables = contenedor.find("div.renglon:not(.compuesto):not(:empty)").filter((_, renglon) => {
-        return $(renglon).children("div.fo.fo-draggable").length > 0;
+    asegurarRenglonDropFinalFormInd(numeroForm);
+    marcarRenglonesDraggablesFormInd(numeroForm);
+
+    const limpiarRenglonDestino = () => {
+        contenedor.find(`div.renglon.${CLASE_RENGLON_DESTINO_DRAG_FORM_IND}`).removeClass(CLASE_RENGLON_DESTINO_DRAG_FORM_IND);
+    };
+
+    sortableCamposFormInd[numeroForm] = [];
+    let sortableRenglones = null;
+    const renglonesMovibles = listarRenglonesDraggablesFormInd(numeroForm);
+    if (renglonesMovibles.length > 1) {
+        sortableRenglones = new Sortable(contenedor.get(0), {
+            animation: 120,
+            draggable: `div.renglon.${CLASE_RENGLON_DRAG_FORM_IND}`,
+            handle: `.${CLASE_HANDLE_RENGLON_DRAG_FORM_IND}`,
+            ghostClass: "sortable-ghost-item",
+            chosenClass: "sortable-chosen-item",
+            dragClass: "sortable-drag-item",
+            onStart: () => {
+                contenedor.addClass("reordering-fo");
+                limpiarRenglonDestino();
+            },
+            onMove: (evt) => {
+                const destino = $(evt?.related || []).closest("div.renglon").first();
+
+                limpiarRenglonDestino();
+                if (destino.length) {
+                    destino.addClass(CLASE_RENGLON_DESTINO_DRAG_FORM_IND);
+                }
+
+                return true;
+            },
+            onEnd: () => {
+                limpiarRenglonDestino();
+                limpiarRenglonDropFinalFormInd(numeroForm);
+                normalizarIndicesRenglonesFormInd(numeroForm);
+
+                const ordenFinal = normalizarOrdenGlobalCamposFormInd(objeto, numeroForm, {
+                    mantenerRenglonesActuales: true
+                });
+                saveOrderStateCookieFormInd(scopeCookie, ordenFinal);
+                saveOrderStateFormInd(scopeStorage, ordenFinal);
+                saveOrderStateFormInd(scopeLegacy, ordenFinal);
+
+                const scopeRowLayout = getRowLayoutScopeFormInd(objeto);
+                const layoutActual = capturarLayoutRenglonesFormInd(numeroForm);
+                if (layoutActual) {
+                    saveRowLayoutCookieFormInd(scopeRowLayout, layoutActual);
+                }
+
+                inicializarDragCamposFormInd(objeto, numeroForm, { restaurarPersistido: false });
+                inicializarResizeCamposFormInd(objeto, numeroForm);
+            }
+        });
+
+        sortableCamposFormInd[numeroForm].push(sortableRenglones);
+    }
+
+    const renglonesDraggables = contenedor.find("div.renglon:not(.compuesto)").filter((_, renglon) => {
+        const $renglon = $(renglon);
+        if ($renglon.hasClass(CLASE_RENGLON_DROP_FINAL_FORM_IND)) {
+            return true;
+        }
+
+        return $renglon.children("div.fo.fo-draggable").length > 0;
     });
 
     if (!renglonesDraggables.length) {
         return;
     }
-
-    sortableCamposFormInd[numeroForm] = [];
     renglonesDraggables.each((_, renglon) => {
 
         const sortable = new Sortable(renglon, {
@@ -3720,12 +4296,52 @@ function inicializarDragCamposFormInd(objeto, numeroForm, opciones = {}) {
             dragClass: "sortable-drag-item",
             onStart: () => {
                 contenedor.addClass("reordering-fo");
+                try {
+                    sortableRenglones?.option?.("disabled", true);
+                } catch (error) {
+                }
+                asegurarRenglonDropFinalFormInd(numeroForm);
+                limpiarRenglonDestino();
             },
-            onEnd: () => {
-                const ordenFinal = normalizarOrdenGlobalCamposFormInd(objeto, numeroForm);
+            onMove: (evt) => {
+                const destino = $(evt?.to || []).closest("div.renglon").first();
+
+                limpiarRenglonDestino();
+                if (destino.length) {
+                    destino.addClass(CLASE_RENGLON_DESTINO_DRAG_FORM_IND);
+                }
+
+                return true;
+            },
+            onEnd: (evt) => {
+                limpiarRenglonDestino();
+                const $destino = $(evt?.to || []).closest("div.renglon").first();
+                const movioAlDropFinal = $destino.hasClass(CLASE_RENGLON_DROP_FINAL_FORM_IND);
+
+                if (movioAlDropFinal) {
+                    $destino.removeClass(CLASE_RENGLON_DROP_FINAL_FORM_IND);
+                }
+
+                limpiarRenglonDropFinalFormInd(numeroForm);
+
+                const ordenFinal = normalizarOrdenGlobalCamposFormInd(objeto, numeroForm, {
+                    mantenerRenglonesActuales: true
+                });
                 saveOrderStateCookieFormInd(scopeCookie, ordenFinal);
                 saveOrderStateFormInd(scopeStorage, ordenFinal);
                 saveOrderStateFormInd(scopeLegacy, ordenFinal);
+
+                if (movioAlDropFinal) {
+                    normalizarIndicesRenglonesFormInd(numeroForm);
+                    const scopeRowLayout = getRowLayoutScopeFormInd(objeto);
+                    const layoutActual = capturarLayoutRenglonesFormInd(numeroForm);
+                    if (layoutActual) {
+                        saveRowLayoutCookieFormInd(scopeRowLayout, layoutActual);
+                    }
+                } else {
+                    recalcularRenglonesPorAncho(objeto, numeroForm);
+                }
+
                 inicializarDragCamposFormInd(objeto, numeroForm, { restaurarPersistido: false });
                 inicializarResizeCamposFormInd(objeto, numeroForm);
             }
@@ -3922,9 +4538,18 @@ function inicializarResizeCamposFormInd(objeto, numeroForm) {
 
     const scope = getResizeScopeFormInd(objeto);
     const state = loadResizeStateFormInd(scope);
+    const refrescarAutoRenglones = () => {
+        const actualizado = recalcularRenglonesPorAncho(objeto, numeroForm);
+
+        if (actualizado) {
+            inicializarDragCamposFormInd(objeto, numeroForm, { restaurarPersistido: false });
+            inicializarResizeCamposFormInd(objeto, numeroForm);
+        }
+    };
 
     contenedor.off(".resizeCamposFormInd");
     $(document).off(`.resizeCamposFormInd${numeroForm}`);
+    $(window).off(`.autoRenglonesFormInd${numeroForm}`);
     contenedor.find(selectorHandle).remove();
 
     const obtenerContenedorResizable = ($input) => {
@@ -4243,5 +4868,17 @@ function inicializarResizeCamposFormInd(objeto, numeroForm) {
 
         drag.$input.removeClass("input-resize-ready");
         finalizarDrag();
+        refrescarAutoRenglones();
+    });
+    $(window).on(`resize.autoRenglonesFormInd${numeroForm}`, () => {
+        clearTimeout(debounceResizeAutoRenglonesFormInd[numeroForm]);
+
+        debounceResizeAutoRenglonesFormInd[numeroForm] = setTimeout(() => {
+            if (!$(`#t${numeroForm}`).length) {
+                return;
+            }
+
+            refrescarAutoRenglones();
+        }, 160);
     });
 }

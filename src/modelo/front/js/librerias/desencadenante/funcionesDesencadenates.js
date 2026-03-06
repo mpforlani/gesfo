@@ -204,7 +204,7 @@ function convertirDosAUnAtr(datos, atributos) {
 }
 function pagoParcialString(datos, importeCobro, estados) {
 
-    const saldo = datos.saldoComprobante || datos.disponibles
+    const saldo = datos.saldoComprobante || datos.disponibles || datos.disponiblesOrigen
     const importe = datos[importeCobro]
 
     if (importe < saldo) return estados.parcial
