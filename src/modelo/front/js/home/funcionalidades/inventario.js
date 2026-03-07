@@ -467,11 +467,7 @@ let variablesModeloInventarios = {
                                 estado: "Ajuste",
                                 estadoFacturacion: "Ajuste",
                             },
-<<<<<<< HEAD
-                            cambiarAtributos: {
-=======
                             cambiarAtributosYSigno: {
->>>>>>> f84d82783fa3e4092b64354e40e8a12a4aa68a3d
                                 disponibles: "cantidad"
                             },
                             grabarEnOrigen: { Número: "numerador" },
