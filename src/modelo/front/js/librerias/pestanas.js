@@ -528,6 +528,50 @@ function positionSelectPortal(selectCont) {
         portal.style.top = `${Math.max(0, anchorRect.bottom - hostRect.top)}px`
     }
 }
+function stabilizeSelectPortalPosition(selectCont) {
+
+    if (!selectCont) return
+
+    ;[16, 80, 180].forEach((delay) => {
+        setTimeout(() => {
+            if (!selectCont.isConnected || !getSelectPortalFromCont(selectCont)) return
+            syncSelectPortalFromSource(selectCont)
+            positionSelectPortal(selectCont)
+        }, delay)
+    })
+}
+function keepOptionInsideContainer(container, option) {
+
+    if (!container || !option || container.clientHeight <= 0) return
+
+    const optionTop = option.offsetTop
+    const optionBottom = optionTop + option.offsetHeight
+    const visibleTop = container.scrollTop
+    const visibleBottom = visibleTop + container.clientHeight
+
+    if (optionTop < visibleTop) {
+        container.scrollTop = optionTop
+    } else if (optionBottom > visibleBottom) {
+        container.scrollTop = optionBottom - container.clientHeight
+    }
+}
+function alignOptionScroll(selectCont, sourceOption) {
+
+    if (!selectCont || !sourceOption) return
+
+    const sourceContainer = selectCont.querySelector("div.opcionesSelectDiv")
+    keepOptionInsideContainer(sourceContainer, sourceOption)
+
+    const portalContainer = getSelectPortalFromCont(selectCont)
+    if (!portalContainer) return
+
+    const sourceOptions = Array.from(selectCont.querySelectorAll("div.opcionesSelectDiv .opciones"))
+    const optionIndex = sourceOptions.indexOf(sourceOption)
+    if (optionIndex < 0) return
+
+    const portalOption = portalContainer.querySelectorAll(".opciones")[optionIndex]
+    keepOptionInsideContainer(portalContainer, portalOption)
+}
 function openSelectPortal(selectCont) {
 
     const source = selectCont?.querySelector("div.opcionesSelectDiv")
@@ -554,6 +598,7 @@ function openSelectPortal(selectCont) {
 
     syncSelectPortalFromSource(selectCont)
     positionSelectPortal(selectCont)
+    stabilizeSelectPortalPosition(selectCont)
 
     return portal
 }
@@ -608,7 +653,8 @@ $(document).on(`keyup`, `.tabs_contents_item:not([tabla="abm"]) .selectCont .inp
             valorElemento = $(elementoASelect).attr("value")
             valorOption = $(`p`, elementoASelect).html()?.trim()
 
-            $(elementoASelect).addClass(`hoverFlecha`)[0]?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            const optionDown = $(elementoASelect).addClass(`hoverFlecha`)[0]
+            alignOptionScroll(selectdCont, optionDown)
             $(elementoASelect).siblings().removeClass(`hoverFlecha`)
 
             break;
@@ -620,7 +666,8 @@ $(document).on(`keyup`, `.tabs_contents_item:not([tabla="abm"]) .selectCont .inp
             valorElemento = $(elementoASelect).attr("value")
             valorOption = $(`p`, elementoASelect).html().trim()
 
-            $(elementoASelect).addClass(`hoverFlecha`)[0].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            const optionUp = $(elementoASelect).addClass(`hoverFlecha`)[0]
+            alignOptionScroll(selectdCont, optionUp)
             $(elementoASelect).siblings().removeClass(`hoverFlecha`)
 
             break;
@@ -722,6 +769,7 @@ $(document).on("focus", ".inputSelect:not([readonly])", (e) => {
 
     syncSelectPortalFromSource(father)
     positionSelectPortal(father)
+    stabilizeSelectPortalPosition(father)
 })
 $(document).on("focus", `td .selecSimulado:not(.ubicado)`, (e) => {
 
@@ -962,7 +1010,8 @@ $(document).on(`keyup`, `div.inputTd .selectCont .inputSelect, div.celda .select
             valorElemento = $(elementoASelect).attr("value")
             valorOption = $(`p`, elementoASelect).html().trim()
 
-            $(elementoASelect).addClass(`hoverFlecha`)[0].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            const optionDown = $(elementoASelect).addClass(`hoverFlecha`)[0]
+            alignOptionScroll(selectdCont, optionDown)
             $(elementoASelect).siblings().removeClass(`hoverFlecha`)
 
 
@@ -975,7 +1024,8 @@ $(document).on(`keyup`, `div.inputTd .selectCont .inputSelect, div.celda .select
             valorElemento = $(elementoASelect).attr("value")
             valorOption = $(`p`, elementoASelect).html().trim()
 
-            $(elementoASelect).addClass(`hoverFlecha`)[0].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            const optionUp = $(elementoASelect).addClass(`hoverFlecha`)[0]
+            alignOptionScroll(selectdCont, optionUp)
             $(elementoASelect).siblings().removeClass(`hoverFlecha`)
 
             break;
