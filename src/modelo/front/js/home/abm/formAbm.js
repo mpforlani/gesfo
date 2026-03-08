@@ -405,6 +405,17 @@ function reCrearTabla(numeroForm, objeto) {//Dicionario
                     $(`#t${numeroForm} .td.filtro.numeradorOperaciones input`).val(value).trigger("input")
                 })
             }
+
+            const filasNoOcultasPorFiltro = $(`#t${numeroForm} .tr.fila`).filter((_, fila) => {
+                const clases = (fila.className || "").split(/\s+/);
+                return !clases.some(clase => clase.startsWith("oculto"));
+            }).length;
+
+            const cantidadFilas = $(`#t${numeroForm}`).is(":visible")
+                ? $(`#t${numeroForm} .tr.fila:visible`).length
+                : filasNoOcultasPorFiltro;
+
+            $(`#bf${numeroForm} .cantidad`).html(cantidadFilas)
         },
     });
 

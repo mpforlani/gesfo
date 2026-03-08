@@ -434,15 +434,151 @@ let typeParametrica = {
     listaArrayParametrica: "value",
 
 }
+let selectPortalCounter = 0
+const selectPortalAttr = "data-select-portal-id"
+const sourceSelectAttr = "data-source-select-id"
+function getSelectPortalId(selectCont) {
+
+    if (!selectCont) return ""
+    let sourceId = selectCont.getAttribute(selectPortalAttr)
+
+    if (!sourceId) {
+        sourceId = `sp-${Date.now()}-${++selectPortalCounter}`
+        selectCont.setAttribute(selectPortalAttr, sourceId)
+    }
+
+    return sourceId
+}
+function getSelectPortalFromCont(selectCont) {
+
+    const sourceId = selectCont?.getAttribute(selectPortalAttr)
+    if (!sourceId) return null
+
+    return document.querySelector(`div.opcionesSelectDiv.absolute[${sourceSelectAttr}="${sourceId}"]`)
+}
+function getSourceSelectContFromPortal(portal) {
+
+    const sourceId = portal?.getAttribute(sourceSelectAttr)
+    if (!sourceId) return null
+
+    return document.querySelector(`.selectCont[${selectPortalAttr}="${sourceId}"]`)
+}
+function closeSelectPortal(selectCont, clearSourceAttr = true) {
+
+    const sourceId = selectCont?.getAttribute(selectPortalAttr)
+    if (!sourceId) return
+
+    document.querySelectorAll(`div.opcionesSelectDiv.absolute[${sourceSelectAttr}="${sourceId}"]`).forEach((portal) => portal.remove())
+
+    if (clearSourceAttr) {
+        selectCont.removeAttribute(selectPortalAttr)
+    }
+}
+function closeAllSelectPortals() {
+
+    document.querySelectorAll(`div.opcionesSelectDiv.absolute[${sourceSelectAttr}]`).forEach((portal) => portal.remove())
+    document.querySelectorAll(`.selectCont[${selectPortalAttr}]`).forEach((selectCont) => selectCont.removeAttribute(selectPortalAttr))
+}
+function cleanupOrphanSelectPortals() {
+
+    document.querySelectorAll(`div.opcionesSelectDiv.absolute[${sourceSelectAttr}]`).forEach((portal) => {
+        const sourceId = portal.getAttribute(sourceSelectAttr)
+        const source = document.querySelector(`.selectCont[${selectPortalAttr}="${sourceId}"]`)
+        if (!source) {
+            portal.remove()
+        }
+    })
+}
+function syncSelectPortalFromSource(selectCont) {
+
+    const source = selectCont?.querySelector("div.opcionesSelectDiv")
+    const portal = getSelectPortalFromCont(selectCont)
+    if (!source || !portal) return
+
+    portal.classList.remove("oculto")
+    portal.classList.toggle("scroll", source.classList.contains("scroll"))
+    portal.classList.toggle("anulaScroll", source.classList.contains("anulaScroll"))
+    portal.innerHTML = source.innerHTML
+}
+function positionSelectPortal(selectCont) {
+
+    const portal = getSelectPortalFromCont(selectCont)
+    const anchor = selectCont?.querySelector("div.selecSimulado")
+    const host = document.querySelector("#tablas")
+    if (!portal || !anchor || !host) return
+
+    const hostRect = host.getBoundingClientRect()
+    const anchorRect = anchor.getBoundingClientRect()
+
+    portal.classList.remove("oculto")
+    portal.style.left = `${Math.max(0, anchorRect.left - hostRect.left)}px`
+    portal.style.width = `${anchorRect.width}px`
+
+    const portalHeight = portal.offsetHeight
+    const spaceBelow = hostRect.bottom - anchorRect.bottom
+    const spaceAbove = anchorRect.top - hostRect.top
+    const openUp = portalHeight > spaceBelow && spaceAbove > spaceBelow
+
+    if (openUp) {
+        portal.classList.add("opuesto")
+        portal.style.top = `${Math.max(0, anchorRect.top - hostRect.top - portalHeight)}px`
+    } else {
+        portal.classList.remove("opuesto")
+        portal.style.top = `${Math.max(0, anchorRect.bottom - hostRect.top)}px`
+    }
+}
+function openSelectPortal(selectCont) {
+
+    const source = selectCont?.querySelector("div.opcionesSelectDiv")
+    const host = document.querySelector("#tablas")
+    if (!source || !host) return null
+
+    const sourceId = getSelectPortalId(selectCont)
+    closeSelectPortal(selectCont, false)
+    cleanupOrphanSelectPortals()
+
+    const portal = source.cloneNode(true)
+    portal.classList.add("absolute")
+    portal.classList.remove("oculto")
+    portal.classList.remove("opuesto")
+    portal.setAttribute(sourceSelectAttr, sourceId)
+
+    const name = selectCont.getAttribute("name") || selectCont.querySelector("input.divSelectInput")?.getAttribute("name") || ""
+    if (name) {
+        portal.setAttribute("name", name)
+    }
+
+    host.appendChild(portal)
+    source.classList.add("oculto")
+
+    syncSelectPortalFromSource(selectCont)
+    positionSelectPortal(selectCont)
+
+    return portal
+}
+if (!window.__gesfinSelectPortalListeners) {
+    document.addEventListener("scroll", (event) => {
+        const target = event.target
+        if (target?.classList?.contains("tableCol") || target?.classList?.contains("tabs_contents_item")) {
+            closeAllSelectPortals()
+        }
+    }, true)
+
+    window.addEventListener("resize", () => {
+        closeAllSelectPortals()
+    })
+
+    window.__gesfinSelectPortalListeners = true
+}
 $(document).on(`blur`, `input.inputSelect:not([readonly])`, (e) => {
 
     setTimeout(() => {
 
         let father = $(e.target).parents('div.selectCont');
-        let name = $(`input.divSelectInput`, father).attr("name")
 
         $('div.opcionesSelectDiv', father).addClass('oculto')
-        $(`div.opcionesSelectDiv.absolute[name=${name}]`).remove();
+        closeSelectPortal(father[0])
+        cleanupOrphanSelectPortals()
         $('div.opciones', father).removeClass('oculto')
 
     }, 100);
@@ -569,6 +705,8 @@ $(document).on(`keyup`, `.tabs_contents_item:not([tabla="abm"]) .selectCont .inp
             break;
     }
 
+    syncSelectPortalFromSource(selectdCont)
+    positionSelectPortal(selectdCont)
     $(e.currentTarget).addClass("filtrandoType")
 })
 $(document).on("focus", ".inputSelect:not([readonly])", (e) => {
@@ -576,32 +714,39 @@ $(document).on("focus", ".inputSelect:not([readonly])", (e) => {
     let father = e.target.closest(".selectCont")
 
     $(`div.opcionesSelectDiv`, father).removeClass("oculto")
+    syncSelectPortalFromSource(father)
+    positionSelectPortal(father)
 })
 $(document).on("focus", `td .selecSimulado:not(.ubicado)`, (e) => {
 
     const el = e.target.closest("td .selecSimulado:not(.ubicado)");
-    $(e.target).parents(".tableCol").addClass("ubicadoSelect");
-    el.classList.add("ubicado");
+    if (!el) return
 
-    const form = el.closest(".tabs_contents_item.active");
     const selectCont = el.closest(".selectCont");
+    const tableCol = el.closest(".tableCol")
+    if (!tableCol || !selectCont) {
+        const form = el.closest(".tabs_contents_item.active");
+        const opciones = selectCont?.querySelector("div.opcionesSelectDiv");
+        if (!form || !opciones) return
 
-    const opciones = selectCont.querySelector("div.opcionesSelectDiv");
+        const contRect = form.getBoundingClientRect();
+        const elRect = el.getBoundingClientRect();
+        const scrollTop = form.scrollTop;
+        const scrollLeft = form.scrollLeft;
+        const height = el.offsetHeight;
+        const width = el.offsetWidth;
+        const top = (elRect.top - contRect.top) + scrollTop + height;
+        const left = (elRect.left - contRect.left) + scrollLeft;
 
-    const contRect = form.getBoundingClientRect();
-    const elRect = el.getBoundingClientRect();
+        opciones.style.top = `${top}px`;
+        opciones.style.left = `${left}px`;
+        opciones.style.width = `${width}px`;
+        return
+    }
 
-    const scrollTop = form.scrollTop;
-    const scrollLeft = form.scrollLeft;
-    const height = el.offsetHeight;
-    const width = el.offsetWidth;
-
-    const top = (elRect.top - contRect.top) + scrollTop + height;
-    const left = (elRect.left - contRect.left) + scrollLeft;
-
-    opciones.style.top = `${top}px`;
-    opciones.style.left = `${left}px`;
-    opciones.style.width = `${width}px`;
+    $(tableCol).addClass("ubicadoSelect");
+    el.classList.add("ubicado");
+    openSelectPortal(selectCont)
 });
 $(document).on(`change`, `.inputSelect:not(.filtrandoType):not(.selectClick)`, (e) => {//Completar id
 
@@ -623,13 +768,28 @@ $(document).on(`change`, `.divSelectInput`, (e) => {//Completar valorTexto
 })//Coleccion
 $(document).on(`pointerdown`, `.opcionesSelectDiv.absolute .opciones`, (e) => {
 
-    const name = $(e.currentTarget).parent().attr("name")
-    const form = $(e.currentTarget).parents(".tabs_contents_item")
+    const portal = e.currentTarget.closest("div.opcionesSelectDiv.absolute")
+    const selectCont = getSourceSelectContFromPortal(portal)
+    if (!selectCont) {
+        cleanupOrphanSelectPortals()
+        return
+    }
+
     let valorValue = $(e.currentTarget).attr("value")
     $(e.currentTarget).addClass("seleccionado")
     $(e.currentTarget).siblings().removeClass("seleccionado")
 
-    $(`.selectCont.${name} .opciones[value="${valorValue}"]`, form).trigger("click")
+    let sourceOption = $(`.opciones`, selectCont).filter((_, option) => option.getAttribute("value") === valorValue).first()
+    if (sourceOption.length === 0) {
+        const valueString = $(e.currentTarget).attr("valuestring")
+        sourceOption = $(`.opciones`, selectCont).filter((_, option) => option.getAttribute("valuestring") === valueString).first()
+    }
+
+    if (sourceOption.length > 0) {
+        sourceOption.trigger("pointerdown")
+        syncSelectPortalFromSource(selectCont)
+        positionSelectPortal(selectCont)
+    }
 })
 $(document).on(`pointerdown`, `.selectCont.coleccion .opcionesSelectDiv .opciones`, (e) => {
 
@@ -892,6 +1052,8 @@ $(document).on(`keyup`, `div.inputTd .selectCont .inputSelect, div.celda .select
             break;
 
     }
+    syncSelectPortalFromSource(selectdCont)
+    positionSelectPortal(selectdCont)
     $(e.currentTarget).addClass("filtrandoType")
 })
 $(document).on("focus", `.celda .selecSimulado:not(.ubicado)`, (e) => {

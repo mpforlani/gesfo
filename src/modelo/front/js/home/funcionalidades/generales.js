@@ -89,7 +89,12 @@ let variablesModeloGenerales = {
     },
     ciudad: {
         atributos: {
-            names: [T({ nombre: `name`, clase: "primeraMayusOracion requerido", width: "veinte", validacion: "textoMayuscula" }), T({ nombre: `cp`, clase: "textoCentrado", width: "siete" }), P("provincia"), P("pais"), habilitado],
+            names: [
+                T({ nombre: `name`, clase: "primeraMayusOracion requerido", width: "veinte", validacion: "textoMayuscula" }),
+                T({ nombre: `cp`, clase: "textoCentrado", width: "siete" }),
+                P({ nombre: "provincia", clase: "requerido" }),
+                P("pais"),
+                habilitado],
             titulos: ['Nombre', `CP`, `Provincia`, `Pais`],
             eliminar: false,
             deshabilitar: true,

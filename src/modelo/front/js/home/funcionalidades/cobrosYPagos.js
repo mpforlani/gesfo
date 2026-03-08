@@ -20,8 +20,8 @@ let variablesModeloPagosCobros = {
         TD({ nombre: "cancelacion", oculto: "oculto", texto: "El tipo de cambio de este documento es exclusivamente para efectos fiscales, la cancelación deberá realizarse al tipo de cambio del día efectivo de pago" }),
         adjunto,
         //Atributos Electronica
-        //T({ nombre: "CAE", clase: "transparente soloLectura textoCentrado" }),
-        //F({ nombre: "vtocae", clase: "transparente soloLectura" }),
+        T({ nombre: "CAE", clase: "transparente soloLectura textoCentrado" }),
+        F({ nombre: "vtocae", clase: "transparente soloLectura" }),
       ],
       titulos: ["Cliente", `Fecha`, `Comprobante`, `Letra`, "Numero", `Moneda`, `TC`, `Vencimiento`, `detalleProducto`, `compuestoFacturaVentas`, `compuestoMedioPagos`, `Importe`, "Cuenta Bancaria", `Observaciones`, "", "", `Adjuntos`, `CAE`, `Vto CAE`],
       limiteCabecera: true,

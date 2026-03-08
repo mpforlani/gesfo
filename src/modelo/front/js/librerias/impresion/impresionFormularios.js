@@ -130,8 +130,11 @@ function inicializarEditorTextoEmail($contenedor, textoInicial) {
 async function formularioIndividualImpresion(objeto, numeroForm, data) {
 
     let impresion = objeto?.formInd?.impresion || objeto?.impresion
+    const hojaImpresion = impresion?.hoja || "A4";
+    const bloquearImpresionPapel = hojaImpresion == "custom";
+    const botonesCabecera = `${bloquearImpresionPapel ? "" : iImprimir}${iOkEmail}${iOkDescargar}`;
 
-    let imgs = `<div class="com" id="com${objeto.accion}${numeroForm}" objeto="${objeto.accion}">${iImprimir}${iOkEmail}${iOkDescargar}<div class="closeForm ${numeroForm}">+</div></div>
+    let imgs = `<div class="com" id="com${objeto.accion}${numeroForm}" objeto="${objeto.accion}" hojaImpresion="${hojaImpresion}" bloquearImpresion="${bloquearImpresionPapel ? "true" : "false"}">${botonesCabecera}<div class="closeForm ${numeroForm}">+</div></div>
         <div id="documentoImpresion" class="${impresion?.fondo || ""}"></div>`;
 
     let imagenes = $(imgs);
@@ -147,49 +150,30 @@ async function formularioIndividualImpresion(objeto, numeroForm, data) {
         $(`#impresionFormulario div`).remove();
         $(`#impresionFormulario`).removeClass("show");
     });
-    $(`#com${objeto.accion}${numeroForm}:not(.reporte)`).on("click", `span.descargarFile`, async function (e) {
-
+    $(`#com${objeto.accion}${numeroForm}`).on("click", `span.descargarFile`, async function (e) {
         mouseEnEsperaImpresionPrevia(objeto, numeroForm);
 
-        const r = await fetch("/pdf", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ html: document.querySelector("#documentoImpresion").outerHTML, baseUrl: location.origin })
-        });
-        quitarEnEsperaImpresionPrevia(objeto, numeroForm)
-        const blob = await r.blob();
-        const blobUrl = URL.createObjectURL(blob);
-        window.open(blobUrl);
+        try {
+            const esCustom = impresion?.hoja == "custom";
+            const endpoint = esCustom ? "/pdfCustom" : "/pdf";
+            const html = document.querySelector("#documentoImpresion")?.outerHTML || "";
 
-    });
-    $(`#com${objeto.accion}${numeroForm}.reporte`).on("click", `span.descargarFile`, async function (e) {
+            const r = await fetch(endpoint, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ html, baseUrl: location.origin })
+            });
 
-        $(`#documentoImpresion`).addClass("html2")
+            if (!r.ok) throw new Error(`Error ${r.status} al generar PDF`);
 
-        const element = document.getElementById("documentoImpresion");
-        const contentWidthPx = element.scrollWidth;
-        const contentHeightPx = element.scrollHeight;
-
-        const pxToMm = px => px * 0.264583;
-        const pdfWidthMm = pxToMm(contentWidthPx);
-        const pdfHeightMm = pxToMm(contentHeightPx);
-
-        const opt = {
-            margin: [0, 1, 0, 1],
-            filename: 'reporte.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2, scrollX: 0, scrollY: 0, width: contentWidthPx, height: contentHeightPx },
-            jsPDF: { unit: 'mm', format: [pdfWidthMm, pdfHeightMm], orientation: pdfWidthMm > pdfHeightMm ? 'landscape' : 'portrait' }
-        };
-
-        html2pdf().set(opt).from(element).toPdf().get('pdf').then(function (pdf) {
-
-            const blob = pdf.output('blob');
+            const blob = await r.blob();
             const blobUrl = URL.createObjectURL(blob);
-            window.open(blobUrl + '#zoom=100');
-            $(`#documentoImpresion`).removeClass("html2")
-        });
-
+            window.open(blobUrl);
+        } catch (error) {
+            console.error("Error al descargar PDF:", error);
+        } finally {
+            quitarEnEsperaImpresionPrevia(objeto, numeroForm);
+        }
     });
     $(`#documentoImpresion`).on("click", `.cartelComplemento span.okBoton`, async function (e) {
 
@@ -405,6 +389,8 @@ function agregarColores(objeto, numeroForm, atributos) {
 
 }
 $(`#impresionFormulario`).on("click", "span.okfImprimir", function (e) {
+    const bloquearImpresionPapel = $(`#impresionFormulario .com[bloquearImpresion="true"]`).length > 0;
+    if (bloquearImpresionPapel) return;
 
     printJS({
         printable: 'documentoImpresion',

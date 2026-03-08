@@ -1032,6 +1032,92 @@ router.put('/emailAdjPdfCustom', async (req, res) => {
         res.status(500).json({ ok: false, error: err.message });
     }
 });
+router.post("/pdfCustom", async (req, res) => {
+    const { html, baseUrl } = req.body;
+
+    let browser, page;
+
+    try {
+        const launchOptions = {
+            args: ["--no-sandbox", "--disable-setuid-sandbox"],
+            headless: true
+        };
+
+        if (process.env.NODE_ENV !== "development") {
+            launchOptions.executablePath = process.env.PLAYWRIGHT_CHROMIUM_PATH || "/usr/bin/chromium";
+        }
+
+        browser = await chromium.launch(launchOptions);
+        page = await browser.newPage();
+
+        page.on("requestfailed", (r) => console.log("FAILED", r.url(), r.failure()?.errorText));
+        page.on("response", (r) => { if (r.status() >= 400) console.log("HTTP", r.status(), r.url()); });
+
+        const css = fs.readFileSync(path.join(__dirname, "../../front/css/style.css"), "utf-8");
+
+        const htmlParaPdf = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          ${baseUrl ? `<base href="${baseUrl.endsWith("/") ? baseUrl : baseUrl + "/"}">` : ""}
+          <meta charset="utf-8"/>
+          <style>${css}</style>
+        </head>
+        <body>${html}</body>
+      </html>`;
+
+        await page.setContent(htmlParaPdf, { waitUntil: "domcontentloaded" });
+        await page.waitForLoadState("networkidle");
+        await page.evaluate(async () => { await document.fonts.ready; });
+        await page.emulateMedia({ media: "screen" });
+
+        const { width, height } = await page.evaluate(() => {
+            const BLEED_PX = 8;
+            const EXTRA_RIGHT = 800;
+            const element = document.getElementById("documentoImpresion");
+
+            if (!element) {
+                return { width: 800, height: 600 };
+            }
+
+            element.classList.add("altoAutomatico");
+            element.classList.add("reporte");
+            element.classList.add("html2");
+
+            const fullWidth = element.scrollWidth;
+            const fullHeight = element.scrollHeight;
+
+            return {
+                width: Math.ceil(fullWidth + EXTRA_RIGHT) + BLEED_PX,
+                height: Math.ceil(fullHeight) + BLEED_PX
+            };
+        });
+
+        await page.setViewportSize({
+            width: Math.max(800, Math.ceil(width)),
+            height: Math.max(600, Math.ceil(height))
+        });
+
+        const pdfBuffer = await page.pdf({
+            printBackground: true,
+            margin: { top: "0mm", right: "0mm", bottom: "0mm", left: "0mm" },
+            pageRanges: "1",
+            width: `${width}px`,
+            height: `${height}px`
+        });
+
+        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader("Content-Disposition", 'inline; filename="reporte.pdf"');
+        res.end(pdfBuffer);
+
+    } catch (e) {
+        console.error("PDF CUSTOM ERROR", e);
+        res.status(500).json({ error: String(e?.message || e) });
+    } finally {
+        await page?.close().catch(() => { });
+        await browser?.close().catch(() => { });
+    }
+});
 router.post("/pdf", async (req, res) => {
     const { html, baseUrl } = req.body;
 

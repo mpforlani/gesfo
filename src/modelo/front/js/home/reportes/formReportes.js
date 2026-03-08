@@ -595,17 +595,48 @@ function obtenerFilaIdReporte(tr, indice) {
     const existente = fila.attr("data-row-id")
     if (existente) return existente
 
+    const normalizarTexto = (valor) => `${valor || ""}`.replace(/\s+/g, " ").trim()
     const celdaId = fila.children("td._id, th._id").first()
-    const idInput = celdaId.find("input").val()
-    const idTexto = celdaId.text()?.trim()
-    const atributoFila = fila.attr("fila") || fila.attr("idregistro")
+    const idInput = normalizarTexto(
+        fila.find(`input._idRefencia, input[name="_id"]`).first().val() ||
+        celdaId.find("input").val()
+    )
+    const idTexto = normalizarTexto(celdaId.text())
+    const idData = normalizarTexto(
+        fila.attr("data-id") ||
+        fila.attr("data-row-key") ||
+        fila.attr("idregistro")
+    )
 
-    if (idInput || idTexto || atributoFila) {
-        return normalizarRowIdReporte(idInput || idTexto || atributoFila, indice)
+    if (idInput || idTexto || idData) {
+        return normalizarRowIdReporte(idInput || idTexto || idData, indice)
     }
 
-    const resumenFila = fila.children("td, th").slice(0, 5).map((_, celda) => $(celda).text().trim()).get().join("|")
-    return normalizarRowIdReporte(resumenFila || `fila_${indice}`, indice)
+    const resumenFila = fila.children("td, th")
+        .filter((_, celda) => {
+            const c = $(celda)
+            if (c.hasClass("_id") || c.hasClass("oculto") || c.hasClass("transparent")) return false
+            if (c.attr("oculto") === "true") return false
+            return true
+        })
+        .map((_, celda) => {
+            const c = $(celda)
+            const atributo = normalizarTexto(c.attr("atributo") || c.attr("data-col-id") || c.attr("colum"))
+            const valorEditable = normalizarTexto(c.find("input, textarea, select").first().val())
+            const valorTexto = normalizarTexto(c.text())
+            const valor = valorEditable || valorTexto
+            if (!valor) return ""
+            return atributo ? `${atributo}:${valor}` : valor
+        })
+        .get()
+        .filter((valor) => valor !== "")
+        .join("|")
+    if (resumenFila) return normalizarRowIdReporte(resumenFila, indice)
+
+    const atributoFila = normalizarTexto(fila.attr("fila"))
+    if (atributoFila) return normalizarRowIdReporte(atributoFila, indice)
+
+    return normalizarRowIdReporte(`fila_${indice}`, indice)
 }
 function asignarRowIdsTablaReporte(tabla) {
 
