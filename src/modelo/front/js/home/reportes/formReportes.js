@@ -924,10 +924,10 @@ function sincronizarBaseStickyColumnasTablaReporte(tabla, columnasNombres) {
             .filter((nombre) => nombre !== "")
     )
 
-    ; (Array.isArray(columnasNombres) ? columnasNombres : [])
-        .map((columna) => normalizarNombreStickyColumnaReporte(columna))
-        .filter((nombre) => nombre !== "")
-        .forEach((nombre) => base.add(nombre))
+        ; (Array.isArray(columnasNombres) ? columnasNombres : [])
+            .map((columna) => normalizarNombreStickyColumnaReporte(columna))
+            .filter((nombre) => nombre !== "")
+            .forEach((nombre) => base.add(nombre))
 
     tabla.data("stickyColumnasReportesBase", Array.from(base))
 }

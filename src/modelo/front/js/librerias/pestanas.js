@@ -517,7 +517,8 @@ function positionSelectPortal(selectCont) {
     const portalHeight = portal.offsetHeight
     const spaceBelow = hostRect.bottom - anchorRect.bottom
     const spaceAbove = anchorRect.top - hostRect.top
-    const openUp = portalHeight > spaceBelow && spaceAbove > spaceBelow
+    const fitsBelow = portalHeight <= spaceBelow
+    const openUp = !fitsBelow && spaceAbove > 0
 
     if (openUp) {
         portal.classList.add("opuesto")
@@ -712,8 +713,13 @@ $(document).on(`keyup`, `.tabs_contents_item:not([tabla="abm"]) .selectCont .inp
 $(document).on("focus", ".inputSelect:not([readonly])", (e) => {
 
     let father = e.target.closest(".selectCont")
+    if (!father) return
 
-    $(`div.opcionesSelectDiv`, father).removeClass("oculto")
+    const portal = openSelectPortal(father)
+    if (!portal) {
+        $(`div.opcionesSelectDiv`, father).removeClass("oculto")
+    }
+
     syncSelectPortalFromSource(father)
     positionSelectPortal(father)
 })
