@@ -606,9 +606,8 @@ let variablesModeloTesoreria = {
         atributos: {
             names:
                 [T({ nombre: "name", clase: "requerido" }),
-                T({ nombre: `abrev`, clase: "textoCentrado" }),
                     habilitado],
-            titulos: [`Nombre`, `$`],
+            titulos: [`Nombre`],
             eliminar: false,
             deshabilitar: true,
         },
