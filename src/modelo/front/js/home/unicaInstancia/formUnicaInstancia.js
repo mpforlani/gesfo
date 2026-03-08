@@ -1,3 +1,71 @@
+function obtenerPrimerCampoFocusableForm(numeroForm) {
+
+    const formulario = $(`#t${numeroForm}`)
+    if (!formulario.length) {
+        return $()
+    }
+
+    const candidatos = formulario.find(`div.fo input[tabindex], div.fo textarea[tabindex], div.fo select[tabindex]`).filter((indice, campo) => {
+
+        const $campo = $(campo)
+        const type = (($campo.attr("type") || "").toLowerCase())
+
+        if (!$campo.is(":visible")) return false
+        if ($campo.is(":disabled")) return false
+        if ($campo.is("[readonly], [sololec], [soloLec]")) return false
+        if (type === "hidden" || type === "checkbox") return false
+        if ($campo.attr("tabindex") === "-1") return false
+
+        if ($campo.is(".ocultoConLugar, .ocultoPestana, .oculto, .ocultoSiempre, .ocultoSeguridad")) return false
+        if ($campo.closest(".oculto, .ocultoSiempre, .ocultoSeguridad, [oculto=true], [oculto=\"true\"]").length > 0) return false
+        if ($campo.closest("td.ocultoConLugar, th.ocultoConLugar, div.fo.ocultoConLugar").length > 0) return false
+
+        return true
+    })
+
+    const ordenados = candidatos.get().map((campo, indiceDom) => {
+
+        const tabRaw = Number.parseFloat(campo.getAttribute("tabindex"))
+        const tab = Number.isFinite(tabRaw) ? tabRaw : Number.MAX_SAFE_INTEGER
+
+        return { campo, tab, indiceDom }
+    }).sort((a, b) => {
+
+        if (a.tab !== b.tab) return a.tab - b.tab
+        return a.indiceDom - b.indiceDom
+    })
+
+    return $(ordenados[0]?.campo || [])
+}
+function enfocarPrimerCampoFormulario(numeroForm, opciones = {}) {
+
+    const delay = Number.isFinite(Number(opciones.delay)) ? Math.max(0, Number(opciones.delay)) : 100
+    const abrirInputSelect = opciones.abrirInputSelect !== false
+
+    setTimeout(() => {
+
+        const formulario = $(`#t${numeroForm}`)
+        if (!formulario.length || !formulario.hasClass("active")) {
+            return
+        }
+
+        const campo = obtenerPrimerCampoFocusableForm(numeroForm)
+        if (!campo.length) {
+            return
+        }
+
+        campo.get(0)?.focus?.()
+        campo.trigger("focus")
+
+        if (abrirInputSelect && campo.hasClass("inputSelect")) {
+            setTimeout(() => {
+                if (!formulario.hasClass("active")) return
+                campo.get(0)?.focus?.()
+                campo.trigger("focus")
+            }, 0)
+        }
+    }, delay)
+}
 async function crearFormulario(objeto, numeroForm, consult) {//doc
 
     let eliminarAdjuntos = [];
@@ -951,8 +1019,6 @@ async function crearFormulario(objeto, numeroForm, consult) {//doc
         $(`#t${numeroForm} .form.username`).val(usu);
         ocultarBotonesNoUsados(objeto, numeroForm)
 
-        $(`#t${numeroForm}:not(.aprobacionIndividual, [tabla="vistaPrevia"]) div.fo input[tabindex]:not([sololec], :disabled):visible:first`).trigger("focus");
-
         $.each(objeto?.atributos?.valorInicial?.select, (indice, value) => {
 
             $(`#t${numeroForm} tr.mainBody[q=0] .inputSelect.${indice}`).val(value).trigger("change")
@@ -1032,6 +1098,10 @@ async function crearFormulario(objeto, numeroForm, consult) {//doc
     $(`#t${numeroForm}`).addClass(objeto?.formInd?.type || "")
     $(`#t${numeroForm} input.soloLectura`).attr("tabindex", "-1")
     $(`#t${numeroForm}`).css(`max-height`, heightTabla(numeroForm))
+
+    if (id == "" && !$(`#t${numeroForm}`).is(".aprobacionIndividual, [tabla=\"vistaPrevia\"]")) {
+        enfocarPrimerCampoFormulario(numeroForm, { delay: 100, abrirInputSelect: true })
+    }
 };
 /////////////////////////////////////
 async function enviarRegistroNuevoForm(numeroForm, objeto, electronica) {//doc
@@ -1620,7 +1690,6 @@ function limpiarEnviarRegistro(objeto, numeroForm) {//doc
         $(`#bf${numeroForm} .botonesPest span.okBoton`).css(`display`, `flex`);
         $(`#bf${numeroForm} .botonesPest .imgB`).css(`cursor`, `pointer`);
         quitarEsperaForm(objeto, numeroForm)
-        $(`#t${numeroForm} input[tabindex]:visible:first`).trigger("focus");
         resolve("ok")
         valoresInicialesAppFunc(objeto, numeroForm, "")
         $.each(objeto.atributos.valorInicial.select, (indice, value) => {
@@ -1641,6 +1710,8 @@ function limpiarEnviarRegistro(objeto, numeroForm) {//doc
                     .join(" ");
             });
         });
+
+        enfocarPrimerCampoFormulario(numeroForm, { delay: 100, abrirInputSelect: true })
     })
 
 }

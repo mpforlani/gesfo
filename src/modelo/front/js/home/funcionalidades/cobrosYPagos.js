@@ -5,7 +5,7 @@ let variablesModeloPagosCobros = {
         P({ nombre: "cliente", clase: "requerido", width: "veinte" }),
         FH(),
         PPE({ nombre: "comprobante", width: "quince", clase: "requerido", opciones: ["Factura", "Factura de Credito", "Nota de debito", "Nota de credito"] }),
-        PPE({ nombre: "tipoComprobante", width: "diez", clase: "requerido", opciones: ["Letra A", "Letra B", "Letra C", "Letra M", "Letra E", "Letra T"] }),
+        PPE({ nombre: "tipoComprobante", width: "diez", clase: "requerido", opciones: ["Letra C"], valorInicial: "Letra C" }),
         NCT({ nombre: "numeradorFactura", trigger: ["tipoComprobante", "comprobante"], width: "quince", valorInicialAncla: [valorFijoNum, "0001"], orden: "reves", funcion: { formatoDigitosExtra: [formatoDigitosExtra, 8] } }),
         P({ nombre: "moneda", width: "doce", clase: "requerido" }),
         N({ nombre: "tipoCambio", width: "diez", clase: "requerido" }),
@@ -214,6 +214,7 @@ let variablesModeloPagosCobros = {
     },
     funcionesPropias: {
       formularioIndiv: {
+        fijarComprobanteCFijoMonotributo: [fijarComprobanteCFijoMonotributo],
         letraCodigoComprobante: [letraCodigoComprobante],
         mostrarPestanaProducto: [mostrarPestanaProducto],
         fechaFacturacion: [fechaFacturacion],
@@ -224,6 +225,9 @@ let variablesModeloPagosCobros = {
         //cambiarBoton: [cambiarBoton, `okBoton`, iOkFacturaElec],
         //cambiarBotonD: [cambiarBoton, `okfPlus`, okPlusElectronica],
         //botonEnviarelectronica: [botonEnviarelectronica]
+      },
+      formularioIndivFinal: {
+        fijarComprobanteCFijoMonotributoFinal: [fijarComprobanteCFijoMonotributo],
       },
     },
     desencadenante: {

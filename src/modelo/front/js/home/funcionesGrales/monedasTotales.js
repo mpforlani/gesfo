@@ -423,6 +423,7 @@ async function tcMultimoneda(objeto, numeroForm) {
     let monedaAlternativaId = Object.values(consultaPestanas.moneda).find(e => e.name.toLowerCase() == caracteristicaEmpresa.monedaAlternativa.toLowerCase())?._id;
     let monedaBaseId = Object.values(consultaPestanas.moneda).find(e => e.name.toLowerCase() == caracteristicaEmpresa.monedaBase.toLowerCase())?._id;
     let ultimaCotizacionMonedaAlternativa = cotizacionesMoneda[caracteristicaEmpresa.monedaAlternativa.toLowerCase()] || await obtenerUltimasCotizaciones(monedaAlternativaId)
+    const monedaSeleccionadaEnMinusculas = (valorMoneda) => (consultaPestanas?.moneda?.[valorMoneda]?.name || valorMoneda || "").toString().trim().toLowerCase()
 
     async function calcularcotizacionYTotales(objeto, numeroForm, e) {
 
@@ -469,37 +470,39 @@ async function tcMultimoneda(objeto, numeroForm) {
     async function validarSelectMonedaForm(e) {
 
         let valor = e.target.value
+        let monedaSeleccionada = monedaSeleccionadaEnMinusculas(valor)
 
-        if (valor != "" && consultaPestanas.moneda?.[valor]?.name.toLowerCase() != caracteristicaEmpresa.monedaBase.toLowerCase()) {
+        if (valor != "" && monedaSeleccionada != "pesos") {
 
 
-            let ultimaCotizacionMonedaAlternativa = cotizacionesMoneda[consultaPestanas.moneda?.[valor]?.name.toLowerCase()] || await obtenerUltimasCotizaciones(valor)
+            let ultimaCotizacionMonedaAlternativa = cotizacionesMoneda[monedaSeleccionada] || await obtenerUltimasCotizaciones(valor)
 
             $(`#t${numeroForm} div.fo[class*=tipoCambio] input`).val(numeroAString(ultimaCotizacionMonedaAlternativa)).trigger("input").trigger("change")
-            $(`#t${numeroForm} div.fo[class*=tipoCambio]`).removeClass("oculto");
+            $(`#t${numeroForm} div.fo[class*=tipoCambio]`).removeClass("oculto").removeAttr("oculto");
 
-        } else if (consultaPestanas.moneda?.[valor]?.name.toLowerCase() == caracteristicaEmpresa.monedaBase.toLowerCase() || valor == "") {
+        } else if (monedaSeleccionada == "pesos" || valor == "") {
 
             $(`#t${numeroForm} div.fo[class*=tipoCambio] input`).val(1).trigger("input").trigger("change")
-            $(`#t${numeroForm} div.fo[class*=tipoCambio]`).addClass("oculto");
+            $(`#t${numeroForm} div.fo[class*=tipoCambio]`).addClass("oculto").attr("oculto", true);
         }
     }
     async function validarSelectMonedaColec(e) {
 
         let valor = e.target.value
+        let monedaSeleccionada = monedaSeleccionadaEnMinusculas(valor)
         let fatherFila = $(e.target).parents("tr")
         let fatherTable = $(e.target).parents("table")
 
-        if (valor != "" && consultaPestanas.moneda?.[valor]?.name.toLowerCase() != caracteristicaEmpresa.monedaBase.toLowerCase()) {
+        if (valor != "" && monedaSeleccionada != "pesos") {
 
-            let ultimaCotizacionMonedaAlternativa = cotizacionesMoneda?.[consultaPestanas.moneda?.[valor]?.name.toLowerCase()] || await obtenerUltimasCotizaciones(valor)
+            let ultimaCotizacionMonedaAlternativa = cotizacionesMoneda?.[monedaSeleccionada] || await obtenerUltimasCotizaciones(valor)
 
             $(`td[class*=tipoCambio] input`, fatherFila).val(numeroAString(ultimaCotizacionMonedaAlternativa)).trigger("input").trigger("change")
             $(`td[class*=tipoCambio]`, fatherFila).removeClass("oculto").removeClass("ocultoConLugar");
             $(`td[class*=tipoCambio],
                th[class*=tipoCambio]`, fatherTable).removeClass("oculto")
 
-        } else if (consultaPestanas.moneda?.[valor]?.name.toLowerCase() == caracteristicaEmpresa.monedaBase.toLowerCase() || valor == "") {
+        } else if (monedaSeleccionada == "pesos" || valor == "") {
 
             $(`td[class*=tipoCambio] input`, fatherFila).val(1).trigger("input").trigger("change")
 
@@ -510,7 +513,7 @@ async function tcMultimoneda(objeto, numeroForm) {
 
             while (index < monedasTotales.length && !monedaExt) {
 
-                if (consultaPestanas.moneda?.[monedasTotales[index].value]?.name?.toLowerCase() != caracteristicaEmpresa.monedaBase.toLowerCase()) {
+                if (monedaSeleccionadaEnMinusculas(monedasTotales[index].value) != "pesos") {
                     monedaExt = true
                 }
 
@@ -576,6 +579,30 @@ const multimoneda = {
 ///////////////FUNCIONES TRIGER
 function totalesBaseYMoneda(objeto, numeroForm) {
 
+    const monedaSeleccionadaEnMinusculas = (valorMoneda) => (consultaPestanas?.moneda?.[valorMoneda]?.name || valorMoneda || "").toString().trim().toLowerCase()
+    const actualizarTipoCambioFormulario = (valorMoneda) => {
+
+        let monedaSeleccionada = monedaSeleccionadaEnMinusculas(valorMoneda)
+        let inputsTipoCambio = $(`#t${numeroForm} div.fo input.tipoCambio, #t${numeroForm} div.fo input.tc`)
+
+        if (inputsTipoCambio.length == 0) return
+
+        if (monedaSeleccionada == "pesos" || valorMoneda == "") {
+
+            inputsTipoCambio.val(1).trigger("input").trigger("change")
+
+            $.each(inputsTipoCambio, (indice, value) => {
+                $(value).parents(`div.fo`).attr("oculto", true).addClass("oculto")
+            })
+
+        } else {
+
+            $.each(inputsTipoCambio, (indice, value) => {
+                $(value).parents(`div.fo`).removeAttr("oculto").removeClass("oculto")
+            })
+        }
+    }
+
     //no cambiar el orden porque sino los input input no detectan el sumar en monedas alternativas
     $.each(objeto?.formInd?.moneda?.coleccion, (indice, value) => {
 
@@ -610,8 +637,11 @@ function totalesBaseYMoneda(objeto, numeroForm) {
         let currency = $(`#t${numeroForm} .inputSelect.${objeto?.atributos?.moneda?.nombre || objeto?.atributos?.moneda || "moneda"}`).val()
 
         $(`#t${numeroForm} div.fo input.monedaFormulario`).parents(`div.fo`).attr(`moneda`, currency.toLowerCase())
+        actualizarTipoCambioFormulario(currency)
 
     })
+
+    actualizarTipoCambioFormulario($(`#t${numeroForm} .inputSelect.${objeto?.atributos?.moneda?.nombre || objeto?.atributos?.moneda || "moneda"}`).val())
 
     multimoneda[caracteristicaEmpresa.multimoneda == true && objeto.type != "parametrica" && objeto.multimoneda != false]?.[0](objeto, numeroForm)
 
@@ -626,24 +656,30 @@ const multimonedaAbm = {
 }
 function tcMultimonedaAbm(objeto, numeroForm) {
 
+    const monedaSeleccionadaEnMinusculas = (valorMoneda) => (consultaPestanas?.moneda?.[valorMoneda]?.name || valorMoneda || "").toString().trim().toLowerCase()
+
     const insertarMon = async (e) => {
 
         let valor = e.target.value
+        let monedaSeleccionada = monedaSeleccionadaEnMinusculas(valor)
 
-        if (valor != "" && consultaPestanas.moneda?.[valor]?.name.toLowerCase() != caracteristicaEmpresa.monedaBase.toLowerCase()) {
+        if (valor != "" && monedaSeleccionada != "pesos") {
 
-            let ultimaCotizacionMonedaAlternativa = cotizacionesMoneda[consultaPestanas.moneda?.[valor]?.name.toLowerCase()] || await obtenerUltimasCotizaciones(consultaPestanas.moneda?.[valor]?.name.toLowerCase())
+            let ultimaCotizacionMonedaAlternativa = cotizacionesMoneda[monedaSeleccionada] || await obtenerUltimasCotizaciones(consultaPestanas.moneda?.[valor]?.name.toLowerCase())
 
             $(`#t${numeroForm} .inputTd[class*=tipoCambio] input`).val(numeroAString(ultimaCotizacionMonedaAlternativa)).trigger("input")
+            $(`#t${numeroForm} .inputTd[class*=tipoCambio]`).removeAttr("oculto").removeClass("oculto")
 
-        } else if (consultaPestanas.moneda?.[valor]?.name.toLowerCase() == caracteristicaEmpresa.monedaBase.toLowerCase() || valor == "") {
+        } else if (monedaSeleccionada == "pesos" || valor == "") {
 
             $(`#t${numeroForm} .inputTd[class*=tipoCambio] input`).val(1).trigger("input").prop("readonly", true)
+            $(`#t${numeroForm} .inputTd[class*=tipoCambio]`).attr("oculto", true).addClass("oculto")
 
         }
     }
 
     $(`#t${numeroForm}`).on(`change`, `.inputTd[class*="moneda"] .divSelectInput`, insertarMon)
+    $(`#t${numeroForm} .inputTd[class*="moneda"] .divSelectInput`).trigger("change")
 
     async function calcularcotizacionYTotalesAbm(objeto, numeroForm, e) {
 

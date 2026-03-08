@@ -51,9 +51,9 @@ async function clickFormularioIndividualPestana(objeto, numeroFormAnt, consulta,
 
     let formPrim = $(formularioPrimer);
     formPrim.appendTo(`#tabs_contents`);
+    active(numeroForm);
 
     await crearFormulario(objeto, numeroForm, consulta);
-    active(numeroForm);
 
     $(`#p${numeroForm} .closeFormInd`).on(`click`, function () {
 

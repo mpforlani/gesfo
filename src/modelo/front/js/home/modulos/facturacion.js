@@ -1,16 +1,94 @@
 
+function obtenerEmpresaEmisoraActiva() {
+    if (typeof empresaSeleccionada !== "undefined" && empresaSeleccionada?.name) {
+        return empresaSeleccionada
+    }
+    let empresaNombreSeleccionada = $(`.empresaSelect`).text().trim()
+    return Object.values(consultaPestanas?.empresa || {}).find(e => e.name == empresaNombreSeleccionada)
+}
+function condicionImpositivaNormalizada(condicion = "") {
+    return condicion.toString().replace(/\s+/g, "").toLowerCase()
+}
+function empresaEsMonotributo(empresaEmisora) {
+    let condicion = condicionImpositivaNormalizada(empresaEmisora?.condicionImpositiva)
+    return condicion.includes("monotributo") || condicion.includes("monotributista") || condicion == "6"
+}
+function fijarComprobanteCFijoMonotributo(objeto, numeroForm) {
+    if (objeto?.accion != "facturasEmitidas") return
+
+    let father = $(`#t${numeroForm}`)
+    const aplicarRestriccion = () => {
+        let empresaEmisora = obtenerEmpresaEmisoraActiva()
+        if (!empresaEsMonotributo(empresaEmisora)) return
+
+        let selectoresTipoComprobante = $(`.selectCont.tipoComprobante`, father)
+        if (selectoresTipoComprobante.length == 0) return
+
+        $.each(selectoresTipoComprobante, (indice, value) => {
+            let selector = $(value)
+            let inputTipoComprobante = $(`.inputSelect.tipoComprobante`, selector)
+
+            if (inputTipoComprobante.length == 0) return
+
+            $(`div.opcionesSelectDiv .opciones`, selector).filter((i, opt) => {
+                let valor = (opt.getAttribute("value") || "").trim()
+                let texto = $(`p`, opt).text().trim()
+                return valor != "Letra C" && texto != "Letra C"
+            }).remove()
+
+            if (inputTipoComprobante.val() != "Letra C") {
+                inputTipoComprobante.val("Letra C").trigger("change")
+            }
+
+            inputTipoComprobante.attr("readonly", true)
+
+            if (typeof getSelectPortalFromCont == "function") {
+                let portal = getSelectPortalFromCont(selector[0])
+                if (portal) {
+                    $(`.opciones`, portal).filter((i, opt) => {
+                        let valor = (opt.getAttribute("value") || "").trim()
+                        let texto = $(`p`, opt).text().trim()
+                        return valor != "Letra C" && texto != "Letra C"
+                    }).remove()
+                }
+            }
+        })
+    }
+
+    aplicarRestriccion()
+    ;[0, 80, 200, 500].forEach((delay) => {
+        setTimeout(aplicarRestriccion, delay)
+    })
+
+    father.off("focusin.monotributoTipoComprobante", ".inputSelect.tipoComprobante")
+    father.on("focusin.monotributoTipoComprobante", ".inputSelect.tipoComprobante", aplicarRestriccion)
+
+    father.off("change.monotributoTipoComprobante", ".inputSelect.tipoComprobante")
+    father.on("change.monotributoTipoComprobante", ".inputSelect.tipoComprobante", aplicarRestriccion)
+
+    father.off("input.monotributoTipoComprobante", ".inputSelect.tipoComprobante")
+    father.on("input.monotributoTipoComprobante", ".inputSelect.tipoComprobante", (e) => {
+        let empresaEmisora = obtenerEmpresaEmisoraActiva()
+        if (!empresaEsMonotributo(empresaEmisora)) return
+        if (e.target.value != "Letra C") {
+            e.target.value = "Letra C"
+        }
+    })
+}
 function comprobanteFunc(valor, objeto, numeroForm) {
 
     let valorLetra = ""
-    let empresaSeleccionada = $(`.empresaSelect`).text()
-    let empresaEmisora = Object.values(consultaPestanas.empresa).find(e => e.name == empresaSeleccionada);
+    let empresaEmisora = obtenerEmpresaEmisoraActiva()
+    let condicionEmpresa = condicionImpositivaNormalizada(empresaEmisora?.condicionImpositiva)
 
-    switch (empresaEmisora.condicionImpositiva) {
-        case `Monotributista`:
+    switch (condicionEmpresa) {
+        case "monotributo":
+        case "monotributista":
+        case "monotributistasocial":
 
             valorLetra = "Letra C"
             break
-        case "Responsable Inscripto":
+        case "responsableinscripto":
 
             let consultaCliente = consultaPestanas?.cliente?.[valor]?.condicionImpositiva || ""
 

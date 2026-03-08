@@ -239,6 +239,19 @@ const requerido = {//Requerido para usar en
 const lengthDesplegable = {
     10: "scroll",
 }
+function empresaActivaEsMonotributo() {
+
+    let empresaActiva = null
+    if (typeof empresaSeleccionada !== "undefined" && empresaSeleccionada?._id) {
+        empresaActiva = empresaSeleccionada
+    } else {
+        let empresaSel = $(`.empresaSelect`).text().trim()
+        empresaActiva = Object.values(consultaPestanas?.empresa || {}).find(e => e.name == empresaSel)
+    }
+
+    let condicion = (empresaActiva?.condicionImpositiva || "").toString().replace(/\s+/g, "").toLowerCase()
+    return condicion.includes("monotributo") || condicion.includes("monotributista") || condicion == "6"
+}
 function prestanaFormIndividual(objeto, numeroForm, atributo, valorPar, indice, elementos) {
 
     let pest = ""
@@ -277,7 +290,16 @@ function prestanaFormIndividual(objeto, numeroForm, atributo, valorPar, indice, 
 function prestanaFormIndividualPreEstablecida(objeto, numeroForm, atributo, valorPar, indice, elementos) {
 
     let pest = ""
+    let opciones = atributo.opciones || []
     let valorDefPar = valorPar || atributo.valorInicial || ""
+
+    if (objeto?.accion == "facturasEmitidas"
+        && (atributo?.nombre || atributo) == "tipoComprobante"
+        && empresaActivaEsMonotributo()) {
+
+        opciones = ["Letra C"]
+        valorDefPar = "Letra C"
+    }
 
     pest += `<div class="selectCont ${atributo.nombre || atributo}" name="${atributo.nombre || atributo}">`
 
@@ -286,7 +308,7 @@ function prestanaFormIndividualPreEstablecida(objeto, numeroForm, atributo, valo
     pest += `<div class="opcionesSelectDiv oculto">
     <div class="opciones primeroVacio" valueString="" value=""><p></p></div>`
 
-    $.each(atributo.opciones, (ind, val) => {
+    $.each(opciones, (ind, val) => {
 
         pest += `<div class="opciones" value="${val}"><p>${val}</p></div>`
     })
