@@ -240,19 +240,35 @@ function reversoString(datos) {
 }
 function saldoComprobanteFact(datos) {
 
-    const tipoPago = datos.tipoPago
-    const total = datos.importeTotal
+    let tipoPago = datos.tipoPago
+    const total = Number(datos.importeTotal) || 0
+
+    if (!Array.isArray(tipoPago)) {
+        tipoPago = tipoPago ? [tipoPago] : []
+    }
 
     let saldoComprobante = total
-    let ctactte = Object.values(consultaPestanas.tipoPago).find(e => e.name?.toLowerCase() == "cuenta corriente");
 
     $.each(tipoPago, (indice, value) => {
 
-        if (value != ctactte._id) {
+        let tipoPagoActual = consultaPestanas?.tipoPago?.[value]
 
-            let importe = datos.importeTipoPago[indice] * datos.tipoCambioTipoPago[indice]
+        if (!tipoPagoActual) {
+            tipoPagoActual = Object.values(consultaPestanas?.tipoPago || {})
+                .find(e => String(e?.name || "").toLowerCase().trim() == String(value || "").toLowerCase().trim())
+        }
 
-            saldoComprobante = saldoComprobante - importe
+        if (!tipoPagoActual) return;
+
+        let nombreTipoPago = normalizarTextoSelectForm(tipoPagoActual?.name)
+
+        let esCuentaCorriente = nombreTipoPago == "cuenta corriente"
+
+        if (!esCuentaCorriente) {
+            let importe = Number(datos.importeTipoPago?.[indice]) || 0
+            let tipoCambio = Number(datos.tipoCambioTipoPago?.[indice]) || 1
+
+            saldoComprobante = saldoComprobante - (importe * tipoCambio)
 
         }
     })

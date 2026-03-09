@@ -1,71 +1,3 @@
-function obtenerPrimerCampoFocusableForm(numeroForm) {
-
-    const formulario = $(`#t${numeroForm}`)
-    if (!formulario.length) {
-        return $()
-    }
-
-    const candidatos = formulario.find(`div.fo input[tabindex], div.fo textarea[tabindex], div.fo select[tabindex]`).filter((indice, campo) => {
-
-        const $campo = $(campo)
-        const type = (($campo.attr("type") || "").toLowerCase())
-
-        if (!$campo.is(":visible")) return false
-        if ($campo.is(":disabled")) return false
-        if ($campo.is("[readonly], [sololec], [soloLec]")) return false
-        if (type === "hidden" || type === "checkbox") return false
-        if ($campo.attr("tabindex") === "-1") return false
-
-        if ($campo.is(".ocultoConLugar, .ocultoPestana, .oculto, .ocultoSiempre, .ocultoSeguridad")) return false
-        if ($campo.closest(".oculto, .ocultoSiempre, .ocultoSeguridad, [oculto=true], [oculto=\"true\"]").length > 0) return false
-        if ($campo.closest("td.ocultoConLugar, th.ocultoConLugar, div.fo.ocultoConLugar").length > 0) return false
-
-        return true
-    })
-
-    const ordenados = candidatos.get().map((campo, indiceDom) => {
-
-        const tabRaw = Number.parseFloat(campo.getAttribute("tabindex"))
-        const tab = Number.isFinite(tabRaw) ? tabRaw : Number.MAX_SAFE_INTEGER
-
-        return { campo, tab, indiceDom }
-    }).sort((a, b) => {
-
-        if (a.tab !== b.tab) return a.tab - b.tab
-        return a.indiceDom - b.indiceDom
-    })
-
-    return $(ordenados[0]?.campo || [])
-}
-function enfocarPrimerCampoFormulario(numeroForm, opciones = {}) {
-
-    const delay = Number.isFinite(Number(opciones.delay)) ? Math.max(0, Number(opciones.delay)) : 100
-    const abrirInputSelect = opciones.abrirInputSelect !== false
-
-    setTimeout(() => {
-
-        const formulario = $(`#t${numeroForm}`)
-        if (!formulario.length || !formulario.hasClass("active")) {
-            return
-        }
-
-        const campo = obtenerPrimerCampoFocusableForm(numeroForm)
-        if (!campo.length) {
-            return
-        }
-
-        campo.get(0)?.focus?.()
-        campo.trigger("focus")
-
-        if (abrirInputSelect && campo.hasClass("inputSelect")) {
-            setTimeout(() => {
-                if (!formulario.hasClass("active")) return
-                campo.get(0)?.focus?.()
-                campo.trigger("focus")
-            }, 0)
-        }
-    }, delay)
-}
 async function crearFormulario(objeto, numeroForm, consult) {//doc
 
     let eliminarAdjuntos = [];
@@ -144,6 +76,14 @@ async function crearFormulario(objeto, numeroForm, consult) {//doc
     let fechaPermitida = permisosFunc.fechaPermitida
 
     const id = $(`#t${numeroForm} input._id`).val()
+    const tipoFormInd = `${objeto?.formInd?.type || ""}`
+    const esAprobacionIndividual = tipoFormInd.split(/\s+/).includes("aprobacionIndividual")
+    const esVistaPrevia = $(`#t${numeroForm}`).is(`[tabla="vistaPrevia"]`)
+
+    if (id == "" && !esAprobacionIndividual && !esVistaPrevia) {
+        enfocarPrimerCampoFormulario(numeroForm, { delay: 100, abrirInputSelect: true })
+    }
+
     $(`#bf${numeroForm}`).on('click', '.okfPlus, .okBoton', async (e) => {
         const $btn = $(e.currentTarget);
 
@@ -1021,7 +961,8 @@ async function crearFormulario(objeto, numeroForm, consult) {//doc
 
         $.each(objeto?.atributos?.valorInicial?.select, (indice, value) => {
 
-            $(`#t${numeroForm} tr.mainBody[q=0] .inputSelect.${indice}`).val(value).trigger("change")
+            let inputSelect = $(`#t${numeroForm} tr.mainBody[q=0] .inputSelect.${indice}`)
+            setearValorInicialInputSelect(inputSelect, value)
         })
 
     } else {
@@ -1097,11 +1038,8 @@ async function crearFormulario(objeto, numeroForm, consult) {//doc
 
     $(`#t${numeroForm}`).addClass(objeto?.formInd?.type || "")
     $(`#t${numeroForm} input.soloLectura`).attr("tabindex", "-1")
+    $(`#t${numeroForm} input.soloLectura[type="date"], #t${numeroForm} input.soloLectura[type="datetime-local"]`).removeAttr("type").addClass("typeDate")
     $(`#t${numeroForm}`).css(`max-height`, heightTabla(numeroForm))
-
-    if (id == "" && !$(`#t${numeroForm}`).is(".aprobacionIndividual, [tabla=\"vistaPrevia\"]")) {
-        enfocarPrimerCampoFormulario(numeroForm, { delay: 100, abrirInputSelect: true })
-    }
 };
 /////////////////////////////////////
 async function enviarRegistroNuevoForm(numeroForm, objeto, electronica) {//doc
@@ -1694,7 +1632,8 @@ function limpiarEnviarRegistro(objeto, numeroForm) {//doc
         valoresInicialesAppFunc(objeto, numeroForm, "")
         $.each(objeto.atributos.valorInicial.select, (indice, value) => {
 
-            $(`#t${numeroForm} tr.mainBody[q=0] .inputSelect.${indice}`).val(value).trigger("change")
+            let inputSelect = $(`#t${numeroForm} tr.mainBody[q=0] .inputSelect.${indice}`)
+            setearValorInicialInputSelect(inputSelect, value)
         })
         if (objeto.type == "parametrica") {
 
@@ -1801,6 +1740,7 @@ function editFormulario(objeto, numeroForm) {
         $(`#t${numeroForm} .form.${value.nombre || value},
            #t${numeroForm} .formColec.${value.nombre || value}`).prop("readonly", "true");
     })
+    $(`#t${numeroForm} input.soloLectura, #t${numeroForm} textarea.soloLectura`).prop("readonly", "true")
 
     if ($(`#t${numeroForm} select.form.moneda`).val() == "Pesos") {
         $(`#t${numeroForm} input.form.tc,
@@ -2171,10 +2111,11 @@ function valoresInicialesAppFunc(objeto, numeroForm, id) {
 
                     $.each(value, (ind, val) => {
 
+                        let valorNormalizado = normalizarTextoSelectForm(val)
                         let valorInicial =
                             Object.values(consultaPestanas?.[ind?.toLowerCase()] || {})
-                                ?.find(e => e.name?.toLowerCase() === val?.toLowerCase())
-                                ?.name
+                                ?.find(e => normalizarTextoSelectForm(e?.name) == valorNormalizado)
+                                ?.name || val
 
                         $(`#t${numeroForm}:not([tabla="vistaPrevia"]) .inputSelect.form[class*="${ind}"]:not(.notValApp)`).val(valorInicial).addClass("valorInicial").trigger("change")
 
@@ -2184,11 +2125,11 @@ function valoresInicialesAppFunc(objeto, numeroForm, id) {
                     $.each(value, (ind, val) => {
 
                         let tables = $(`#t${numeroForm}:not([tabla="vistaPrevia"]) table`)
-
+                        let valorNormalizado = normalizarTextoSelectForm(val)
                         let valorInicial =
                             Object.values(consultaPestanas?.[ind?.toLowerCase()] || {})
-                                .find(e => e.name?.toLowerCase() === val.toLowerCase())
-                                ?.name
+                                ?.find(e => normalizarTextoSelectForm(e?.name) == valorNormalizado)
+                                ?.name || val
 
                         $.each(tables, (i, v) => {
 
@@ -4952,4 +4893,113 @@ function inicializarResizeCamposFormInd(objeto, numeroForm) {
             refrescarAutoRenglones();
         }, 160);
     });
+}
+function obtenerPrimerCampoFocusableForm(numeroForm) {
+
+    const formulario = $(`#t${numeroForm}`)
+    if (!formulario.length) {
+        return $()
+    }
+
+    const candidatos = formulario.find(`div.fo input[tabindex], div.fo textarea[tabindex], div.fo select[tabindex]`).filter((indice, campo) => {
+
+        const $campo = $(campo)
+        const type = (($campo.attr("type") || "").toLowerCase())
+
+        if (!$campo.is(":visible")) return false
+        if ($campo.is(":disabled")) return false
+        if ($campo.is("[readonly], [sololec], [soloLec]")) return false
+        if (type === "hidden" || type === "checkbox") return false
+        if ($campo.attr("tabindex") === "-1") return false
+
+        if ($campo.is(".ocultoConLugar, .ocultoPestana, .oculto, .ocultoSiempre, .ocultoSeguridad")) return false
+        if ($campo.closest(".oculto, .ocultoSiempre, .ocultoSeguridad, [oculto=true], [oculto=\"true\"]").length > 0) return false
+        if ($campo.closest("td.ocultoConLugar, th.ocultoConLugar, div.fo.ocultoConLugar").length > 0) return false
+
+        return true
+    })
+
+    const ordenados = candidatos.get().map((campo, indiceDom) => {
+
+        const tabRaw = Number.parseFloat(campo.getAttribute("tabindex"))
+        const tab = Number.isFinite(tabRaw) ? tabRaw : Number.MAX_SAFE_INTEGER
+
+        return { campo, tab, indiceDom }
+    }).sort((a, b) => {
+
+        if (a.tab !== b.tab) return a.tab - b.tab
+        return a.indiceDom - b.indiceDom
+    })
+
+    return $(ordenados[0]?.campo || [])
+}
+function enfocarPrimerCampoFormulario(numeroForm, opciones = {}) {
+
+    const delay = Number.isFinite(Number(opciones.delay)) ? Math.max(0, Number(opciones.delay)) : 100
+    const abrirInputSelect = opciones.abrirInputSelect !== false
+
+    setTimeout(() => {
+
+        const formulario = $(`#t${numeroForm}`)
+        if (!formulario.length || !formulario.hasClass("active")) {
+            return
+        }
+
+        const campo = obtenerPrimerCampoFocusableForm(numeroForm)
+        if (!campo.length) {
+            return
+        }
+
+        campo.get(0)?.focus?.()
+        campo.trigger("focus")
+
+        if (abrirInputSelect && campo.hasClass("inputSelect")) {
+            setTimeout(() => {
+                if (!formulario.hasClass("active")) return
+                campo.get(0)?.focus?.()
+                campo.trigger("focus")
+            }, 0)
+        }
+    }, delay)
+}
+function normalizarTextoSelectLocal(valor) {
+
+    if (typeof normalizarTextoSelectForm === "function") {
+        return normalizarTextoSelectForm(valor)
+    }
+
+    return String(valor || "")
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, " ")
+}
+function setearValorInicialInputSelect($inputSelect, valorInicial) {
+
+    if (!$inputSelect || $inputSelect.length == 0) return
+
+    let valorTexto = String(valorInicial || "")
+    let father = $inputSelect.parents(`.selectCont`)
+
+    if (father.length > 0 && valorTexto.length > 0) {
+
+        let opcionExacta = $(`.opciones[valuestring="${valorTexto}"]`, father).first()
+
+        if (opcionExacta.length > 0) {
+            valorTexto = opcionExacta.attr("valuestring") || valorTexto
+        } else {
+
+            let valorNormalizado = normalizarTextoSelectLocal(valorTexto)
+            let opcionParecida = $(`.opciones`, father).filter((_, opcion) => {
+
+                let valueString = $(opcion).attr("valuestring")
+                return normalizarTextoSelectLocal(valueString) == valorNormalizado
+            }).first()
+
+            if (opcionParecida.length > 0) {
+                valorTexto = opcionParecida.attr("valuestring") || valorTexto
+            }
+        }
+    }
+
+    $inputSelect.val(valorTexto).trigger("change")
 }

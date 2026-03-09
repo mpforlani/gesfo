@@ -1512,6 +1512,7 @@ function sorteableTablas(objeto, numeroForm) {
 
     let tablas = document.querySelectorAll(`#t${numeroForm} table.tablaCompuesto`);
     const scope = getScopeOrdenColumnasColeccionFormInd(objeto);
+    const filtroControlesInteractivos = "input, select, textarea, .divSelectInput, .listaDesplegableSelect, .divListaInputSelect";
 
     for (const tabla of tablas) {
         const compuesto = (tabla.getAttribute("compuesto") || "").trim();
@@ -1530,10 +1531,17 @@ function sorteableTablas(objeto, numeroForm) {
         if (tbody) {
             const sortableFilas = new Sortable(tbody, {
                 animation: 150,
-                handle: "td", // arrastrás desde cualquier celda
-                filter: "", // NO mover estas filas
+                handle: "td", // arrastrás desde cualquier celda vacía
+                filter: filtroControlesInteractivos, // NO mover al interactuar con controles
                 preventOnFilter: false,
                 draggable: "tr.mainBody:not(.last)",
+                onMove: function (evt, originalEvent) {
+                    if (typeof originalEvent?.button === "number" && originalEvent.button !== 0) {
+                        return false;
+                    }
+
+                    return true;
+                },
                 onEnd: function (evt) {
 
                     // Obtener la tabla contenedora
@@ -1783,7 +1791,6 @@ function consultaStock(objeto, numeroForm) {
 
         let operacion = $(`#t${numeroForm} .inputSelect.operacionStock`).val();
         if (operacion == "Ajuste") return; // permite ajustar al negativo
-        console.log(operacion)
 
         let tipo = obtenerTipoDesdeEvento(e);
         if (!tipo) return;

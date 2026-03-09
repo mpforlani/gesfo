@@ -36,6 +36,15 @@ $(`#fechaTextoHasta`).val(fechaHasta)
 function getFileExtension(filename) {
     return filename.split('.').pop();
 }
+function normalizarTextoSelectForm(valor) {
+
+    return String(valor || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, " ")
+}
 function funcionCerrar(self) {
 
     const navSup = {

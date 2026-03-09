@@ -1,9 +1,8 @@
 
 function obtenerEmpresaEmisoraActiva() {
-    if (typeof empresaSeleccionada !== "undefined" && empresaSeleccionada?.name) {
-        return empresaSeleccionada
-    }
-    let empresaNombreSeleccionada = $(`.empresaSelect`).text().trim()
+    let empresaNombreSeleccionada = $(`.navegacionSupHomeLog .tituloEmpresa .empresaSelect`).first().text().trim()
+        || $(`.empresaSelect`).first().text().trim()
+
     return Object.values(consultaPestanas?.empresa || {}).find(e => e.name == empresaNombreSeleccionada)
 }
 function condicionImpositivaNormalizada(condicion = "") {
@@ -75,19 +74,40 @@ function fijarComprobanteCFijoMonotributo(objeto, numeroForm) {
         }
     })
 }
+function monedaBaseEmpresaEmitirFactura(objeto, numeroForm) {
+    if (objeto?.accion != "facturasEmitidas") return
+    if ($(`#t${numeroForm} input._id`).val() != "") return
+
+    const aplicarMonedaBase = () => {
+        let empresaEmisora = obtenerEmpresaEmisoraActiva()
+        let monedaBaseEmpresa = (empresaEmisora?.monedaBase || "Pesos").toString().trim()
+        if (monedaBaseEmpresa == "") monedaBaseEmpresa = "Pesos"
+
+        let monedaCatalogo = Object.values(consultaPestanas?.moneda || {}).find((m) =>
+            (m?.name || "").toString().trim().toLowerCase() == monedaBaseEmpresa.toLowerCase()
+        )
+        let monedaDefecto = monedaCatalogo?.name || monedaBaseEmpresa
+
+        let inputMoneda = $(`#t${numeroForm} .inputSelect.moneda`).first()
+        if (inputMoneda.length == 0) return
+
+        if ((inputMoneda.val() || "").toString().trim().toLowerCase() != monedaDefecto.toLowerCase()) {
+            inputMoneda.val(monedaDefecto).trigger("change")
+        }
+    }
+
+    aplicarMonedaBase()
+    ;[50, 180, 400].forEach((delay) => setTimeout(aplicarMonedaBase, delay))
+}
 function comprobanteFunc(valor, objeto, numeroForm) {
 
     let valorLetra = ""
     let empresaEmisora = obtenerEmpresaEmisoraActiva()
-    let condicionEmpresa = condicionImpositivaNormalizada(empresaEmisora?.condicionImpositiva)
+    if (empresaEsMonotributo(empresaEmisora)) {
+        return "Letra C"
+    }
 
-    switch (condicionEmpresa) {
-        case "monotributo":
-        case "monotributista":
-        case "monotributistasocial":
-
-            valorLetra = "Letra C"
-            break
+    switch (condicionImpositivaNormalizada(empresaEmisora?.condicionImpositiva)) {
         case "responsableinscripto":
 
             let consultaCliente = consultaPestanas?.cliente?.[valor]?.condicionImpositiva || ""
@@ -116,8 +136,13 @@ function letraCodigoComprobante(objeto, numeroForm) {
             let valorId = $(`.divSelectInput`, valorCliente).val()
 
             let val = comprobanteFunc(valorId, objeto, numeroForm)
+            if ((val || "").trim() == "" && objeto?.accion == "facturasEmitidas") {
+                val = "Letra C"
+            }
 
-            $(`#t${numeroForm} .inputSelect.tipoComprobante`).val(val).trigger("change")
+            if ((val || "").trim() != "") {
+                $(`#t${numeroForm} .inputSelect.tipoComprobante`).val(val).trigger("change")
+            }
         }
 
     }
@@ -126,20 +151,71 @@ function letraCodigoComprobante(objeto, numeroForm) {
 
 }
 function calculaImpuestossoloIVa(objeto, numeroForm) {
+    const esLetraC = () => {
+        let visible = ($(`#t${numeroForm} .inputSelect.tipoComprobante`).first().val() || "").toString().trim().toLowerCase()
+        let interno = ($(`#t${numeroForm} .divSelectInput[name=tipoComprobante]`).first().val() || "").toString().trim().toLowerCase()
+        return visible == "letra c" || visible == "c" || interno == "letra c" || interno == "c"
+    }
+    const limpiarIvaFila = (fila) => {
+        $(`input.porcentaje`, fila).val("")
+        $(`input.impuestoFactVentas`, fila).val("").trigger("input")
+    }
 
     const tasaDeImpuestosSegunProducto = (e) => {
 
-        let prodSeleccionado = $("td.itemVenta .divSelectInput", $(e.target).parents("tr")).val()
-
         let fila = $(e.target).parents("tr")
-        let impuestosProductos = consultaPestanas.itemVenta[prodSeleccionado]?.impuestoDefinicion
+        let prodSeleccionado = $(`.divSelectInput[name=itemVenta], .divSelectInput[name=itemCompra]`, fila).first().val()
+        let impuestosProductos = consultaPestanas?.itemVenta?.[prodSeleccionado]?.impuestoDefinicion || consultaPestanas?.itemCompra?.[prodSeleccionado]?.impuestoDefinicion
         let ivaImpuesto = impuestosProductos?.find(e => consultaPestanas?.agrupadorImpuesto?.[consultaPestanas?.impuestoDefinicion?.[e]?.agrupadorImpuesto]?.name == "IVA")
         let tasaIvaPrd = consultaPestanas?.impuestoDefinicion?.[ivaImpuesto]?.tasa || ""
+
+        if (esLetraC()) {
+            limpiarIvaFila(fila)
+            return
+        }
 
         $(`input.porcentaje`, fila).val(numeroAString(tasaIvaPrd)).trigger("input")
     }
 
-    $(`#t${numeroForm}`).on("change", `.divSelectInput[name=itemVenta]`, tasaDeImpuestosSegunProducto)
+    $(`#t${numeroForm}`).on("change", `.divSelectInput[name=itemVenta], .divSelectInput[name=itemCompra], .inputSelect.itemVenta, .inputSelect.itemCompra`, tasaDeImpuestosSegunProducto)
+    $(`#t${numeroForm}`).on("change", `.inputSelect.tipoComprobante, .divSelectInput[name=tipoComprobante]`, (e) => {
+        let esLetraCComprobante = esLetraC()
+        let porcentajes = $(`#t${numeroForm} table.compuestoFacturaVentas tr.mainBody:not(.last) input.porcentaje,
+            #t${numeroForm} table.compuestoFacturaCompras tr.mainBody:not(.last) input.porcentaje`)
+
+        $.each(porcentajes, (indice, value) => {
+            if (esLetraCComprobante) {
+                $(value).val("")
+            }
+            $(value).trigger("input")
+        })
+
+        if (!esLetraCComprobante) {
+            $(`#t${numeroForm} .divSelectInput[name=itemVenta], #t${numeroForm} .divSelectInput[name=itemCompra]`).trigger("change")
+        } else {
+            let filas = $(`#t${numeroForm} table.compuestoFacturaVentas tr.mainBody:not(.last),
+                #t${numeroForm} table.compuestoFacturaCompras tr.mainBody:not(.last)`)
+            $.each(filas, (indice, tr) => {
+                limpiarIvaFila($(tr))
+            })
+        }
+    })
+    $(`#t${numeroForm}`).on("input", `table.compuestoFacturaVentas tr.mainBody:not(.last) input.porcentaje,
+        table.compuestoFacturaCompras tr.mainBody:not(.last) input.porcentaje`, (e) => {
+
+        if (!esLetraC()) return
+
+        if ((e.target.value || "").toString().trim() != "") {
+            $(e.target).val("").trigger("input")
+        }
+    })
+    $(`#t${numeroForm}`).on("input", `table.compuestoFacturaVentas tr.mainBody:not(.last) input.impuestoFactVentas,
+        table.compuestoFacturaCompras tr.mainBody:not(.last) input.impuestoFactVentas`, (e) => {
+
+        if (!esLetraC()) return
+        if ((e.target.value || "").toString().trim() == "") return
+        $(e.target).val("").trigger("input")
+    })
 
 }
 function calculaImpuestos(objeto, numeroForm, atributo, datos) {

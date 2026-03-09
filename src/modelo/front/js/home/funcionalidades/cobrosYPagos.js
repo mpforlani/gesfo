@@ -4,7 +4,7 @@ let variablesModeloPagosCobros = {
       names: [
         P({ nombre: "cliente", clase: "requerido", width: "veinte" }),
         FH(),
-        PPE({ nombre: "comprobante", width: "quince", clase: "requerido", opciones: ["Factura", "Factura de Credito", "Nota de debito", "Nota de credito"] }),
+        PPE({ nombre: "comprobante", width: "quince", clase: "requerido", opciones: ["Factura electronica", "Factura de Credito", "Nota de debito", "Nota de credito"], valorInicial: "Factura electronica" }),
         PPE({ nombre: "tipoComprobante", width: "diez", clase: "requerido", opciones: ["Letra C"], valorInicial: "Letra C" }),
         NCT({ nombre: "numeradorFactura", trigger: ["tipoComprobante", "comprobante"], width: "quince", valorInicialAncla: [valorFijoNum, "0001"], orden: "reves", funcion: { formatoDigitosExtra: [formatoDigitosExtra, 8] } }),
         P({ nombre: "moneda", width: "doce", clase: "requerido" }),
@@ -215,6 +215,7 @@ let variablesModeloPagosCobros = {
     funcionesPropias: {
       formularioIndiv: {
         fijarComprobanteCFijoMonotributo: [fijarComprobanteCFijoMonotributo],
+        monedaBaseEmpresaEmitirFactura: [monedaBaseEmpresaEmitirFactura],
         letraCodigoComprobante: [letraCodigoComprobante],
         mostrarPestanaProducto: [mostrarPestanaProducto],
         fechaFacturacion: [fechaFacturacion],
@@ -222,12 +223,13 @@ let variablesModeloPagosCobros = {
         valoresInicialesMediosPagos: [valoresInicialesMediosPagos, "importeTotal"],
         cuentaBcaria: [cuentaBcaria],
         consultaStock: [consultaStock],
-        //cambiarBoton: [cambiarBoton, `okBoton`, iOkFacturaElec],
-        //cambiarBotonD: [cambiarBoton, `okfPlus`, okPlusElectronica],
-        //botonEnviarelectronica: [botonEnviarelectronica]
+        cambiarBoton: [cambiarBoton, `okBoton`, iOkFacturaElec],
+        cambiarBotonD: [cambiarBoton, `okfPlus`, okPlusElectronica],
+        botonEnviarelectronica: [botonEnviarelectronica]
       },
       formularioIndivFinal: {
         fijarComprobanteCFijoMonotributoFinal: [fijarComprobanteCFijoMonotributo],
+        monedaBaseEmpresaEmitirFacturaFinal: [monedaBaseEmpresaEmitirFactura],
       },
     },
     desencadenante: {
