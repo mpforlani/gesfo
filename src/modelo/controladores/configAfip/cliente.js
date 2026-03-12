@@ -358,10 +358,15 @@ async function createVoucher(data) {
             throw createError(`AFIP rechazó el comprobante: ${obsMsg}`, obs, 400);
         }
 
+        const numeroFactura = feDetResp.CbteDesde == null
+            ? toNumber(data.CbteDesde, 'CbteDesde')
+            : toNumber(feDetResp.CbteDesde, 'CbteDesde');
+
         return {
             CAE: feDetResp.CAE,
             CAEFchVto: formatAfipDate(feDetResp.CAEFchVto),
             Resultado: feDetResp.Resultado,
+            numeroFactura,
             Observaciones: feDetResp.Observaciones || null,
         };
     } catch (error) {

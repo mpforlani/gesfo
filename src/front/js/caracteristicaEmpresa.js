@@ -9,13 +9,10 @@ const caracteristicaEmpresa = {
     cajas: false,
     tipoEmpresa: "Responsable inscripto",
     diasFacturacion: 30,
-    fechaDesdeEmpersa: addDay(Date.now(), 0, -2, 0, `y-m-d`)
+    fechaDesdeEmpersa: addDay(Date.now(), 0, -2, 0, `y-m-d`),
+    colorBordesLocal: "rgba(156, 165, 185, 1)"
 }
-const colores = {
-    impresion: {
-        bordesRenglon: "rgba(156, 165, 185, 1)"
-    }
-}
+
 const valoresIncialesApp = {
     select: {
         moneda: "Dolar"

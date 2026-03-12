@@ -2406,8 +2406,6 @@ function posteoElectronica(objeto, numeroForm) {
 
                 const numero = resJson.numeroFactura.toString().padStart(8, "0");
                 const ancla = formData.get('ancla')
-                const filtro = formData.get('tipoComprobante')
-                const comprobante = formData.get('comprobante')
                 const empresa = formData.get('empresa') || empresaSeleccionada?._id
 
                 $(`#t${numeroForm} input.CAE`).val(resJson.CAE);
@@ -2418,11 +2416,19 @@ function posteoElectronica(objeto, numeroForm) {
                 let numeradorObjeto = {};
                 numeradorObjeto.name = objeto.accion
                 numeradorObjeto.numerador = numero
-                numeradorObjeto.ancla = ancla
-                numeradorObjeto.filtroUno = filtro
-                numeradorObjeto.tipoComprobante = filtro
-                numeradorObjeto.comprobante = comprobante
                 numeradorObjeto.empresa = empresa
+
+                $.each(objeto?.numerador?.componentes || {}, (indice, value) => {
+                    numeradorObjeto[indice] = $(`#t${numeroForm} input.${value.nombre || indice}`).val()
+                })
+                $.each(objeto?.numerador?.filtro || {}, (indice, value) => {
+                    numeradorObjeto[value] = $(`#t${numeroForm} input.${value}`).val()
+                })
+
+                const primerFiltro = Object.values(objeto?.numerador?.filtro || {})[0]
+                if (primerFiltro) {
+                    numeradorObjeto.filtroUno = $(`#t${numeroForm} input.${primerFiltro}`).val()
+                }
 
                 try {
                     const response = await fetch('/numeradorAbosoluto', {
