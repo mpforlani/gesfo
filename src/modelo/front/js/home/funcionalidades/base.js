@@ -52,6 +52,7 @@ let variablesModeloBase = {
                 CH({ nombre: "multimoneda", width: "siete" }),
                 CH({ nombre: "cajas", width: "siete" }),
                 CH({ nombre: "listaPrecios", width: "siete" }),
+                CH({ nombre: "electronica", width: "siete" }),
                 P("cuentasBancarias"),
                 PPE({ nombre: "colores", opciones: ["Blanco", "Verde", "Azul", "Amarillo"] }),
                 COM(Object.assign({}, direcciones, {
@@ -70,17 +71,21 @@ let variablesModeloBase = {
                 })),
                 adjunto,
                 habilitado],
-            titulos: ['Nombre', `CUIT`, `Condición Impositiva`, `IIBB`, `Fecha Inicio`, `Moneda Base`, `Moneda Alternativa`, `Baja Stock`, `Ingresa Stock`, "Logo", `Multimoneda`, `Cajas`, "Listas Precios", "Cuenta Facturación", "Colores", `Adjunto`, `habilitado`],
+            titulos: ['Nombre', `CUIT`, `Condición Impositiva`, `IIBB`, `Fecha Inicio`, `Moneda Base`, `Moneda Alternativa`, `Baja Stock`, `Ingresa Stock`, "Logo", `Multimoneda`, `Cajas`, "Listas Precios", "Fact Elect", "Cuenta Facturación", "Colores", `Adjunto`, `habilitado`],
             eliminar: false,
             deshabilitar: true,
         },
         formInd: {
-            inputRenglones: [4, 4, 5, 2, "compuesto", 1],
+            inputRenglones: [4, 4, 7, 2, "compuesto", 1],
         },
         funcionesPropias: {
             formularioIndiv: {
                 coloresOpc: [coloresOpc],
                 formatoDocumento: [formatoDocumento, "documento"],
+                validarElectronicaDomicilioComercialForm: [validarElectronicaDomicilioComercialForm],
+            },
+            validarAlConfirmar: {
+                validarElectronicaDomicilioComercial: validarElectronicaDomicilioComercial
             },
         },
         key: `name`,

@@ -475,7 +475,7 @@ let variablesModeloReportes = {
                         unidadesMedida: { $first: `$unidadesMedida` },
                         almacen: { $first: `$almacen` },
                         periodo: { $first: "$periodo" },
-                        cantidad: { $sum: "$cantidad" },
+                        disponibles: { $sum: "$disponibles" },
                         cantidadTotal: { $sum: "$cantidadTotal" },
                     },
                 }, {
@@ -491,7 +491,7 @@ let variablesModeloReportes = {
                         periodos: {
                             $push: {
                                 periodo: "$_id.periodo",
-                                cantidad: "$cantidad",
+                                disponibles: "$disponibles",
                                 cantidadTotal: "$cantidadTotal",
                             }
                         },
@@ -508,6 +508,7 @@ let variablesModeloReportes = {
                 funcionesPropias: {
                     tabla: {
                         ordenarTablasRep: [ordenarTablasRep, ["stock"], "producto"],
+                        filtrarVacios: [filtrarVacios, "stock", "disponibles"],
                     }
 
                 }
@@ -543,7 +544,7 @@ let variablesModeloReportes = {
                         unidadesMedida: { $first: `$unidadesMedida` },
                         almacen: { $first: `$almacen` },
                         periodo: { $first: "$periodo" },
-                        cantidad: { $sum: "$cantidad" },
+                        disponibles: { $sum: "$disponibles" },
                         cantidadTotal: { $sum: "$cantidadTotal" },
                     },
                 }, {
@@ -559,7 +560,7 @@ let variablesModeloReportes = {
                         periodos: {
                             $push: {
                                 periodo: "$_id.periodo",
-                                cantidad: "$cantidad",
+                                disponibles: "$disponibles",
                                 cantidadTotal: "$cantidadTotal",
                             }
                         },
@@ -580,6 +581,7 @@ let variablesModeloReportes = {
                 funcionesPropias: {
                     tabla: {
                         totalVerticalManual: [totalVerticalManual, ["valorizado"]],
+                        filtrarVacios: [filtrarVacios, "valorizado", "totalConPrecio"],
                         ordenarTablasRep: [ordenarTablasRep, ["valorizado"], "producto"],
                     }
                 }
@@ -814,6 +816,7 @@ let variablesModeloReportes = {
                 type: "agrupadoMes",
                 datos: "getUnWindGroup",
                 atributosEnMeses: [I("subtotalVentas")],
+                sinDecimales: true,
                 ordenDefault: [P("itemVenta"), "arriba"],
                 entidad: "facturasEmitidas",
                 totalHorizontal: true,
@@ -921,6 +924,7 @@ let variablesModeloReportes = {
                 tablas: ["facturacionMensual"],
                 atributos: ["subtotalVentas"],
                 titulos: ["Facturacion Promedio"],
+                sinDecimales: true,
                 operacion: "promedio"
             },
 

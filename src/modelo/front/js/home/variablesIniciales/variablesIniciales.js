@@ -27,6 +27,11 @@ let empresaSeleccionada = "";
 let empresaFiltro = new Object
 let tareasProgramadasModulo = new Object
 let campanaPendiente = []
+const colores = {
+    impresion: {
+        bordesRenglon: caracteristicaEmpresa?.colorBordesLocal || "black"
+    }
+}
 
 /// valoresInciales 
 $(`#fechaTextoDe`).val(fechaDesde)
@@ -1151,7 +1156,7 @@ function ocultarIngresoStock(objeto, numeroForm) {
     let empresaSelecta = Object.values(consultaPestanas.empresa).find(e => e.name == empresaSel); // obtiene la primera clave del objeto
     if (empresaSelecta.ingresaStock == "Facturacion") {
         $(`#t${numeroForm} .selectCont.operacionStock .opciones[value="Entrada"]`).addClass("ocultoSiempre");
-        $(`#t${numeroForm} .itemMenu [id="entradasPendientes"]`).addClass("ocultoSiempre");
+
     }
 }
 function ocultarSalidaStock(objeto, numeroForm) {

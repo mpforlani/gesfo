@@ -267,6 +267,7 @@ router.put('/numeradorAbosoluto', async (req, res) => {//Lo uso para poner numer
         };
 
         for (const [indice, value] of Object.entries(enviar)) {
+            if (indice == "filtroUno") continue
 
             filter[indice] = value
         }
@@ -358,7 +359,7 @@ router.post('/log-frontend-error', (req, res) => {
 router.get('/cotizaciones', async (req, res) => {
     try {
 
-        let filtros = JSON.parse(req.query?.filtros)
+        let filtros = req.query?.filtros && req.query?.filtros != "undefined" ? JSON.parse(req.query.filtros) : {}
         const fechas = generarFechasCotis(req.query.desde || filtros?.cabecera?.fecha?.desde, req.query.hasta || filtros?.cabecera?.fecha?.hasta);
         const monedas = monedasCotis(req.query.moneda || filtros?.cabecera?.moneda);
         const historico = await obtenerBNAporFecha(fechas, monedas);

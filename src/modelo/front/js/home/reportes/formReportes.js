@@ -18,6 +18,7 @@ async function cabeceraAtributoParametrica(objeto, numeroForm) {
     let cabecera = `<div class="comand tabla paddingBotton active" id="bf${numeroForm}">`;
 
     for (const pest of objeto.cabeceraParam) {
+        await consultasPestanaIndividual(pest.origen || pest.nombre, false)
         cabecera += `<div class="primerDiv selecAtributo">`
         cabecera += await cargarPestanasCabecera(objeto, pest)
         cabecera += `</div>`;
@@ -111,6 +112,7 @@ async function cabeceraAtributoParametrica(objeto, numeroForm) {
     let cabecera = `<div class="divCabecera atributosParametricos">`
 
     for (const pest of objeto.cabeceraCont.parametrica) {
+        await consultasPestanaIndividual(pest.atributo.origen || pest.atributo.nombre, false)
 
         cabecera += `<div class="primerDiv selecAtributo row interSans ${pest.clases || ""}"><p class="fsOnce centroVertical margin-right-ceroTres">${pest.titulo}:</p>`
         cabecera += await cargarPestanasCabecera(objeto, pest.atributo)
@@ -2373,18 +2375,18 @@ function valorParametrica(objeto, numeroForm, data, atributo, datoBuscado, multi
         console.log(atribut)
         let unidades = atribut?.["unidadesMedida"] || [];
         let precios = atribut?.[datoBuscado] || [];
-        let monedas = atribut?.["monedaCostos"] || [];
+        //let monedas = atribut?.["monedaCostos"] || [];
 
         let index = unidades.indexOf(unidadMedida);
         let buscado = index >= 0 ? precios[index] : precios[0] || 0;
-        let moneda = index >= 0 ? monedas[index] : monedas[0] || "";
+        //let moneda = index >= 0 ? monedas[index] : monedas[0] || "";
         if (multiplicador == "totalHorizontal") {
-            value["monedaCostos"] = moneda;
+            //  value["monedaCostos"] = moneda;
             value[nuevoAtributo] = (value?.[multiplicador] || 0) * buscado;
 
         } else {
             $.each(value.periodos, (ind, val) => {
-                val["monedaCostos"] = moneda;
+                //    val["monedaCostos"] = moneda;
                 let cantidad = val?.[multiplicador]
                 val[nuevoAtributo] = cantidad * buscado;
 
@@ -2554,4 +2556,106 @@ function ordenarTablasRep(objeto, numeroForm, tabla) {
     cont
         .find(`table[tablaRef="${tabla}"] th.fechaVencimientoProducto .flechasOrden span.arriba:not(.active)`)
         .trigger("click");
+}
+function filtrarVacios(objeto, numeroForm, tabla) {
+
+    const parseNumero = (valor) => {
+
+        const texto = `${valor ?? ""}`.trim()
+        if (!texto || texto === "-") return 0
+
+        if (typeof stringANumero === "function") {
+            const numero = stringANumero(texto)
+            if (Number.isFinite(numero)) return numero
+        }
+
+        const normalizado = texto
+            .replace(/\./g, "")
+            .replace(",", ".")
+            .replace(/[^0-9.-]/g, "")
+
+        const numero = parseFloat(normalizado)
+        return Number.isFinite(numero) ? numero : 0
+    }
+
+    let objetivos = []
+    let tablaDirecta = ""
+    let atributoDirecto = "disponibles"
+
+    if (Array.isArray(tabla)) {
+        tablaDirecta = tabla[0] || ""
+        atributoDirecto = tabla[1] || "disponibles"
+    } else if (typeof tabla === "string" && tabla) {
+        if (objeto?.tablas?.[tabla]) tablaDirecta = tabla
+        else atributoDirecto = tabla
+    }
+
+    if (tablaDirecta) {
+
+        objetivos = [{ tablaRef: tablaDirecta, atributo: atributoDirecto || "disponibles" }]
+
+    } else {
+
+        $.each(objeto?.tablas || {}, (nombreTabla, configTabla) => {
+
+            const configFiltro = configTabla?.funcionesPropias?.tabla?.filtrarVacios
+            if (!configFiltro) return
+
+            const [, opciones] = configFiltro
+            let tablaConfig = nombreTabla
+            let atributoConfig = atributoDirecto || "disponibles"
+
+            if (Array.isArray(opciones)) {
+                tablaConfig = opciones[0] || nombreTabla
+                atributoConfig = opciones[1] || atributoConfig
+            } else if (typeof opciones === "string" && opciones) {
+                if (objeto?.tablas?.[opciones]) tablaConfig = opciones
+                else atributoConfig = opciones
+            }
+
+            objetivos.push({
+                tablaRef: tablaConfig,
+                atributo: atributoConfig
+            })
+        })
+    }
+
+    $.each(objetivos, (_, objetivo) => {
+
+        const filas = $(`#t${numeroForm} table[tablaRef="${objetivo.tablaRef}"] tr.fila`).not(".filaTotal")
+
+        $.each(filas, (_, fila) => {
+
+            const filaActual = $(fila)
+            const celdasMes = $("td.mesItems", filaActual)
+            if (!celdasMes.length) return
+
+            let tieneValor = false
+
+            celdasMes.each((__, celda) => {
+
+                const contenedorMes = $(celda)
+                let items = contenedorMes.find(`div.${objetivo.atributo}`)
+
+                if (!items.length) {
+                    items = contenedorMes.find(`div[type="numero"], div[type="importe"]`)
+                }
+
+                items.each((___, item) => {
+
+                    const nodo = $(item)
+                    const texto = $("p", nodo).first().text().trim() || nodo.text().trim()
+
+                    if (parseNumero(texto) !== 0) {
+                        tieneValor = true
+                        return false
+                    }
+                })
+
+                if (tieneValor) return false
+            })
+
+            filaActual.toggleClass("oculto", !tieneValor)
+        })
+    })
 }

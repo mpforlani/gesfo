@@ -183,7 +183,7 @@ function pestanaReportePreValor(atributo, valor) {//Cuerpo de reporte para guard
     return pestana
 }
 //Consultas menu inicio parametrica
-async function consultasPestanaIndividual(entidad) {
+async function consultasPestanaIndividual(entidad, soloHabilitados = true) {
 
     let pest = variablesModelo?.[entidad] || variablesIniciales[entidad];
 
@@ -195,7 +195,9 @@ async function consultasPestanaIndividual(entidad) {
     if (caracteristicaEmpresa.empresa === true && pes.empresa === true && empresa !== "Todos") {
         detalleFiltroAtributos.empresa = empresa;
     }
-    detalleFiltroAtributos.habilitado = true;
+    if (soloHabilitados) {
+        detalleFiltroAtributos.habilitado = true;
+    }
 
     $.each(pes.sort, (indice, value) => {
         sort = `&sort=${indice}:${value}`;

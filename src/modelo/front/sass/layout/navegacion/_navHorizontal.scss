@@ -349,7 +349,7 @@
 
             .men-prin {
                 cursor: pointer;
-                z-index: 1000;
+                z-index: 10000000;
                 list-style: none;
                 margin-right: 1.5rem;
 
@@ -366,7 +366,7 @@
                     border-radius: 10px 10px 10px 10px;
                     padding: 1rem;
                     background-color: $fondoUnoMenuDesplegable;
-                    z-index: 1000;
+                    z-index: 10000000;
 
 
                     @keyframes fadeIn {

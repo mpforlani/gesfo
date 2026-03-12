@@ -70,6 +70,19 @@ function cambiarBoton(objeto, numeroForm, botonActual, botonNuevo) {
     okBoton.remove()
 
 }
+function configurarFacturacionElectronica(objeto, numeroForm) {
+
+    const empresaActiva = empresaSeleccionada
+        || Object.values(consultaPestanas?.empresa || {}).find(e => e.name == $(`.empresaSelect`).text().trim())
+        || {};
+    const habilitada = empresaActiva?.electronica === true || empresaActiva?.electronica == "true";
+
+    if (!habilitada) return;
+
+    cambiarBoton(objeto, numeroForm, `okBoton`, iOkFacturaElec);
+    cambiarBoton(objeto, numeroForm, `okfPlus`, okPlusElectronica);
+    botonEnviarelectronica(objeto, numeroForm);
+}
 function agregarBoton(objeto, numeroForm, before, botonNuevo) {
 
     let botonRef = $(`#bf${numeroForm} .${before}`).parent(".barraForm")

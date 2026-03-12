@@ -13,7 +13,7 @@ let variablesModeloInventarios = {
             N("disponibles"),
             F({ nombre: "fechaVencimientoProducto" }),
             P({ nombre: "proveedor" }),
-            T({ nombre: "remito", clase: "requerido textoCentrado" }),
+            T({ nombre: "remito", clase: "textoCentrado" }),
             PPE({ nombre: "estadoFacturacion", opciones: ["Pendiente", "Facturado"] }),
             P("almacen"),
             P("ubicaciones")
@@ -45,15 +45,17 @@ let variablesModeloInventarios = {
                 cabeceraFiltroAbm: [cabeceraFiltroAbm],
             },
             finalAbm: {
-                rellenoAbmEstado: [rellenoAbmEstado, "estado", { salidatotal: "naranjaLetra", ingresado: "azulLetra" }],
-                // rellenoAbmFechaVenc: [rellenoAbmFechaVenc, "estado", { pendiente: "rojo", pagoparcial: "rojo" }],
+                rellenoAbmEstado: [rellenoAbmEstado, "estado", { salidatotal: "naranjaLetra", ingresado: "verdeLetra", salidaparcial: "azulLetra" }],
+                rellenoAbmFechaVenc: [rellenoAbmFechaVenc, "estado", { salidaparcial: "rojoLetra", ingresado: "rojoLetra" }, "fechaVencimientoProducto"],
+                completarCeroDisponibles: [completarCeroEnCeldasVaciasAbm, "disponibles"],
+
             },
         },
         acumulador: {
             existencia: {
                 nombre: "Existencias",
                 atributosSuma: {
-                    cantidad: "cantidad"
+                    disponibles: "disponibles"
                 },
                 atributos: {
                     producto: "producto",
@@ -168,7 +170,6 @@ let variablesModeloInventarios = {
                                             N({ nombre: "cantidad", clase: "textoCentrado", width: "cinco" }),
                                             P({ nombre: "unidadesMedida", width: "tres" }),
                                             P({ nombre: "producto", clase: "textoCentrado", width: "quince" }),
-                                            T({ nombre: "estadoFacturacion", clase: "textoCentrado", width: "ocho" }),
                                             T({ nombre: "descripcion", clase: "textoCentrado", width: "seis" }),
 
                                         ],
@@ -234,7 +235,7 @@ let variablesModeloInventarios = {
             movimientoStock: {
                 type: "condicionSegunFuncion",
                 coleccionOrigen: movimientoStock,
-                identificador: "entradaInventario",
+                identificador: "movimientoStock",
                 destino: "stock",
                 nombre: "EntradaInventario",
                 funcionCondicion: [tipoOperacion],
@@ -383,10 +384,9 @@ let variablesModeloInventarios = {
                                     itemsComprobantes,
                                     [
                                         [
-                                            N({ nombre: "cantidad", clase: "textoCentrado", width: "cinco" }),
+                                            N({ nombre: "cantidadSalidas", clase: "textoCentrado", width: "cinco" }),
                                             P({ nombre: "unidadesMedida", width: "tres" }),
                                             P({ nombre: "producto", clase: "textoCentrado", width: "quince" }),
-                                            T({ nombre: "estadoFacturacion", clase: "textoCentrado", width: "ocho" }),
                                             T({ nombre: "descripcion", clase: "textoCentrado", width: "seis" }),
 
                                         ],
@@ -497,8 +497,12 @@ let variablesModeloInventarios = {
                         atributoImputables: {
                             funcion: {
                                 disponibles: [pagoParcialImporte, "cantidadSalidas", "disponibles"],
-                                estado: [pagoParcialString, "cantidadSalidas", { parcial: "Salida parcial", cerrado: "Salida total" }],
+                                estado: [pagoParcialString, "cantidadSalidas", { parcial: "Salida parcial", cerrado: "Salida total" }, "disponibles"],
 
+                            },
+                            funcionReverso: {
+                                disponibles: [reversoImporte, "disponibles"],
+                                estado: [reversoEstadoStock]
                             },
                             cambioNombre: {
                                 _id: "idComprobante",
@@ -747,17 +751,20 @@ let variablesModeloInventarios = {
                 destino: "stock",
                 nombre: "Traspasos",
                 atributoImputables: {
-
+                    funcionReverso: {
+                        almacen: [reversoString, "almacen"],
+                        ubicaciones: [reversoString, "ubicaciones"],
+                    },
                     cambioNombre: {
                         _id: "idComprobante",
                         almacen: "almacenDestino",
                         ubicaciones: "ubicacionDestino",
-
                     },
-                    grabarEnOrigen: { Número: "numerador" },
-                    grabarEnOrigenColeccion: { Número: "numerador" },
-                    grabarEnDestino: { Número: "numerador" },
-                }
+
+                },
+                grabarEnOrigen: { Número: "numerador" },
+                grabarEnOrigenColeccion: { Número: "numerador" },
+                grabarEnDestino: { Número: "numerador" },
             }
         },
         key: "numerador",
@@ -779,6 +786,7 @@ let variablesModeloInventarios = {
                 P({ nombre: "marcaOrigen", origen: "marca", clase: "requerido" }),
                 P({ nombre: "unidadesMedidaOrigen", origen: "unidadesMedida", oculto: "oculto" }),
                 N({ nombre: "disponiblesOrigen", oculto: "oculto" }),
+                N({ nombre: "cantidadOrigen", oculto: "oculto" }),
                 N({ nombre: "cantidadSalidasOrigen", oculto: "oculto" }),
                 P({ nombre: "proveedor", oculto: "oculto" }),
                 T({ nombre: "remito", oculto: "oculto" }),
@@ -787,7 +795,7 @@ let variablesModeloInventarios = {
                 movimientoStock,
                 TF("observaciones")
             ],
-            titulos: ["Numero", "Fecha", "Almacen", "Ubicacion", "Producto a desconsolidar", "Marca", "Unidades de Medida", "Disponibles", "Cantidad a desconsolidar", "Proveedor", "Remito", "ID", "movimientoStock", "Observaciones"],
+            titulos: ["Numero", "Fecha", "Almacen", "Ubicacion", "Producto a desconsolidar", "Marca", "Unidades de Medida", "Disponibles", "Cantidad", "Cantidad a desconsolidar", "Proveedor", "Remito", "ID", "movimientoStock", "Observaciones"],
         },
         formInd: {
             inputRenglones: [4, 7, `compuesto`, 1],
@@ -834,16 +842,21 @@ let variablesModeloInventarios = {
             salidaInventario: {
                 type: "directo",
                 coleccionOrigen: movimientoStock,
-                identificador: "desconsolidaciones",
+                identificador: "salidaInventario",
                 eliminarDesencadenate: ["producto"],//Si cambia este atributo se elimina el desencadenate
                 destino: "stock",
                 nombre: "Desconsolidaciones",
                 atributoImputables: {
-
                     funcion: {
                         disponibles: [pagoParcialImporte, "cantidadSalidasOrigen", "disponiblesOrigen"],
-                        estado: [pagoParcialString, "cantidadSalidasOrigen", { parcial: "Salida parcial", cerrado: "Salida total" }],
+                        estado: [pagoParcialString, "cantidadSalidasOrigen", { parcial: "Salida parcial", cerrado: "Salida total" }, "disponiblesOrigen"],
 
+                    },
+                    funcionReverso: {
+                        disponibles: [reversoImporte, "disponiblesOrigen"],
+                        estado: [reversoEstadoStock],
+                        almacen: [reversoString, "almacenDestino"],
+                        ubicaciones: [reversoString, "ubicacionDestino"]
                     },
                     cambioNombre: {
                         _id: "idComprobante",

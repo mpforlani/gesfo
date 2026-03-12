@@ -38,7 +38,7 @@ const SalidaInventarioSchema = new Schema({
         ref: "producto",
         sparse: true,
     },
-    codigoDeBarras: { type: String },
+    codigoDeBarras: { type: [String] },
 
     fechaVencimientoProducto: { type: [Date] },
     disponibles: { type: [Number] },

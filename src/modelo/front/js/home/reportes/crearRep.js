@@ -38,9 +38,7 @@ async function crearCuerpoReporte(objeto, numeroForm) {
 
             await Promise.all(parametricas.map(async (value) => {
 
-                if (!consultaPestanas[value.origen || value.nombre]) {
-                    await consultasPestanaIndividual(value.origen || value.nombre);
-                }
+                await consultasPestanaIndividual(value.origen || value.nombre, false);
             }));
 
             if (objeto.empresa != false) {
@@ -362,7 +360,7 @@ async function creacionReportes(e) {
     await Promise.all(
         (objeto?.pestanas ?? [])
             .map(p => p.origen ?? p.nombre)
-            .map(k => (consultaPestanas[k] ??= consultasPestanaIndividual(k)))
+            .map(k => consultasPestanaIndividual(k, false))
     );
 
     pestanaIndividual(objeto, numeroForm)

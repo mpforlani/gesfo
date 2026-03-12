@@ -51,6 +51,29 @@
         .atributoCompletoCabecera {
             margin-right: 1rem;
 
+            &.estadoCabeceraCargando {
+                background-color: rgba(255, 255, 0, 0.35);
+                border-radius: 4px;
+                padding: 0.1rem 0.35rem;
+
+                h3 {
+                    background-color: transparent;
+                }
+
+                .selecSimulado .inputSelect {
+                    background-color: rgba(255, 255, 0, 0.35);
+                }
+
+                &::after {
+                    content: "autorenew";
+                    font-family: "Material Symbols Outlined";
+                    font-size: 1.2rem;
+                    font-variation-settings: "FILL" 0, "wght" 700, "GRAD" 0, "opsz" 24;
+                    margin-left: 0.3rem;
+                    animation: rotacionEstadoCabecera 0.9s linear infinite;
+                }
+            }
+
 
             div.cabecera {
                 align-items: center;
@@ -283,6 +306,11 @@
         cursor: wait !important;
     }
 
+    &.enEsperaCabecera,
+    &.enEsperaCabecera * {
+        cursor: wait !important;
+    }
+
     .cantidad {
         position: absolute;
         top: 1rem;
@@ -293,6 +321,26 @@
 
 .tabs_contents_item.enEspera {
     cursor: wait !important;
+}
+
+.tabs_contents_item.enEsperaCabecera,
+.tabs_contents_item.enEsperaCabecera * {
+    cursor: wait !important;
+}
+
+body.enEsperaCabecera,
+body.enEsperaCabecera * {
+    cursor: wait !important;
+}
+
+@keyframes rotacionEstadoCabecera {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 ////////////////////////////////////////////////////////
@@ -342,9 +390,11 @@
     &.resizing-row {
         user-select: none;
     }
+
     &.reordering-col {
         user-select: none;
     }
+
     &.reordering-row {
         user-select: none;
     }
@@ -352,9 +402,11 @@
     .sortable-ghost-item {
         opacity: 0.35 !important;
     }
+
     .sortable-chosen-item {
         outline: 1px dashed rgba(26, 59, 167, 0.7);
     }
+
     .sortable-drag-item {
         opacity: 0.9;
     }
@@ -589,6 +641,7 @@
         &.fila.drop-preview-before {
             box-shadow: inset 0 3px 0 rgb(32, 98, 255);
         }
+
         &.fila.drop-preview-after {
             box-shadow: inset 0 -3px 0 rgb(32, 98, 255);
         }
@@ -596,6 +649,7 @@
         .th.tituloTablas.drop-preview-before {
             box-shadow: inset 3px 0 0 rgb(32, 98, 255);
         }
+
         .th.tituloTablas.drop-preview-after {
             box-shadow: inset -3px 0 0 rgb(32, 98, 255);
         }
@@ -640,8 +694,8 @@
             color: rgb(128, 0, 0) !important;
 
             .celda.estado {
-                background-color: rgba(255, 109, 109, 0.37) !important;
-                color: rgb(0, 0, 0) !important;
+
+                color: rgb(128, 0, 0) !important;
             }
         }
 

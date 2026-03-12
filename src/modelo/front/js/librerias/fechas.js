@@ -10,6 +10,7 @@ let MesesStringAbrev = []
 function dateNowAFechaddmmyyyy(date, formato) {
 
     let dateFormato = new Date(date)
+    if (Number.isNaN(dateFormato.getTime())) return ""
 
     let ano = dateFormato.getUTCFullYear()
     let mes = dateFormato.getUTCMonth();

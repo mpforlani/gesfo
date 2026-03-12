@@ -140,10 +140,11 @@ function returnUnAtributoSelectMayuscula(data, objeto, numeroForm, objeto) {
 }
 function returnUnAtributoSelectColec(data, objeto, numeroForm, objeto, clase) {
 
-    let atributoDevo = data[objeto.atributo.nombre || objeto.atributo][0]
-    let atributoDef = consultaPestanas[objeto.atributo.nombre || objeto.atributo]?.[atributoDevo]?.[objeto.atributo.pestRef || "name"]
+    let nombreAtributo = objeto.atributo.nombre || objeto.atributo
+    let atributoDevo = data[nombreAtributo]?.[0] || Object.values(consultaPestanas?.[nombreAtributo] || {})?.[0]?._id || ""
+    let atributoDef = consultaPestanas[nombreAtributo]?.[atributoDevo]?.[objeto.atributo.pestRef || "name"]
 
-    return `<div class="unRenglon mayuscula"><p class="bold ${clase?.titulo || ""}">${objeto.titulo}: &nbsp</p><p class="${clase?.info || ""}>${atributoDef || ""}</p></div>`
+    return `<div class="unRenglon mayuscula"><p class="bold ${clase?.titulo || ""}">${objeto.titulo}: &nbsp</p><p class="${clase?.info || ""}">${atributoDef || ""}</p></div>`
 }
 function returnUnAtributoTitulo(data, objeto, numeroForm, atributo, clase) {
 
@@ -217,11 +218,21 @@ function returnUnaPalabraDiv(data, objeto, numeroForm, texto, elemento, clase) {
 }
 function datoDiv(data, objeto, numeroForm, atributo, clase) {
 
+    let monedaData = consultaPestanas?.moneda?.[data?.moneda]?.name || data?.moneda || ""
+    let monedaSeleccionada = $(`#t${numeroForm} .inputSelect.moneda`).val() || ""
+    let monedaPesos = `${monedaData}`.toLowerCase() == "pesos" || `${monedaSeleccionada}`.toLowerCase() == "pesos"
+    if (atributo == "cancelacion" && monedaPesos) return ""
+
     let datoDiv = $(`#t${numeroForm} div.fo.textoDiv.${atributo} p`).text()
     let div = `<div class="dato"><p class="${clase}">${datoDiv}</p></div>`
     return div
 }
 function datoDosDiv(data, objeto, numeroForm, atributo, clase, width, claseElemento) {
+
+    let monedaData = consultaPestanas?.moneda?.[data?.moneda]?.name || data?.moneda || ""
+    let monedaSeleccionada = $(`#t${numeroForm} .inputSelect.moneda`).val() || ""
+    let monedaPesos = `${monedaData}`.toLowerCase() == "pesos" || `${monedaSeleccionada}`.toLowerCase() == "pesos"
+    if (atributo == "tipoCambioPesos" && monedaPesos) return ""
 
     let div = ""
     let datoDiv = $(`#t${numeroForm} div.fo.textoDiv.${atributo} div`)
@@ -298,11 +309,11 @@ function infoReferenciaMayusculacuentaEmpresa(data, objeto, numeroForm, tercero)
 
     let empresa = $(`.empresaSelect`).html().trim()
     let empresaObjeto = Object.values(consultaPestanas.empresa).find(e => e.name == empresa)
-    let cuenta = empresaObjeto.cuentasBancarias
+    let cuenta = empresaObjeto?.cuentasBancarias
 
     let returnDatos = `<div class="unRenglon mayuscula">
-    <p class="bold fsUno">CBU:</p><p class="fsUno"> &nbsp${consultaPestanas.cuentasBancarias[cuenta].textoDos} &nbsp &nbsp &nbsp</p>
-    <p class="bold fsUno">ALIAS:</p><p class="fsUno"> &nbsp${consultaPestanas.cuentasBancarias[cuenta].textoTres}</p>
+    <p class="bold fsUno">CBU:</p><p class="fsUno"> &nbsp${consultaPestanas?.cuentasBancarias?.[cuenta]?.textoDos || ""} &nbsp &nbsp &nbsp</p>
+    <p class="bold fsUno">ALIAS:</p><p class="fsUno"> &nbsp${consultaPestanas?.cuentasBancarias?.[cuenta]?.textoTres || ""}</p>
     </div>`
 
     return returnDatos
@@ -427,6 +438,19 @@ function itemsComprobantes(data, objeto, numeroForm, atributos, tabla, clases, a
 }
 function itemsComprobantesDiv(data, objeto, numeroForm, atributos, tabla, clases, atributoCondicion) {
 
+    let atributosNormalizados = (atributos || []).filter((atributo) => {
+        const nombreAtributo = atributo?.nombre || atributo
+        return !!nombreAtributo
+    })
+    if ((tabla?.nombre || "") == "compuestoFacturaVentas") {
+        const indiceSubtotal = atributosNormalizados.findIndex((atributo) => (atributo?.nombre || atributo) == "subtotalVentas")
+        if (indiceSubtotal >= 0) {
+            atributosNormalizados = atributosNormalizados.slice(0, indiceSubtotal + 1)
+        }
+    }
+    let monedaData = consultaPestanas?.moneda?.[data?.moneda]?.name || data?.moneda || ""
+    let prefijoImporte = `${monedaData}`.toLowerCase() == "pesos" ? "$ " : ""
+
     const widthMapImpresion = {
         dos: "2rem",
         tres: "3rem",
@@ -455,7 +479,7 @@ function itemsComprobantesDiv(data, objeto, numeroForm, atributos, tabla, clases
         "90porc": "90%",
         "100porc": "100%",
     }
-    const templateColumnas = atributos
+    const templateColumnas = atributosNormalizados
         .map((atributo) => widthMapImpresion[atributo?.width] || "minmax(0, 1fr)")
         .join(" ")
     const styleTemplate = templateColumnas.length > 0
@@ -463,8 +487,8 @@ function itemsComprobantesDiv(data, objeto, numeroForm, atributos, tabla, clases
         : ""
 
     let tableItems = `<div class="table tableItems ${tabla.nombre}">`//table
-    tableItems += `<div class="tr titulosTable"${styleTemplate}>`//tr
-    $.each(atributos, (indice, value) => {
+    tableItems += `<div class="tr titulosTable ${clases?.claseFilaTitulo || ""}"${styleTemplate}>`//tr
+    $.each(atributosNormalizados, (indice, value) => {
 
         tableItems += `<div class="th ${value.nombre || value} ${clases?.titulo || ""}" width="${value.width || ""}">${value.titulo || $(`#t${numeroForm} table.${tabla.nombre} th.${value.nombre || value}`).html()}</div>`
     })
@@ -476,7 +500,7 @@ function itemsComprobantesDiv(data, objeto, numeroForm, atributos, tabla, clases
         if (atributoCondicion == undefined || data?.[atributoCondicion]?.[indice] > 0) {
 
             tableItems += `<div class="tr filasRegistros ${clases?.filas || ""}"${styleTemplate}>`
-            $.each(atributos, (ind, val) => {
+            $.each(atributosNormalizados, (ind, val) => {
 
                 let valor = data[val.nombre || val][indice]
                 switch (tabla.componentes[val.nombre || val].type) {
@@ -488,6 +512,9 @@ function itemsComprobantesDiv(data, objeto, numeroForm, atributos, tabla, clases
                         break;
                     case "importe":
                         valor = numeroAStringCom(valor || "")
+                        if (prefijoImporte != "" && `${valor}`.trim() != "") {
+                            valor = `${prefijoImporte}${valor}`
+                        }
 
                         break;
                     case "numero":
@@ -560,6 +587,8 @@ function itemsComprobantesMayuscula(data, objeto, numeroForm, atributos, tabla, 
 }
 function totalitemsPorTasa(data, objeto, numeroForm, atribut, clases) {
     let tasas = data.porcentaje
+    let monedaData = consultaPestanas?.moneda?.[data?.moneda]?.name || data?.moneda || ""
+    let prefijoImporte = `${monedaData}`.toLowerCase() == "pesos" ? "$ " : ""
 
     let netos = new Object
     let bases = new Object
@@ -586,7 +615,7 @@ function totalitemsPorTasa(data, objeto, numeroForm, atribut, clases) {
 
         tabla += `<tr class="fila">
         <th class="primeraFila celdaTotal ${clases?.titulo}">Neto No Gravado</th>`
-        tabla += `<td class="celdaTotal ${clases?.celda}"> ${numeroAString(bases.noGravado)}</td>`
+        tabla += `<td class="celdaTotal ${clases?.celda}"> ${prefijoImporte}${numeroAString(bases.noGravado)}</td>`
         tabla += `</tr>`
     }
 
@@ -594,24 +623,24 @@ function totalitemsPorTasa(data, objeto, numeroForm, atribut, clases) {
 
         tabla += `<tr class="fila">
         <th class="primeraFila celdaTotal ${clases?.titulo}">Neto Gravado</th>`
-        tabla += `<td class="celdaTotal ${clases?.celda}"> ${numeroAString(bases.gravado)}</td>`
+        tabla += `<td class="celdaTotal ${clases?.celda}"> ${prefijoImporte}${numeroAString(bases.gravado)}</td>`
         tabla += `</tr>`
     }
 
 
     $.each(iva, (indice, value) => {
         tabla += `<tr class="fila"><th class="primeraFila celdaTotal ${clases?.titulo}">${atribut.impuesto.titulo}&nbsp(${indice})</th>`
-        tabla += `<td class="celdaTotal ${clases.celda}"> ${numeroAString(value)}</td>`
+        tabla += `<td class="celdaTotal ${clases?.celda}"> ${prefijoImporte}${numeroAString(value)}</td>`
         tabla += `</tr>`
     })
 
     tabla += `<tr class="fila"><th class="primeraFila celdaTotal ${clases?.titulo}">${atribut.otroImpuesto.titulo}</th>`
-    tabla += `<td class="celdaTotal ${clases.celda}"> ${numeroAString(otrosImpuestos)}</td>`
+    tabla += `<td class="celdaTotal ${clases?.celda}"> ${prefijoImporte}${numeroAString(otrosImpuestos)}</td>`
     tabla += `</tr>`
 
 
     tabla += `<tr class="fila"><th class="primeraFila celdaTotal ${clases?.titulo}">Total</th>`
-    tabla += `<td class="celdaTotal bold ${clases.celda}"> ${numeroAString(data[atribut.total.atr])}</td>`
+    tabla += `<td class="celdaTotal bold ${clases?.celda}"> ${prefijoImporte}${numeroAString(data[atribut.total.atr])}</td>`
     tabla += `</tr>`
 
     return tabla

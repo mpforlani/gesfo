@@ -16,10 +16,15 @@ function fijarComprobanteCFijoMonotributo(objeto, numeroForm) {
     if (objeto?.accion != "facturasEmitidas") return
 
     let father = $(`#t${numeroForm}`)
-    const aplicarRestriccion = () => {
-        let empresaEmisora = obtenerEmpresaEmisoraActiva()
-        if (!empresaEsMonotributo(empresaEmisora)) return
+    const empresaEmisora = obtenerEmpresaEmisoraActiva()
 
+    father.off("focusin.monotributoTipoComprobante", ".inputSelect.tipoComprobante")
+    father.off("change.monotributoTipoComprobante", ".inputSelect.tipoComprobante")
+    father.off("input.monotributoTipoComprobante", ".inputSelect.tipoComprobante")
+
+    if (!empresaEsMonotributo(empresaEmisora)) return
+
+    const aplicarRestriccion = () => {
         let selectoresTipoComprobante = $(`.selectCont.tipoComprobante`, father)
         if (selectoresTipoComprobante.length == 0) return
 
@@ -29,46 +34,23 @@ function fijarComprobanteCFijoMonotributo(objeto, numeroForm) {
 
             if (inputTipoComprobante.length == 0) return
 
-            $(`div.opcionesSelectDiv .opciones`, selector).filter((i, opt) => {
-                let valor = (opt.getAttribute("value") || "").trim()
-                let texto = $(`p`, opt).text().trim()
-                return valor != "Letra C" && texto != "Letra C"
-            }).remove()
-
             if (inputTipoComprobante.val() != "Letra C") {
                 inputTipoComprobante.val("Letra C").trigger("change")
             }
-
-            inputTipoComprobante.attr("readonly", true)
-
-            if (typeof getSelectPortalFromCont == "function") {
-                let portal = getSelectPortalFromCont(selector[0])
-                if (portal) {
-                    $(`.opciones`, portal).filter((i, opt) => {
-                        let valor = (opt.getAttribute("value") || "").trim()
-                        let texto = $(`p`, opt).text().trim()
-                        return valor != "Letra C" && texto != "Letra C"
-                    }).remove()
-                }
-            }
+            inputTipoComprobante.removeAttr("readonly").addClass("validado")
         })
     }
 
     aplicarRestriccion()
-    ;[0, 80, 200, 500].forEach((delay) => {
+    ;[80, 200, 500].forEach((delay) => {
         setTimeout(aplicarRestriccion, delay)
     })
 
-    father.off("focusin.monotributoTipoComprobante", ".inputSelect.tipoComprobante")
     father.on("focusin.monotributoTipoComprobante", ".inputSelect.tipoComprobante", aplicarRestriccion)
 
-    father.off("change.monotributoTipoComprobante", ".inputSelect.tipoComprobante")
     father.on("change.monotributoTipoComprobante", ".inputSelect.tipoComprobante", aplicarRestriccion)
 
-    father.off("input.monotributoTipoComprobante", ".inputSelect.tipoComprobante")
     father.on("input.monotributoTipoComprobante", ".inputSelect.tipoComprobante", (e) => {
-        let empresaEmisora = obtenerEmpresaEmisoraActiva()
-        if (!empresaEsMonotributo(empresaEmisora)) return
         if (e.target.value != "Letra C") {
             e.target.value = "Letra C"
         }
@@ -147,10 +129,19 @@ function letraCodigoComprobante(objeto, numeroForm) {
 
     }
 
-    $(`#t${numeroForm}`).on(`change`, `.inputSelect.cliente`, letraComp)
+    $(`#t${numeroForm}`).off(`change.letraCodigoComprobante`, `.inputSelect.cliente`)
+    $(`#t${numeroForm}`).on(`change.letraCodigoComprobante`, `.inputSelect.cliente`, letraComp)
 
 }
 function calculaImpuestossoloIVa(objeto, numeroForm) {
+    const father = $(`#t${numeroForm}`)
+    const selectorItemFactura = `.divSelectInput[name=itemVenta], .divSelectInput[name=itemCompra], .inputSelect.itemVenta, .inputSelect.itemCompra`
+    const selectorTipoComprobante = `.inputSelect.tipoComprobante, .divSelectInput[name=tipoComprobante]`
+    const selectorPorcentaje = `table.compuestoFacturaVentas tr.mainBody:not(.last) input.porcentaje,
+        table.compuestoFacturaCompras tr.mainBody:not(.last) input.porcentaje`
+    const selectorImpuestoFact = `table.compuestoFacturaVentas tr.mainBody:not(.last) input.impuestoFactVentas,
+        table.compuestoFacturaCompras tr.mainBody:not(.last) input.impuestoFactVentas`
+
     const esLetraC = () => {
         let visible = ($(`#t${numeroForm} .inputSelect.tipoComprobante`).first().val() || "").toString().trim().toLowerCase()
         let interno = ($(`#t${numeroForm} .divSelectInput[name=tipoComprobante]`).first().val() || "").toString().trim().toLowerCase()
@@ -177,8 +168,13 @@ function calculaImpuestossoloIVa(objeto, numeroForm) {
         $(`input.porcentaje`, fila).val(numeroAString(tasaIvaPrd)).trigger("input")
     }
 
-    $(`#t${numeroForm}`).on("change", `.divSelectInput[name=itemVenta], .divSelectInput[name=itemCompra], .inputSelect.itemVenta, .inputSelect.itemCompra`, tasaDeImpuestosSegunProducto)
-    $(`#t${numeroForm}`).on("change", `.inputSelect.tipoComprobante, .divSelectInput[name=tipoComprobante]`, (e) => {
+    father.off("change.calculaImpuestossoloIVa", selectorItemFactura)
+    father.off("change.calculaImpuestossoloIVa", selectorTipoComprobante)
+    father.off("input.calculaImpuestossoloIVa", selectorPorcentaje)
+    father.off("input.calculaImpuestossoloIVa", selectorImpuestoFact)
+
+    father.on("change.calculaImpuestossoloIVa", selectorItemFactura, tasaDeImpuestosSegunProducto)
+    father.on("change.calculaImpuestossoloIVa", selectorTipoComprobante, (e) => {
         let esLetraCComprobante = esLetraC()
         let porcentajes = $(`#t${numeroForm} table.compuestoFacturaVentas tr.mainBody:not(.last) input.porcentaje,
             #t${numeroForm} table.compuestoFacturaCompras tr.mainBody:not(.last) input.porcentaje`)
@@ -200,8 +196,7 @@ function calculaImpuestossoloIVa(objeto, numeroForm) {
             })
         }
     })
-    $(`#t${numeroForm}`).on("input", `table.compuestoFacturaVentas tr.mainBody:not(.last) input.porcentaje,
-        table.compuestoFacturaCompras tr.mainBody:not(.last) input.porcentaje`, (e) => {
+    father.on("input.calculaImpuestossoloIVa", selectorPorcentaje, (e) => {
 
         if (!esLetraC()) return
 
@@ -209,8 +204,7 @@ function calculaImpuestossoloIVa(objeto, numeroForm) {
             $(e.target).val("").trigger("input")
         }
     })
-    $(`#t${numeroForm}`).on("input", `table.compuestoFacturaVentas tr.mainBody:not(.last) input.impuestoFactVentas,
-        table.compuestoFacturaCompras tr.mainBody:not(.last) input.impuestoFactVentas`, (e) => {
+    father.on("input.calculaImpuestossoloIVa", selectorImpuestoFact, (e) => {
 
         if (!esLetraC()) return
         if ((e.target.value || "").toString().trim() == "") return
@@ -432,7 +426,9 @@ function mostrarPestanaProductoProveedores(objeto, numeroForm) {
 
             } else {
                 cabeceraB.addClass("ocultoSiempre");
-                $(`#t${numeroForm} input.estado`).val("Directo")
+                if ($(`#t${numeroForm} input.estado`).val() != "Aprobado") {
+                    $(`#t${numeroForm} input.estado`).val("Directo")
+                }
             };
         }
         $(`#t${numeroForm}`).on(`change`, `.divSelectInput[name="itemCompra"]`, consultaItem)

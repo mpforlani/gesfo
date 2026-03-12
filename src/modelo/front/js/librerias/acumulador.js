@@ -157,6 +157,7 @@ function acumuladorUpdateEdit(acum, fileEnviar, objeto) {
     let acumuladorAnterior = new Object
     acumuladorAnterior.agrupadores = new Object
     acumuladorAnterior.atributosNoRequeridos = new Object
+    acumuladorAnterior.atributosTotales = new Object
     acumuladorAnterior.agrupadores.name = acum.nombre
     let anoAnterior = obtenerAno(respuestaAnterior.fecha)
     let mesAnterior = obtenerMes(respuestaAnterior.fecha)
@@ -217,12 +218,14 @@ function acumuladorUpdateEdit(acum, fileEnviar, objeto) {
         })
         $.each(acum.atributosSumaAcumulado, (indice, value) => {
 
-            acumulador.atributosTotales[indice] = (ultimaRespuesta[value.nombre || value] || 0) - (respuestaAnterior[value.nombre || value] || 0)
+            acumulador.atributosTotales[indice] = (ultimaRespuesta[value.nombre || value] || 0)
+            acumuladorAnterior.atributosTotales[indice] = (respuestaAnterior[value.nombre || value] || 0) * -1
 
         })
-        acumulador.agrupadores.empresa = empresaSeleccionada?._id || ""
 
     }
+    acumulador.agrupadores.empresa = empresaSeleccionada?._id || ""
+    acumuladorAnterior.agrupadores.empresa = empresaSeleccionada?._id || ""
     if (change) {
         $.ajax({
             type: "put",
@@ -307,6 +310,7 @@ function acumuladorUpdateDelete(acum, fileEnviar, objeto) {
     let ano = obtenerAno(respuesta.fecha)
     let mes = obtenerMes(respuesta.fecha)
     acumulador.agrupadores.periodo = `${ano}${String(mes).padStart(2, "0")}`
+    acumulador.agrupadores.entidad = objeto.accion
     acumulador.date = respuesta.date
     acumulador._id = respuesta._id
     acumulador.username = respuesta.username

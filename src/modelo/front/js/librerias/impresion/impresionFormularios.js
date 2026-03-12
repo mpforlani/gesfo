@@ -388,6 +388,142 @@ function agregarColores(objeto, numeroForm, atributos) {
 
 
 }
+function ajustarCabeceraLogoYTablaFactura(objeto, numeroForm) {
+
+    const documento = document.getElementById("documentoImpresion");
+    if (!documento) return;
+
+    const ajustarCabecera = () => {
+
+        const cabecera = documento.querySelector(".cabeceraImpresionDelgada");
+        if (!cabecera) return;
+
+        const titulo = cabecera.querySelector(".tituloCab");
+        const contLogo = cabecera.querySelector(".imgDiv");
+        const logo = contLogo ? contLogo.querySelector("img.logoRep") : null;
+
+        if (!contLogo || !logo) return;
+
+        cabecera.style.display = "flex";
+        cabecera.style.alignItems = "center";
+        cabecera.style.width = "100%";
+
+        if (titulo) {
+            titulo.style.flex = "1 1 auto";
+            titulo.style.minWidth = "0";
+        }
+
+        contLogo.style.display = "flex";
+        contLogo.style.justifyContent = "flex-end";
+        contLogo.style.alignItems = "center";
+        contLogo.style.overflow = "hidden";
+
+        logo.style.display = "block";
+        logo.style.height = "100%";
+        logo.style.maxHeight = "100%";
+        logo.style.width = "auto";
+        logo.style.maxWidth = "100%";
+        logo.style.objectFit = "contain";
+
+        const recalcular = () => {
+            const anchoCabecera = cabecera.clientWidth || 0;
+            if (anchoCabecera <= 0) return;
+
+            const alturaLogo = contLogo.clientHeight || parseFloat(window.getComputedStyle(contLogo).height) || 0;
+            if (alturaLogo <= 0) return;
+
+            const anchoNatural = logo.naturalWidth || 0;
+            const altoNatural = logo.naturalHeight || 0;
+            const anchoEscalado = (anchoNatural > 0 && altoNatural > 0)
+                ? (anchoNatural / altoNatural) * alturaLogo
+                : alturaLogo;
+
+            const maxAnchoLogo = Math.floor(anchoCabecera * 0.35);
+            const minAnchoLogo = Math.floor(anchoCabecera * 0.15);
+            const anchoFinal = Math.min(Math.max(Math.ceil(anchoEscalado), minAnchoLogo), maxAnchoLogo);
+
+            contLogo.style.flex = `0 1 ${anchoFinal}px`;
+            contLogo.style.maxWidth = `${maxAnchoLogo}px`;
+        };
+
+        if (logo.complete) {
+            recalcular();
+        } else {
+            logo.onload = recalcular;
+        }
+
+        recalcular();
+    };
+
+    const ajustarTablaItems = () => {
+        const tabla = documento.querySelector(".table.tableItems.compuestoFacturaVentas");
+        if (!tabla) return true;
+
+        const filas = tabla.querySelectorAll(".tr");
+        if (!filas.length) return true;
+
+        const template = filas[0].style.gridTemplateColumns || "";
+        if (template.trim() == "") return true;
+
+        const columnas = template.trim().split(/\s+/).filter(Boolean);
+        if (!columnas.length) return true;
+
+        const anchoTabla = tabla.clientWidth || (tabla.parentElement ? tabla.parentElement.clientWidth : 0);
+        if (anchoTabla <= 0) return false;
+
+        const fontBase = parseFloat(window.getComputedStyle(document.documentElement).fontSize) || 16;
+        const aPx = (valor) => {
+            const numero = parseFloat(valor);
+            if (!isFinite(numero)) return null;
+
+            if (valor.endsWith("rem")) return numero * fontBase;
+            if (valor.endsWith("px")) return numero;
+            if (valor.endsWith("%")) return (anchoTabla * numero) / 100;
+
+            return null;
+        };
+
+        const columnasPx = columnas.map(aPx);
+        if (columnasPx.some(v => v === null)) return true;
+
+        const celdas = tabla.querySelectorAll(".th, .td");
+        celdas.forEach((celda) => {
+            celda.removeAttribute("width");
+            celda.style.setProperty("width", "auto", "important");
+            celda.style.setProperty("min-width", "0", "important");
+            celda.style.setProperty("max-width", "none", "important");
+            celda.style.setProperty("overflow-wrap", "anywhere", "important");
+            celda.style.setProperty("word-break", "break-word", "important");
+        });
+
+        const anchoTotal = columnasPx.reduce((acu, valor) => acu + valor, 0);
+        if (anchoTotal <= anchoTabla) return true;
+
+        const factor = anchoTabla / anchoTotal;
+        const nuevoTemplate = columnasPx
+            .map(valor => `${Math.max(42, Math.floor(valor * factor))}px`)
+            .join(" ");
+
+        filas.forEach((fila) => {
+            fila.style.gridTemplateColumns = nuevoTemplate;
+        });
+
+        return true;
+    };
+
+    let intentos = 0;
+    const ejecutarAjustes = () => {
+        ajustarCabecera();
+        const tablaAjustada = ajustarTablaItems();
+
+        if (!tablaAjustada && intentos < 12) {
+            intentos += 1;
+            setTimeout(ejecutarAjustes, 40);
+        }
+    };
+
+    requestAnimationFrame(ejecutarAjustes);
+}
 $(`#impresionFormulario`).on("click", "span.okfImprimir", function (e) {
     const bloquearImpresionPapel = $(`#impresionFormulario .com[bloquearImpresion="true"]`).length > 0;
     if (bloquearImpresionPapel) return;

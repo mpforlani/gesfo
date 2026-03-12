@@ -202,9 +202,9 @@ function convertirDosAUnAtr(datos, atributos) {
 
     return datoAtributo.trim()
 }
-function pagoParcialString(datos, importeCobro, estados) {
+function pagoParcialString(datos, importeCobro, estados, atributoSaldo) {
 
-    const saldo = datos.saldoComprobante || datos.disponibles || datos.disponiblesOrigen
+    const saldo = atributoSaldo ? datos[atributoSaldo] : (datos.saldoComprobante || datos.disponibles || datos.disponiblesOrigen)
     const importe = datos[importeCobro]
 
     if (importe < saldo) return estados.parcial
@@ -224,12 +224,12 @@ function pagoParcialImporte(datos, importeCobro, saldoComprobante) {
     return total
 }
 
-function reversoImporte(datos) {
-
-    saldoFinal = datos.saldoComprobante
+function reversoImporte(datos, atributo) {
+    const saldoFinal = datos[atributo]
     return saldoFinal
 }
-function reversoString(datos) {
+function reversoEstado(datos) {
+
     let estadoAnterior = ""
     if (datos.importePendiente - datos.saldoComprobante == 0) {
         estadoAnterior = "Pendiente"
@@ -237,6 +237,31 @@ function reversoString(datos) {
         estadoAnterior = "Pago parcial"
     }
     return estadoAnterior
+}
+function reversoEstadoStock(datos) {
+    console.log(datos)
+    let estadoAnterior = ""
+    const saldo = datos.disponiblesOrigen || datos.disponibles || 0
+    const cantidad = datos.cantidadOrigen || datos.cantidad || 0
+
+    if (cantidad - saldo == 0) {
+        estadoAnterior = "Ingresado"
+    } else {
+        estadoAnterior = "Salida parcial"
+    }
+    return estadoAnterior
+}
+function reversoString(datos, atributo) {
+    const atributoOrigen = {
+        almacen: "almacenOrigen",
+        ubicaciones: "ubicacionOrigen",
+    }[atributo] || `${atributo || ""}Origen`
+
+    if (!atributo) {
+        return datos.almacenOrigen || datos.ubicacionOrigen || ""
+    }
+
+    return datos[atributoOrigen] ?? datos[atributo] ?? ""
 }
 function saldoComprobanteFact(datos) {
 

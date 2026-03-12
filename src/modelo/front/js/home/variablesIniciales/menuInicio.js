@@ -301,12 +301,18 @@ function actualizarMenuStock(empresaSeleccionada) {
 function actualizarMenuStockingresos(empresaSeleccionada) {
 
     const menuStock = $('#menu-container .nav-vert #stock[aprobar="facturacionOrdenEntrada"]').parent();
+    const menuEntradasPendientes = $('#menu-container .nav-vert #entradasPendientes').parent();
     const valor = empresaSeleccionada?.ingresaStock?.trim();
 
     if (valor === "Remito") {
         menuStock.removeClass("ocultoSiempre");
     } else {
         menuStock.addClass("ocultoSiempre");
+    }
+    if (valor === "Facturacion") {
+        menuEntradasPendientes.addClass("ocultoSiempre");
+    } else {
+        menuEntradasPendientes.removeClass("ocultoSiempre");
     }
 }
 

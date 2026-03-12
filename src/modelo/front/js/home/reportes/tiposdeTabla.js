@@ -44,6 +44,8 @@ function aplicarMonedaSegunFilaReporte(tablaCreada) {
 
         $("td.mesItems div[type='importe'], td.mesItems div[type='numero'], td.anteriores div[type='importe'], td.totalHorizontal div[type='importe'], td.totalHorizontal div[type='numero'], td.total div[type='importe'], td.total div[type='numero']", filaActual)
             .attr("moneda", monedaNormalizada);
+
+        $("td[atributo='tc'], td[atributo='tipoCambio']", filaActual).removeAttr("moneda");
     });
 }
 
@@ -344,6 +346,13 @@ function agrupadoMes(objeto, numeroForm, nombreTab, objetoRep) {
     let anteriores = []
     let complemento = ""
     let colum = 0
+    const formatearSinDecimales = objeto?.sinDecimales == true
+    const formatoNumeroAgrupado = (valor) => {
+        if (formatearSinDecimales) {
+            return numeroAString(Math.round(stringANumero(valor || 0)))
+        }
+        return numeroAString(valor || 0)
+    }
 
     const asegurarEstiloRowspanCompat = () => {
         $("#rowspanCompatStyle").remove();
@@ -577,6 +586,9 @@ function agrupadoMes(objeto, numeroForm, nombreTab, objetoRep) {
 
                 let valorPeriodo = value?.periodos?.find(e => e.periodo == mesAnoActualAtributos)
                 let valor = objetoTabla[v.type || v](v, valorPeriodo)
+                if (formatearSinDecimales && v?.type == "importe" && valor != "") {
+                    valor = formatoNumeroAgrupado(valor)
+                }
 
                 let vacio = valor == ""
                 tabla += `<div class="td ${mesesTitulo[mesActualAtributo]} ${v.nombre || v}" type="${v.type}" vacio="${vacio}" colum=${colum}>${valor}</div>`
@@ -596,7 +608,7 @@ function agrupadoMes(objeto, numeroForm, nombreTab, objetoRep) {
                 let valor = ""
 
                 if (minNumeric < mesAnoActualAtributos) {
-                    valor = numeroAString(value[minNumeric][v.nombre || v])
+                    valor = formatoNumeroAgrupado(value[minNumeric][v.nombre || v])
                 }
                 tabla += `<td class="td anteriores textoCentrado" colum="anteriores">
                               <div class="anteriores" type="importe"  colum="anteriores">${valor}</div></td>`
@@ -608,7 +620,7 @@ function agrupadoMes(objeto, numeroForm, nombreTab, objetoRep) {
 
             totalesHorizontal.total = totalesHorizontal.total + value.totalHorizontal
             tabla += `<td class="td totalHorizontal textoCentrado"  colum="total">
-                <div class="total" type="importe"  colum="total">${numeroAString(value.totalHorizontal)}</div></td>`
+                <div class="total" type="importe"  colum="total">${formatoNumeroAgrupado(value.totalHorizontal)}</div></td>`
         }
 
         tabla += `</tr>`
@@ -642,7 +654,7 @@ function agrupadoMes(objeto, numeroForm, nombreTab, objetoRep) {
 
             let total = totalVertical.find(e => e.periodo == mesAnoTitulos) || {}
 
-            tabla += `<td class="td total mes ${mesesTitulo[mesTitulos]} textoCentrado"  mesAno="${mesAnoTitulos}"${monedaTotalesAttr}>${numeroAString(total?.totalVertical || 0)}</td>`
+            tabla += `<td class="td total mes ${mesesTitulo[mesTitulos]} textoCentrado"  mesAno="${mesAnoTitulos}"${monedaTotalesAttr}>${formatoNumeroAgrupado(total?.totalVertical || 0)}</td>`
             mesTitulos--
         }
 
@@ -655,7 +667,7 @@ function agrupadoMes(objeto, numeroForm, nombreTab, objetoRep) {
                 let valor = ""
 
                 if (minNumeric < mesAnoTitulos) {
-                    valor = numeroAString(totales[minNumeric])
+                    valor = formatoNumeroAgrupado(totales[minNumeric])
                 }
                 tabla += `<td class="td total anteriores textoCentrado" colum="anteriores"${monedaTotalesAttr}>${valor}</td>`
 
@@ -663,7 +675,7 @@ function agrupadoMes(objeto, numeroForm, nombreTab, objetoRep) {
         }
         $.each(totalesHorizontal, (indice, value) => {
 
-            tabla += `<td class="td total totalorizontal textoCentrado"${monedaTotalesAttr}>${numeroAString(totalesHorizontal.total)}</td>`
+            tabla += `<td class="td total totalorizontal textoCentrado"${monedaTotalesAttr}>${formatoNumeroAgrupado(totalesHorizontal.total)}</td>`
         })
 
         tabla += `</tr>`
@@ -851,21 +863,28 @@ async function tableDetalleEnumeracion(objeto, numeroForm, data) {
     table += `<table>`
     table += `<tr class="titulos">`
 
-    for (const [index, val] of (objeto?.tablaComplemento?.pestanas ?? []).entries()) {
+    for (const val of (objeto?.tablaComplemento?.pestanas ?? [])) {
 
         if (consultaPestanas[val.origen] == undefined) {
 
-            await consultasPestanaIndividual(val.origen || val.nombre);
-        }
-
-        if (index + 1 == objeto.tablaComplemento.pestanas.length) {
-            delete objeto.tablaComplemento.pestanas
+            await consultasPestanaIndividual(val.origen || val.nombre, false);
         }
     }
 
-    $.each(objeto.tablaComplemento.titulos, (ind, val) => {
+    const columnasVisibles = (objeto?.tablaComplemento?.atributos || [])
+        .map((atributo, indice) => {
+            return {
+                atributo,
+                titulo: objeto?.tablaComplemento?.titulos?.[indice] || "",
+                nombre: atributo?.nombre || atributo
+            };
+        })
+        // `_id` se usa para navegación (data-id) pero no se muestra en el popup.
+        .filter(columna => columna.nombre !== "_id");
 
-        table += `<th class="tablaComp textoCentrado ${objeto.tablaComplemento.atributos[ind].clase || ""} ${objeto.tablaComplemento.atributos[ind].nombre}">${val}</th>`
+    $.each(columnasVisibles, (_, columna) => {
+
+        table += `<th class="tablaComp textoCentrado ${columna.atributo?.clase || ""} ${columna.nombre}">${columna.titulo}</th>`
     })
     table += `</tr>`//Cierro tr
 
@@ -881,9 +900,9 @@ async function tableDetalleEnumeracion(objeto, numeroForm, data) {
 
         table += `<tr data-id="${idFilaAttr}">`
 
-        for (const val of objeto.tablaComplemento.atributos) {
+        for (const columna of columnasVisibles) {
 
-            table += `<td class="tablaComp textoCentrado ${val.clase || ""} ${val.nombre}">${objetoTabla[val.type](val, value)}</td>`
+            table += `<td class="tablaComp textoCentrado ${columna.atributo?.clase || ""} ${columna.nombre}">${objetoTabla[columna.atributo.type](columna.atributo, value)}</td>`
         }
 
 
@@ -1004,6 +1023,12 @@ function tablaPromedio(objetoCalc, numeroForm, objeto, tablaName) {
 
     let datos = consultaGet[numeroForm][objetoCalc.tablas[0]]
     let tablaBase = objeto.tablas[objetoCalc.tablas[0]]
+    const formatoNumeroPromedio = (valor) => {
+        if (objetoCalc?.sinDecimales == true) {
+            return numeroAString(Math.round(stringANumero(valor || 0)))
+        }
+        return numeroAString(valor || 0)
+    }
 
     let tabla = ""
 
@@ -1043,7 +1068,7 @@ function tablaPromedio(objetoCalc, numeroForm, objeto, tablaName) {
                 let total = itemsDelMes.reduce((a, b) => a + b, 0)
                 let promedio = total / itemsDelMes.length
 
-                tabla += `<div class="${mesesTitulo[mesActualAtributo]} ${attrName} " type="${val.type}">${numeroAString(promedio)}</div>`
+                tabla += `<div class="${mesesTitulo[mesActualAtributo]} ${attrName} " type="${val.type}">${formatoNumeroPromedio(promedio)}</div>`
             }
 
         })
@@ -1055,7 +1080,7 @@ function tablaPromedio(objetoCalc, numeroForm, objeto, tablaName) {
     let totalesHoriz = datos.map(d => d.totalHorizontal || 0)
     let sumaHorizontal = totalesHoriz.reduce((a, b) => a + b, 0)
     let promedioTotalHorizontal = sumaHorizontal / totalesHoriz.length
-    tabla += `<td class="td  textoCentrado" colum="total"><div class="total" type="importe" colum="total">${numeroAString(promedioTotalHorizontal)}</div></td>`
+    tabla += `<td class="td  textoCentrado" colum="total"><div class="total" type="importe" colum="total">${formatoNumeroPromedio(promedioTotalHorizontal)}</div></td>`
 
     tabla += `</tr>`
     tabla += `</table>`

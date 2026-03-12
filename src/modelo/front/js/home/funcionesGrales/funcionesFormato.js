@@ -662,3 +662,72 @@ function coloresOpc(objeto, numeroForm) {
 
 
 }
+function estadoElectronicaConDomicilioComercial(numeroForm) {
+
+    const normalizar = (texto) => (texto || "")
+        .toString()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s+/g, "")
+        .toLowerCase();
+
+    const checkboxElectronica = $(`#t${numeroForm} div.fo.electronica input[type="checkbox"].electronica`);
+    const electronica = checkboxElectronica.is(":checked");
+
+    let tieneComercial = false;
+    let filasDirecciones = $(`#t${numeroForm} table.direcciones tr.mainBody:not(.last)`);
+
+    $.each(filasDirecciones, (indice, value) => {
+
+        let tipoDomicilio = $(`td.tipoDomicilio .inputSelect`, value).val() || "";
+
+        if (normalizar(tipoDomicilio) == "comercial") {
+
+            tieneComercial = true;
+            return false;
+        }
+    });
+
+    return {
+        electronica,
+        tieneComercial
+    };
+}
+function validarElectronicaDomicilioComercialForm(objeto, numeroForm) {
+
+    const mensaje = "No se puede habilitar Facturación Electrónica sin al menos un domicilio Comercial en Direcciones.";
+
+    const advertirYBloquearSiCorresponde = (e) => {
+
+        let estado = estadoElectronicaConDomicilioComercial(numeroForm);
+
+        if (estado.electronica && !estado.tieneComercial) {
+
+            if (e?.target) {
+                $(e.target).prop("checked", false).trigger("change");
+            }
+            insertarCartelCabecera(objeto, numeroForm, mensaje);
+        }
+    };
+
+    $(`#t${numeroForm}`).off("change.validarElectronicaDomicilioComercialForm", `div.fo.electronica input[type="checkbox"].electronica`);
+    $(`#t${numeroForm}`).on("change.validarElectronicaDomicilioComercialForm", `div.fo.electronica input[type="checkbox"].electronica`, advertirYBloquearSiCorresponde);
+
+    advertirYBloquearSiCorresponde();
+}
+function validarElectronicaDomicilioComercial(objeto, numeroForm) {
+
+    const mensaje = "No se puede guardar con Facturación Electrónica activa sin al menos un domicilio Comercial en Direcciones.";
+    const estado = estadoElectronicaConDomicilioComercial(numeroForm);
+    let validado = true;
+
+    if (estado.electronica && !estado.tieneComercial) {
+        validado = false;
+        insertarCartelCabecera(objeto, numeroForm, mensaje);
+    }
+
+    return {
+        validado,
+        mensaje
+    };
+}

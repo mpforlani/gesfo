@@ -204,7 +204,8 @@ async function enviarEmailAdjPdfCustomMult(payload, reqUser) {
             estado: "enviado",
             origen,
             date: fechaLocal,
-            username: reqUser._id
+            username: reqUser?._id || "sistema",
+            empresa: reqUser?.empresa
         });
 
         return {
@@ -490,7 +491,8 @@ async function enviarEmailAdjPdfCustom(payload, reqUser) {
             estado: "enviado",
             origen,
             date: fechaLocal,
-            username: reqUser._id
+            username: reqUser?._id || "sistema",
+            empresa: reqUser?.empresa
         });
 
         return {
@@ -737,7 +739,8 @@ router.put('/emailAdjunto', async (req, res) => {
             estado: "enviado",
             origen,
             date: fechaLocal,
-            username: req.user._id
+            username: req.user?._id || "sistema",
+            empresa: req.user?.empresa
         });
 
         res.json("ok");
@@ -1015,7 +1018,8 @@ router.put('/emailAdjPdfCustom', async (req, res) => {
             estado: "enviado",
             origen,
             date: fechaLocal,
-            username: req.user._id
+            username: req.user?._id || "sistema",
+            empresa: req.user?.empresa
         });
 
         res.json({
@@ -1340,7 +1344,8 @@ router.put('/emailAdjPdfCustomImgInsert', async (req, res) => {
             estado: "enviado",
             origen,
             date: fechaLocal,
-            username: req.user._id
+            username: req.user?._id || "sistema",
+            empresa: req.user?.empresa
         });
 
         res.json({

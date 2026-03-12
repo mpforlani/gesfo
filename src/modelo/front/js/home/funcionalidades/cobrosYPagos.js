@@ -37,129 +37,103 @@ let variablesModeloPagosCobros = {
     formInd: {
       inputRenglones: [5, 3, `compuesto`, 3, 6],
       impresion: {
-        titulo: "Factura",
-        alargar: true,
         bloques: {
-          cabeceraRenglon: {
-            clases: "notMargin",
+          primerRenglon: {
+            clases: "full margin-top-uno",
             componentes: {
               0: {
-                type: [cabeceraStandar],
-                class: "cabeceraImpresion",
-
+                type: [soloLogoEmpresa, ["/img/logoComp.png", "cincoRem"]],
+                class: `flex column`
               },
             }
-          },
-          primerRenglon: {
-            clases: "full centerContenido",
-            componentes: {
-              0: {
-                type: [letraComprobanteFiscal, []],
-                class: `tituloSecundario`,
-              },
-            },
           },
           segundoRenglon: {
-            clases: "medioCol borderNone margin-top-uno",
+            clases: "medioCol fsCeroOcho notMargin",
             componentes: {
               0: {
-                type: [soloLogoEmpresa, ["/img/logoComp.png", "seisRem"]],
-                class: `flex center alignCenter column`
+                type: [infoReferencia, ["empresa", ["name", "documento", "iibb", F("fechaInicio"), "condicionImpositiva"], ["RAZON SOCIAL", "CUIT", "IIBB", "FECHA INICIO DE ACTIVIDADES", "CONDICION IVA"], { titulo: "bold fsUno", info: "fsUno" }]],
+                class: `flex column`
 
               },
               1: {
-                type: [numFechaTituloMediano, ["N°", { numero: ["ancla", "numerador"], fecha: F() }]],
-                class: `flex center alignCenter column`
-              },
-            }
-          },
-          segundoRenglonb: {
-            clases: "medioCol paddingTopBotCeroCinco",
-            componentes: {
-              0: {
-                type: [dataFiscal],
-
-              },
-              1: {
-                type: [dataFiscalDos],
-                class: `flex center alignCenter column`
+                type: [fechaLetraNum, [{ fecha: "fecha" }]],
+                class: `flex rightContenido`
               },
             }
           },
           tercerRenglon: {
-            clases: "medioCol borderNone paddingTopCeroCinco",
+            clases: "full",
             componentes: {
               0: {
-                type: [infoReferenciaMayuscula, [P("cliente"), ["name"], ["Señor(es)"]]],
-                class: `izquierda`
-              },
-
-              1: {
-                type: [infoReferenciaMayusculaCuit, [P("cliente")]],
-                class: `izquierda`
+                type: [infoReferenciaColec, ["empresa", ["calle", "numero", P({ nombre: "ciudadDir", origen: "ciudad" })], "DOMICILIO COMERCIAL", { titulo: "bold fsUno", info: "fsUno" }]],
+                class: `flex`
               },
             }
           },
           cuartoRenglon: {
-            clases: "medioCol ",
+            clases: "full margin-top-uno",
             componentes: {
               0: {
-                type: [infoReferenciaMayuscula, [P("cliente"), ["condicionImpositiva"], ["Condición Impositiva"]]],
-                class: `izquierda`
-              },
-            }
-          },
-          cuartoRenglonD: {
-            clases: "full paddingBotceroCinco flex centerContenido",
-            componentes: {
-              0: {
-                type: [infoReferenciaMayusculacuentaEmpresa],
-                class: `flex `
-              },
-            }
-          },
-          cuartoRenglonB: {
-            clases: "full paddingBotceroCinco centerContenido",
-            componentes: {
-              0: {
-                type: [returnUnAtributoSelectColec, [{ atributo: P({ nombre: "tipoPago" }), titulo: "Condición de venta" }]],
-
-              },
-            }
-          },
-          cuartoRenglonC: {
-            clases: "full paddingTopBotCeroCinco centerContenido",
-            componentes: {
-              0: {
-                type: [returnUnAtributo, ["descripcionCompleto"]],
+                type: [infoReferencia, ["cliente", ["name", "documento", "condicionImpositiva"], ["SEÑOR(ES)", "CUIT", "CONDICION DE IVA"], { titulo: "bold fsUno", info: "mayuscula fsUno" }]],
+                class: `flex column`
 
               },
 
             }
           },
           quintoRenglon: {
+            clases: "full flex margin-top-uno",
+            componentes: {
+              0: {
+                type: [infoReferenciaMayusculacuentaEmpresa],
+                class: `flex mayuscula`
+              },
+            }
+          },
+          sextoRenglon: {
+            clases: "full",
+            componentes: {
+              0: {
+                type: [returnUnAtributoSelectColec, [{ atributo: P({ nombre: "tipoPago" }), titulo: "Condición de VENTA" }, { titulo: "fsUno", info: "fsUno" }]],
+                class: `mayuscula`
+
+              },
+            }
+          },
+          septimoRenglon: {
+            clases: "full margin-bot-uno",
+            componentes: {
+              0: {
+                type: [returnUnAtributo, ["descripcionCompleto", "fsUno"]],
+                class: `mayuscula`
+
+              },
+            }
+          },
+          octavoRenglon: {
             clases: "full alargar",
             componentes: {
               0: {
                 type: [
-                  itemsComprobantes,
+                  itemsComprobantesDiv,
                   [
                     [
                       N({ nombre: "cantidad", clase: "textoCentrado centroVertical", width: "tres" }),
-                      P({ nombre: "itemVenta", clase: "centroVertical", width: "quince" }),
+                      P({ nombre: "itemVenta", clase: "centroVertical", width: "auto" }),
                       I({ nombre: "precioUnitario", clase: "textoCentrado centroVertical", width: "cinco" }),
                       N({ nombre: "porcentaje", clase: "textoCentrado centroVertical", width: "tres" }),
-                      I({ nombre: "otrosImpuestos", clase: "textoCentrado centroVertical", width: "cinco" }),
-                      I({ nombre: "subtotalVentas", clase: "textoCentrado centroVertical", width: "siete" }),
+                      I({ nombre: "otrosImpuestos", clase: "textoCentrado centroVertical", width: "ocho" }),
+                      I({ nombre: "subtotalVentas", clase: "textoCentrado centroVertical", width: "siete" })
                     ],
-                    compuestoFacturaVentas,
+                    compuestoFacturaVentas, { filas: "renglonMarcado", claseFilaTitulo: "notOpacity", titulo: "mayuscula fsUno", celda: "fsUno padding-top-med padding-bot-med mayusculaPrimerLetra" },
                   ],
+
                 ],
               },
             },
           },
-          sextoRenglon: {
-            clases: "full flex end paddingTopBotCeroCinco",
+          novenoRenglon: {
+            clases: "full flex end",
             componentes: {
               0: {
                 type: [totalitemsPorTasa, [{
@@ -167,50 +141,45 @@ let variablesModeloPagosCobros = {
                   impuesto: { atr: "impuestoFactVentas", titulo: "IVA" },
                   otroImpuesto: { atr: "otrosImpuestos", titulo: "Impuestos" },
                   total: { atr: "importeTotal", titulo: "Total" }
-                }]],
+                }, { celda: "fsDoce", titulo: "nowrap bold fsDoce" }]],
                 class: `totalTable`
               },
             }
           },
-          septimoRenglon: {
-            clases: "full paddingTopBotCeroCinco",
+          decimoRenglon: {
+            clases: "full flex end margin-bot-dos padding-bot-uno boderBottom",
             componentes: {
               0: {
-                type: [numeroALetrasImporte, [P("moneda"), I("importeTotal")]],
-                class: ""
+                type: [numeroALetrasImporte, [P("moneda"), I("importeTotal"), "fsOnce"]],
+                class: "RobotoItalic darkGreyColor"
               },
             },
           },
-          octavoRenglon: {
-            clases: "full paddingTopBotCeroCinco",
+          decimoPrimeroRenglon: {
+            clases: "full",
             componentes: {
               0: {
-                type: [datoDosDiv, ["tipoCambioPesos", "torcido", { 0: "80porc", 1: "20porc" }, { 1: "derecha verticalEnd" }]],
-                class: `flex`
+                type: [datoDosDiv, ["tipoCambioPesos", "torcido", { 0: "80porc", 1: "20porc" }, { 0: "asterisco", 1: "derecha verticalEnd" }]],
+                class: "RobotoItalic darkGreyColor fsCeroNueve"
               },
             },
           },
-          novenoRenglon: {
-            clases: "full paddingTopBotCeroCinco",
+          decimoSegundoRenglon: {
+            clases: "full",
             componentes: {
               0: {
-                type: [datoDiv, ["cancelacion", "torcido"]],
-                class: `flex`
+                type: [datoDiv, ["cancelacion", "torcido asterisco"]],
+                class: "RobotoItalic darkGreyColor fsCeroNueve"
               },
             },
-          },
-          pieRenglon: {
-            clases: "notMargin pieImpresion",
-            componentes: {
-              0: {
-                type: [pieStandar],
-
-
-              },
-            }
           },
         },
-      },
+        funciones: {
+          agregarColores: [agregarColores, [{ colorBorde: colores?.impresion?.bordesRenglon || "black" }]],
+          paddingDocumento: [paddingDocumento],
+          agregarAsterisco: [agregarAsterisco],
+        }
+      }
     },
     funcionesPropias: {
       formularioIndiv: {
@@ -223,9 +192,7 @@ let variablesModeloPagosCobros = {
         valoresInicialesMediosPagos: [valoresInicialesMediosPagos, "importeTotal"],
         cuentaBcaria: [cuentaBcaria],
         consultaStock: [consultaStock],
-        cambiarBoton: [cambiarBoton, `okBoton`, iOkFacturaElec],
-        cambiarBotonD: [cambiarBoton, `okfPlus`, okPlusElectronica],
-        botonEnviarelectronica: [botonEnviarelectronica]
+        configurarFacturacionElectronica: [configurarFacturacionElectronica]
       },
       formularioIndivFinal: {
         fijarComprobanteCFijoMonotributoFinal: [fijarComprobanteCFijoMonotributo],
@@ -715,7 +682,7 @@ let variablesModeloPagosCobros = {
             destino: "cuentaCorrienteClientes",
             atributoImputables: {
               funcion: {
-                estado: [pagoParcialString, "importeaCobrar", { parcial: "Pago parcial", cerrado: "Cerrado", }],
+                estado: [pagoParcialString, "importeaCobrar", { parcial: "Pago parcial", cerrado: "Cerrado", }, "saldoComprobante"],
                 saldoComprobante: [pagoParcialImporte, "importeaCobrar", "saldoComprobante"]
               },
               cambioNombre: {
@@ -1194,6 +1161,7 @@ let variablesModeloPagosCobros = {
       cuentaCorriente: {
         type: "condicionSegunFuncion",
         coleccionOrigen: pagosCtaCte,
+        destino: "cuentaCorrienteProveedores",
         identificador: "cuentaCorriente",
         eliminarDesencadenate: ["numComprobante"],//Si cambia este atributo se elimina el desencadenate
         funcionCondicion: [almenosUnFiscal, "importeaPagar"],
@@ -1203,12 +1171,12 @@ let variablesModeloPagosCobros = {
             nombre: "Cuentas corrientes proveedores",
             atributoImputables: {
               funcion: {
-                estado: [pagoParcialString, "importeaPagar", { parcial: "Pago parcial", cerrado: "Cerrado", }],
+                estado: [pagoParcialString, "importeaPagar", { parcial: "Pago parcial", cerrado: "Cerrado", }, "saldoComprobante"],
                 saldoComprobante: [pagoParcialImporte, "importeaPagar", "saldoComprobante"]
               },
               funcionReverso: {
-                saldoComprobante: [reversoImporte],
-                estado: [reversoString]
+                saldoComprobante: [reversoImporte, "saldoComprobante"],
+                estado: [reversoEstado]
               },
               cambioNombre: {
                 _id: "idComprobante",
@@ -1593,12 +1561,12 @@ let variablesModeloPagosCobros = {
         compuestoMedioPagos,
         remitoIngreso,
         I({ nombre: "importeTotal", clase: "soloLectura transparente" }),
+        PPE({ nombre: "estado", clase: "transparente soloLectura centrado", opciones: ["Aprobado", "Directo", "Pendiente"], valorInicial: "Pendiente" }),
         TF("descripcionCompleto"),
         adjunto,
-        // PPE({ nombre: "estado", clase: "transparente soloLectura centrado", opciones: ["Aprobado", "Directo", "Pendiente"], valorInicial: "Pendiente" }),
 
       ],
-      titulos: ["Proveedor", `Fecha`, `Fecha vencimiento`, `Letra`, "Numero", `Moneda`, `TC`, "detalleProducto", "compuestoFacturaVentas", "compuestoMedioPagos", "remitoIngreso", `Importe`, `Observaciones`, `Adjuntos`],
+      titulos: ["Proveedor", `Fecha`, `Fecha vencimiento`, `Letra`, "Numero", `Moneda`, `TC`, "detalleProducto", "compuestoFacturaVentas", "compuestoMedioPagos", "remitoIngreso", `Importe`, `Estado Remito`, `Observaciones`, `Adjuntos`],
       limiteCabecera: true,
       deshabilitar: false,
       valorInicial: {
@@ -1737,24 +1705,31 @@ let variablesModeloPagosCobros = {
       detalleProducto: {
         type: "condicionSegunFuncion",
         coleccionOrigen: detalleProducto,
+        nombre: "detalleProducto",
         identificador: "detalleProducto",
         eliminarDesencadenate: ["producto"],//Si cambia este atributo se elimina el desencadenate
         funcionCondicion: [facturaStock, "ingresaStock"],
         opciones: {
           facturacion: {
             destino: "stock",
-            nombre: "Inventario",
+            nombre: "facturacion",
             atributosColeccion: {
               cambiarAtributos: {
                 unidadesMedida: "unidadesMedidaProducto",
                 almacen: "almacenProducto",
-                cantidad: "cantidadProducto"
+                cantidad: "cantidadProducto",
+                disponibles: "cantidadProducto",
+                remito: "numComprobante",
+                ubicaciones: "ubicacionProducto"
+
               },
               funcion: {
                 marca: [buscarAtributosParamentricos, "marca", "producto"],
               },
               valorFijo: {
                 operacionStock: "Entrada",
+                estado: "Ingresado",
+                estadoFacturacion: "Facturado",
               },
 
             },
@@ -1771,6 +1746,7 @@ let variablesModeloPagosCobros = {
         type: "condicionSegunFuncion",
         coleccionOrigen: remitoIngreso,
         identificador: "remitoIngreso",
+        nomrbe: "remitoIngreso",
         eliminarDesencadenate: ["cantidad"],//Si cambia este atributo se elimina el desencadenate
         funcionCondicion: [facturaStock, "ingresaStock"],
         opciones: {

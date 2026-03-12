@@ -192,7 +192,7 @@ const compuestoFacturaVentas = {
     subtotalVentas: I("subtotalVentas"),
     descripcion: TA("descripcion"),
   },
-  titulosComponentes: [`Q`, `Unidad`, `Item`, `P Unit`, `Neto`, `%`, `IVA`, `Otros impuestos`, `Subtotal`, `Descripción`,
+  titulosComponentes: [`Q`, `Unidad`, `Item`, `P Unit`, `Neto`, `%`, `IVA`, `Otros imp`, `Subtotal`, `Descripción`,
   ],
 };
 const compuestoFacturaCompras = {
@@ -818,12 +818,12 @@ const movimientoStock = {
     codigoDeBarras: T({ nombre: "codigoDeBarras", clase: "requerido" }),
     estadoFacturacion: PPE({ nombre: "estadoFacturacion", valorInicial: "Pendiente", oculto: "oculto", opciones: ["Pendiente", "Facturado"] }),
     disponibles: N({ nombre: "disponibles" }),
-    cantidadSalidas: N({ nombre: "cantidadSalidas" }),
+    cantidadSalidas: N({ nombre: "cantidadSalidas", clase: "requerido" }),
     descripcion: TA("descripcion"),
     idComprobante: T({ nombre: "idComprobante", oculto: "oculto" }),
 
   },
-  titulosComponentes: ["Cantidad", "Unidad", "Producto", "Fecha vencimiento", "Codigo de barras", "Estado", "Disponibles", "Salidas", "Descripción", "idComprobante"],
+  titulosComponentes: ["Cantidad", "Unidad", "Producto", "Fecha vencimiento", "Codigo de barras", "Estado", "Disponibles", "Salida", "Descripción", "idComprobante"],
 };
 const movimientoUbicaciones = {
   titulos: `Movimiento Ubicaciones`,
@@ -942,11 +942,13 @@ const detalleProducto = {
     cantidadProducto: N({ nombre: "cantidadProducto", clase: "requerido" }),
     unidadesMedidaProducto: P({ nombre: "unidadesMedidaProducto", origen: "unidadesMedida", clase: "requerido" }),
     producto: P({ nombre: "producto", clase: "requerido" }),
+    fechaVencimientoProducto: F({ nombre: "fechaVencimientoProducto" }),
     almacenProducto: P({ nombre: "almacenProducto", origen: "almacen", clase: "requerido" }),
+    ubicacionProducto: P({ nombre: "ubicacionProducto", origen: "ubicaciones", clase: "requerido" }),
     importeProducto: I({ nombre: "importeProducto", clase: "requerido" }),
     descripcionProducto: TA("descripcionProducto"),
   },
-  titulosComponentes: ["Cantidad", "Unidad", "Producto", "Almacen", "P Unit", "Descripción"],
+  titulosComponentes: ["Cantidad", "Unidad", "Producto", "Vencimiento", "Almacen", "Ubicacion", "P Unit", "Descripción"],
 };
 const remitoIngreso = {
   titulos: `Remito`,

@@ -23,6 +23,7 @@ const DesconsolidacionesSchema = new Schema({
         default: ""
     },
     disponiblesOrigen: { type: Number },
+    cantidadOrigen: { type: Number },
     cantidadSalidasOrigen: { type: Number },
     almacenDestino: {
         type: String,

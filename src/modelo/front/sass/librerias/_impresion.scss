@@ -1,6 +1,7 @@
 @use "../abstracts/variables" as *;
 @use "../../../../front/sass/abstract/variablesModelo" as *;
 @use "../abstracts/mixins" as *;
+@use "sass:meta";
 
 #impresionFormulario {
 
@@ -370,12 +371,16 @@
                 &.titulosTable {
 
                     min-height: 2rem;
-                    background: linear-gradient(90deg, rgb(27, 63, 144), rgb(11, 15, 29));
+                    background: if(meta.variable-exists("tituloTablaLocal"), $tituloTablaLocal, $tituloTabla);
                     opacity: .4;
                     border: none !important;
                     color: #fff;
                     border-radius: 5px;
                     text-align: center;
+
+                    &.notOpacity {
+                        opacity: 1
+                    }
                 }
 
                 &.filasRegistros.renglonMarcado {
@@ -444,6 +449,7 @@
 
             &.tableItems.cotizacionLogistica {
                 .tr {
+
                     .th.importeCincoCotizacion,
                     .td.importeCincoCotizacion,
                     .th.importeSeisCotizacion,

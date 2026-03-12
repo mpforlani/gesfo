@@ -14,6 +14,7 @@ const EmpresaSchema = new Schema({
     habilitado: { type: String },
     multimoneda: { type: String },
     listaPrecios: { type: String },
+    electronica: { type: String },
     nameUsuImg: { type: String },
     pathImg: { type: String },
     colores: { type: String },

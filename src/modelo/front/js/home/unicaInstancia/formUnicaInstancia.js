@@ -302,14 +302,16 @@ async function crearFormulario(objeto, numeroForm, consult) {//doc
         const scopeStorage = getOrderScopeStorageFormInd(objeto);
         const scopeCookie = getOrderScopeCookieFormInd(objeto);
         const scopeRowLayout = getRowLayoutScopeFormInd(objeto);
+        const scopeResize = getResizeScopeFormInd(objeto);
         const limpioStorageNuevo = clearOrderStateFormInd(scopeStorage);
         const limpioStorageLegacy = clearOrderStateFormInd(scopeLegacy);
         const limpioCookie = clearOrderStateCookieFormInd(scopeCookie);
         const limpioRowLayout = clearRowLayoutCookieFormInd(scopeRowLayout);
+        const limpioResize = clearResizeStateFormInd(scopeResize);
         const limpioColecciones = (typeof resetOrdenColeccionesFormInd === "function")
             ? resetOrdenColeccionesFormInd(objeto, numeroForm)
             : false;
-        const limpio = limpioStorageNuevo && limpioStorageLegacy && limpioCookie && limpioRowLayout && limpioColecciones;
+        const limpio = limpioStorageNuevo && limpioStorageLegacy && limpioCookie && limpioRowLayout && limpioResize && limpioColecciones;
         const ordenBase = ordenBaseCamposFormInd[numeroForm] || capturarOrdenBaseCamposFormInd(numeroForm);
 
         if (!limpio) {
@@ -320,6 +322,7 @@ async function crearFormulario(objeto, numeroForm, consult) {//doc
         }
 
         aplicarOrdenDraggablesFormInd(numeroForm, ordenBase);
+        resetResizeStylesFormInd(numeroForm);
         $(`#t${numeroForm} div.renglon.autoRenglon`).remove();
         renglones(objeto, numeroForm);
         inicializarDragCamposFormInd(objeto, numeroForm, { restaurarPersistido: false });
@@ -2385,13 +2388,27 @@ function posteoElectronica(objeto, numeroForm) {
                 body: JSON.stringify(data)
             });
 
-            const resJson = await res.json();
+            let resJson = {};
+            try {
+                resJson = await res.json();
+            } catch (e) {
+                resJson = {};
+            }
 
-            if (!resJson.error) {
+            if (!res.ok || resJson?.error) {
+                let mensajeError = resJson?.error || resJson?.mensaje || `Error HTTP ${res.status}: ${res.statusText}`;
+                let cartel = cartelInforUnaLinea(mensajeError, "❌", { cartel: "infoChiquito rojo", close: "ocultoSiempre" });
+                $(cartel).appendTo(`#bf${numeroForm}`);
+                removeCartelInformativo(objeto, numeroForm);
+                reject(mensajeError);
+                return;
+            } else {
 
                 const numero = resJson.numeroFactura.toString().padStart(8, "0");
                 const ancla = formData.get('ancla')
                 const filtro = formData.get('tipoComprobante')
+                const comprobante = formData.get('comprobante')
+                const empresa = formData.get('empresa') || empresaSeleccionada?._id
 
                 $(`#t${numeroForm} input.CAE`).val(resJson.CAE);
                 $(`#t${numeroForm} input.vtocae`).val(resJson.CAEFchVto);
@@ -2403,6 +2420,9 @@ function posteoElectronica(objeto, numeroForm) {
                 numeradorObjeto.numerador = numero
                 numeradorObjeto.ancla = ancla
                 numeradorObjeto.filtroUno = filtro
+                numeradorObjeto.tipoComprobante = filtro
+                numeradorObjeto.comprobante = comprobante
+                numeradorObjeto.empresa = empresa
 
                 try {
                     const response = await fetch('/numeradorAbosoluto', {
@@ -2412,6 +2432,15 @@ function posteoElectronica(objeto, numeroForm) {
                         },
                         body: JSON.stringify(numeradorObjeto)
                     });
+
+                    if (!response.ok) {
+                        let detalleError = `Error HTTP ${response.status}: ${response.statusText}`;
+                        try {
+                            const errorJson = await response.json();
+                            detalleError = errorJson?.error || errorJson?.mensaje || detalleError;
+                        } catch (e) { }
+                        throw new Error(`No se pudo actualizar numerador: ${detalleError}`);
+                    }
 
                     const data = await response.json();
 
@@ -2425,19 +2454,18 @@ function posteoElectronica(objeto, numeroForm) {
                     vtocae: resJson.CAEFchVto,
                     numero
                 });
-            } else {
-                let cartel = cartelInforUnaLinea(resJson.error, "❌", { cartel: "infoChiquito rojo", close: "ocultoSiempre" });
-                $(cartel).appendTo(`#bf${numeroForm}`);
-                removeCartelInformativo(objeto, numeroForm);
-                reject(resJson.error);
             }
         } catch (error) {
             console.error('Error en fetch:', error);
-            let cartel = cartelInforUnaLinea(error, "❌", { cartel: "infoChiquito rojo", close: "ocultoSiempre" });
+            const mensajeErrorBase = error?.message || String(error);
+            const mensajeError = mensajeErrorBase?.includes("Failed to fetch")
+                ? "No se pudo conectar con /facturaElectronica (Failed to fetch). Revisa servidor, red o bloqueo del navegador."
+                : mensajeErrorBase;
+            let cartel = cartelInforUnaLinea(mensajeError, "❌", { cartel: "infoChiquito rojo", close: "ocultoSiempre" });
             $(cartel).appendTo(`#bf${numeroForm}`);
             removeCartelInformativo(objeto, numeroForm);
-            throw error;
-            reject(error);
+            reject(mensajeError);
+            return;
 
         }
     });
@@ -2505,12 +2533,9 @@ function tipoAtributoFormSistema(objeto, numeroForm, consulta, disabled) {//dic
 
             $.each(value.mostrar, (i, v) => {
 
-                if (consultaPestanas[i] == undefined) {
-                    formSistema += `<h3>${i}: </h3><p>${v} </p>`
-                } else {
-
-                    formSistema += `<h3>${i}: </h3><p>${consultaPestanas[i][v].name} </p>`
-                }
+                const referencia = consultaPestanas?.[i]?.[v]
+                const valorMostrar = referencia?.name || v || "-"
+                formSistema += `<h3>${i}: </h3><p>${valorMostrar} </p>`
             })
             formSistema += `</p>`;
             formSistema += `<div class="ocultoSiempre _id" >${value._id}</div>
@@ -2544,13 +2569,10 @@ function tipoAtributoFormSistema(objeto, numeroForm, consulta, disabled) {//dic
 
         $.each(value.mostrar, (i, v) => {
 
-            if (consultaPestanas[i] == undefined) {
-
-                formSistema += `<h3>${v.titulo}: </h3><p>${v.valor} </p>`
-            } else {
-
-                formSistema += `<h3>${v.titulo}: </h3><p>${consultaPestanas[i][v.valor].name} </p>`
-            }
+            const referencia = consultaPestanas?.[i]?.[v?.valor]
+            const valorMostrar = referencia?.name || v?.valor || "-"
+            const tituloMostrar = v?.titulo || i
+            formSistema += `<h3>${tituloMostrar}: </h3><p>${valorMostrar} </p>`
         })
 
         formSistema += `</div></div>`;
@@ -2844,7 +2866,12 @@ function agregarOcultarColumna(objeto, numeroForm, tabla) {
 
             $.each(ocultos, (indice, value) => {
 
-                let valor = $(value).html()
+                let valor = $(".tituloColColeccion", value).first().text().trim()
+                if (valor == "") {
+                    let tituloLimpio = $(value).clone()
+                    tituloLimpio.find(".reorder-col-handle-coleccion, .material-symbols-outlined").remove()
+                    valor = tituloLimpio.text().trim()
+                }
                 tablaOcultos += `<div class="notClose fila" ocltable=${$(value).attr("ocltable")}>${valor}`
                 tablaOcultos += `</div>`
 
@@ -3688,7 +3715,6 @@ function aplicarLayoutRenglonesDesdeCookie(objeto, numeroForm, layoutOpcional = 
     campos.forEach((campo) => mapaCampos.set(campo.key, campo.$fo));
 
     let huboMatch = false;
-    let ultimoRenglon = -1;
     layout.rows.forEach((rowKeys, rowIndex) => {
         const normalizados = normalizarOrderKeysFormInd(rowKeys);
         const keysPresentes = normalizados.filter((key) => mapaCampos.has(key));
@@ -3708,23 +3734,14 @@ function aplicarLayoutRenglonesDesdeCookie(objeto, numeroForm, layoutOpcional = 
             mapaCampos.delete(key);
             huboMatch = true;
         });
-
-        ultimoRenglon = rowIndex;
     });
 
     if (!huboMatch) {
         return false;
     }
 
-    const remanentes = campos.filter((campo) => mapaCampos.has(campo.key));
-    if (remanentes.length > 0) {
-        const destino = Math.max(ultimoRenglon, 0);
-        const $renglonDestino = asegurarRenglonNoCompuestoFormInd(numeroForm, destino);
-
-        remanentes.forEach((campo) => {
-            $renglonDestino.append(campo.$fo);
-        });
-    }
+    // Si hay campos nuevos/no presentes en cookie, se mantienen en su renglon actual
+    // para no colapsar todos los remanentes en una sola fila.
 
     limpiarRenglonesAutoVaciosFormInd(numeroForm);
     return true;
@@ -3757,7 +3774,79 @@ function obtenerAnchoDisponibleRenglonFormInd(numeroForm, $renglon) {
 
     return Math.max(120, ancho - 2);
 }
-function recalcularRenglonesPorAncho(objeto, numeroForm) {
+function recalcularSoloCampoMovidoPorAnchoFormInd(numeroForm, $foMovido) {
+
+    const $campoMovido = $foMovido?.length ? $foMovido.first() : $();
+    if (!$campoMovido.length) {
+        return false;
+    }
+
+    if (!$campoMovido.is(":visible")) {
+        return false;
+    }
+
+    const gap = 4;
+    const anchoCampo = obtenerAnchoFoRenglonFormInd($campoMovido);
+    const obtenerAnchoUsadoSinCampo = ($renglon) => {
+        let anchoUsado = 0;
+        let cantidad = 0;
+
+        $renglon.children("div.fo:not(.auditoria):not(.textoDiv):not(.textoDov)").each((_, fo) => {
+            const $fo = $(fo);
+            if ($fo.is($campoMovido)) {
+                return;
+            }
+            if (!$fo.is(":visible")) {
+                return;
+            }
+            if ($fo.is(".oculto, .ocultoSiempre, .ocultoSeguridad")) {
+                return;
+            }
+            if ($fo.attr("oculto") === "true") {
+                return;
+            }
+
+            const anchoFo = obtenerAnchoFoRenglonFormInd($fo);
+            if (cantidad > 0) {
+                anchoUsado += gap;
+            }
+            anchoUsado += anchoFo;
+            cantidad++;
+        });
+
+        return { anchoUsado, cantidad };
+    };
+
+    let renglonDestino = Number.parseInt(`${$campoMovido.closest("div.renglon").attr("renglon") || ""}`, 10);
+    if (!Number.isFinite(renglonDestino)) {
+        renglonDestino = 0;
+    }
+
+    while (true) {
+        const $renglon = asegurarRenglonNoCompuestoFormInd(numeroForm, renglonDestino);
+        const anchoDisponible = obtenerAnchoDisponibleRenglonFormInd(numeroForm, $renglon);
+        const uso = obtenerAnchoUsadoSinCampo($renglon);
+        const gapAplicado = uso.cantidad > 0 ? gap : 0;
+        const entra = uso.cantidad === 0
+            ? true
+            : (uso.anchoUsado + gapAplicado + anchoCampo <= anchoDisponible);
+
+        if (entra) {
+            if (!$campoMovido.parent().is($renglon)) {
+                $renglon.append($campoMovido);
+            }
+            break;
+        }
+
+        renglonDestino++;
+    }
+
+    limpiarRenglonesAutoVaciosFormInd(numeroForm);
+    return true;
+}
+function recalcularRenglonesPorAncho(objeto, numeroForm, opciones = {}) {
+
+    const persistirLayout = opciones.persistirLayout === true;
 
     const campos = listarCamposLayoutRenglonesFormInd(numeroForm, { incluirOcultos: false });
     if (!campos.length) {
@@ -3823,11 +3912,13 @@ function recalcularRenglonesPorAncho(objeto, numeroForm) {
 
     limpiarRenglonesAutoVaciosFormInd(numeroForm);
     normalizarIndicesRenglonesFormInd(numeroForm);
-    const scope = getRowLayoutScopeFormInd(objeto);
-    const layout = capturarLayoutRenglonesFormInd(numeroForm);
+    if (persistirLayout) {
+        const scope = getRowLayoutScopeFormInd(objeto);
+        const layout = capturarLayoutRenglonesFormInd(numeroForm);
 
-    if (layout) {
-        saveRowLayoutCookieFormInd(scope, layout);
+        if (layout) {
+            saveRowLayoutCookieFormInd(scope, layout);
+        }
     }
 
     return true;
@@ -4327,8 +4418,10 @@ function inicializarDragCamposFormInd(objeto, numeroForm, opciones = {}) {
             },
             onEnd: (evt) => {
                 limpiarRenglonDestino();
+                const $origen = $(evt?.from || []).closest("div.renglon").first();
                 const $destino = $(evt?.to || []).closest("div.renglon").first();
                 const movioAlDropFinal = $destino.hasClass(CLASE_RENGLON_DROP_FINAL_FORM_IND);
+                const movioEntreRenglones = $origen.length && $destino.length && ($origen.get(0) !== $destino.get(0));
 
                 if (movioAlDropFinal) {
                     $destino.removeClass(CLASE_RENGLON_DROP_FINAL_FORM_IND);
@@ -4342,16 +4435,27 @@ function inicializarDragCamposFormInd(objeto, numeroForm, opciones = {}) {
                 saveOrderStateCookieFormInd(scopeCookie, ordenFinal);
                 saveOrderStateFormInd(scopeStorage, ordenFinal);
                 saveOrderStateFormInd(scopeLegacy, ordenFinal);
+                const scopeRowLayout = getRowLayoutScopeFormInd(objeto);
 
                 if (movioAlDropFinal) {
                     normalizarIndicesRenglonesFormInd(numeroForm);
-                    const scopeRowLayout = getRowLayoutScopeFormInd(objeto);
+                    const layoutActual = capturarLayoutRenglonesFormInd(numeroForm);
+                    if (layoutActual) {
+                        saveRowLayoutCookieFormInd(scopeRowLayout, layoutActual);
+                    }
+                } else if (movioEntreRenglones) {
+                    const $itemMovido = $(evt?.item || []).closest("div.fo").first();
+                    recalcularSoloCampoMovidoPorAnchoFormInd(numeroForm, $itemMovido);
+                    normalizarIndicesRenglonesFormInd(numeroForm);
                     const layoutActual = capturarLayoutRenglonesFormInd(numeroForm);
                     if (layoutActual) {
                         saveRowLayoutCookieFormInd(scopeRowLayout, layoutActual);
                     }
                 } else {
-                    recalcularRenglonesPorAncho(objeto, numeroForm);
+                    const layoutActual = capturarLayoutRenglonesFormInd(numeroForm);
+                    if (layoutActual) {
+                        saveRowLayoutCookieFormInd(scopeRowLayout, layoutActual);
+                    }
                 }
 
                 inicializarDragCamposFormInd(objeto, numeroForm, { restaurarPersistido: false });
@@ -4417,6 +4521,59 @@ function saveResizeStateFormInd(scope, state) {
         localStorage.setItem(FORM_IND_RESIZE_STORAGE_KEY, JSON.stringify(parsed));
     } catch (error) {
     }
+}
+function clearResizeStateFormInd(scope) {
+
+    try {
+        const raw = localStorage.getItem(FORM_IND_RESIZE_STORAGE_KEY);
+        if (!raw) {
+            return true;
+        }
+
+        const parsed = JSON.parse(raw);
+        if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+            localStorage.removeItem(FORM_IND_RESIZE_STORAGE_KEY);
+            return true;
+        }
+
+        if (scope in parsed) {
+            delete parsed[scope];
+        }
+
+        if (Object.keys(parsed).length === 0) {
+            localStorage.removeItem(FORM_IND_RESIZE_STORAGE_KEY);
+        } else {
+            localStorage.setItem(FORM_IND_RESIZE_STORAGE_KEY, JSON.stringify(parsed));
+        }
+
+        return true;
+    } catch (error) {
+        return false;
+    }
+}
+function resetResizeStylesFormInd(numeroForm) {
+
+    const contenedor = $(`#t${numeroForm}`);
+    if (!contenedor.length) {
+        return;
+    }
+
+    contenedor.find(".input-resize-handle").remove();
+    contenedor.find("div.fo, table.tablaCompuesto td, table.tablaCompuesto th").each((_, elemento) => {
+        const style = elemento?.style;
+        if (!style) {
+            return;
+        }
+
+        style.removeProperty("width");
+        style.removeProperty("min-width");
+        style.removeProperty("max-width");
+        style.removeProperty("flex");
+
+        if (!(`${style.cssText || ""}`.trim())) {
+            elemento.removeAttribute("style");
+        }
+    });
 }
 function getResizableInputKey($input, $contenedor) {
 
@@ -4550,13 +4707,87 @@ function inicializarResizeCamposFormInd(objeto, numeroForm) {
 
     const scope = getResizeScopeFormInd(objeto);
     const state = loadResizeStateFormInd(scope);
-    const refrescarAutoRenglones = () => {
-        const actualizado = recalcularRenglonesPorAncho(objeto, numeroForm);
+    const haySaltoVisualEnRenglones = () => {
+        let haySalto = false;
+
+        obtenerRenglonesNoCompuestosFormInd(numeroForm).each((_, renglon) => {
+            if (haySalto) {
+                return false;
+            }
+
+            const $renglon = $(renglon);
+            if ($renglon.hasClass(CLASE_RENGLON_DROP_FINAL_FORM_IND)) {
+                return;
+            }
+
+            const visibles = $renglon.children("div.fo:not(.auditoria):not(.textoDiv):not(.textoDov)").filter((__, fo) => {
+                const $fo = $(fo);
+
+                if (!$fo.is(":visible")) {
+                    return false;
+                }
+                if ($fo.is(".oculto, .ocultoSiempre, .ocultoSeguridad")) {
+                    return false;
+                }
+                if ($fo.attr("oculto") === "true") {
+                    return false;
+                }
+
+                return true;
+            }).toArray();
+
+            if (visibles.length < 2) {
+                return;
+            }
+
+            let topBase = null;
+            visibles.forEach((fo) => {
+                if (haySalto) {
+                    return;
+                }
+
+                const rect = fo?.getBoundingClientRect?.();
+                const top = Number(rect?.top);
+                if (!Number.isFinite(top)) {
+                    return;
+                }
+
+                if (topBase === null) {
+                    topBase = top;
+                    return;
+                }
+
+                if (Math.abs(top - topBase) > 1) {
+                    haySalto = true;
+                }
+            });
+        });
+
+        return haySalto;
+    };
+    const refrescarAutoRenglones = (opcionesAuto = {}) => {
+        const requiereRecalculo = opcionesAuto.forzar === true || haySaltoVisualEnRenglones();
+        if (!requiereRecalculo) {
+            if (opcionesAuto.persistirLayout === true) {
+                const scopeRowLayout = getRowLayoutScopeFormInd(objeto);
+                const layoutActual = capturarLayoutRenglonesFormInd(numeroForm);
+                if (layoutActual) {
+                    saveRowLayoutCookieFormInd(scopeRowLayout, layoutActual);
+                }
+            }
+            return false;
+        }
+
+        const actualizado = recalcularRenglonesPorAncho(objeto, numeroForm, {
+            persistirLayout: opcionesAuto.persistirLayout === true
+        });
 
         if (actualizado) {
             inicializarDragCamposFormInd(objeto, numeroForm, { restaurarPersistido: false });
             inicializarResizeCamposFormInd(objeto, numeroForm);
         }
+
+        return actualizado;
     };
 
     contenedor.off(".resizeCamposFormInd");
@@ -4880,7 +5111,7 @@ function inicializarResizeCamposFormInd(objeto, numeroForm) {
 
         drag.$input.removeClass("input-resize-ready");
         finalizarDrag();
-        refrescarAutoRenglones();
+        refrescarAutoRenglones({ persistirLayout: true });
     });
     $(window).on(`resize.autoRenglonesFormInd${numeroForm}`, () => {
         clearTimeout(debounceResizeAutoRenglonesFormInd[numeroForm]);
@@ -4890,7 +5121,7 @@ function inicializarResizeCamposFormInd(objeto, numeroForm) {
                 return;
             }
 
-            refrescarAutoRenglones();
+            refrescarAutoRenglones({ persistirLayout: false });
         }, 160);
     });
 }

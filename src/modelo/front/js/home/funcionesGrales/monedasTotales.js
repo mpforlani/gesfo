@@ -896,21 +896,46 @@ async function obtenerUltimasCotizaciones(moneda) {
 
     try {
 
-        const response = await fetch(`/get?base=cotizacionMonedaExtranjera&filtros=${JSON.stringify({ moneda: moneda })}&limite=1&sort=fecha:-1`);
-        if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
-        const data = await response.json();
+        let monedaConsulta = (consultaPestanas?.moneda?.[moneda]?.name || moneda || "").toString().trim()
+        let monedaKey = monedaConsulta.toLowerCase()
 
-        $.each(data?.[0]?.moneda, (indice, value) => {
+        if (monedaKey == "pesos" || monedaConsulta == "") return 1
 
-            let m = consultaPestanas.moneda[value];
+        if (cotizacionesMoneda[moneda] || cotizacionesMoneda[monedaConsulta] || cotizacionesMoneda[monedaKey]) {
 
-            let cotizacion = data[0].cotizacion[indice];
+            return cotizacionesMoneda[moneda] || cotizacionesMoneda[monedaConsulta] || cotizacionesMoneda[monedaKey]
+        }
 
-            cotizacionesMoneda[m._id] = cotizacion;
+        let monedaApi = monedaConsulta.charAt(0).toUpperCase() + monedaConsulta.slice(1).toLowerCase()
+        await consutaTipoCambio([monedaApi])
 
-        });
+        let registrosMoneda = cotisConsultadas?.[monedaKey] || {}
+        let ultimaCotizacion = ""
 
-        return cotizacionesMoneda[moneda] || 1; // <-- Esto ahora sí retorna
+        $.each(registrosMoneda, (indice, value) => {
+
+            if (!ultimaCotizacion) {
+                ultimaCotizacion = value
+                return
+            }
+
+            let [dia, mes, anio] = (value?.fecha || "").split("/")
+            let [diaUltimo, mesUltimo, anioUltimo] = (ultimaCotizacion?.fecha || "").split("/")
+            let fechaActual = new Date(`${anio}-${mes}-${dia}`)
+            let fechaUltima = new Date(`${anioUltimo}-${mesUltimo}-${diaUltimo}`)
+
+            if (fechaActual > fechaUltima) {
+                ultimaCotizacion = value
+            }
+        })
+
+        let cotizacion = Number(ultimaCotizacion?.venta || ultimaCotizacion?.compra || 1)
+
+        cotizacionesMoneda[moneda] = cotizacion
+        cotizacionesMoneda[monedaConsulta] = cotizacion
+        cotizacionesMoneda[monedaKey] = cotizacion
+
+        return cotizacion
     } catch (error) {
         console.error("Error en la solicitud:", error);
         throw error;

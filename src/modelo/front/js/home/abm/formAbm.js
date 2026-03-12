@@ -796,7 +796,7 @@ function eliminarRegistro(objeto, numeroForm, idRegistro) {
         },
         complete: function () { },
         success: async function (data) {
-
+            console.log(data)
             const referencias = data.updt.referencias;
 
             for (const indice of Object.keys(referencias)) {
@@ -805,6 +805,7 @@ function eliminarRegistro(objeto, numeroForm, idRegistro) {
                 if (!value) continue;
                 if (!Array.isArray(value)) { value = Object.values(value); }
                 console.log(value)
+                console.log(indice)
                 switch (indice) {
 
                     case "desencadenantesColec":
@@ -817,7 +818,18 @@ function eliminarRegistro(objeto, numeroForm, idRegistro) {
                     case "imputado":
                         for (const val of value) {
 
-                            let imputacion = objeto.imputarcoleccion[val.identificador];
+                            let imputacionBase = objeto?.imputarcoleccion?.[val.identificador];
+                            if (!imputacionBase) {
+
+                                imputacionBase = Object.values(objeto?.imputarcoleccion || {}).find((item) => {
+                                    const identificadorConfig = Array.isArray(item?.identificador)
+                                        ? item.identificador.join(",")
+                                        : `${item?.identificador ?? ""}`;
+
+                                    return identificadorConfig === identificadorNormalizado;
+                                });
+                            }
+                            const imputacion = { ...imputacionBase };
                             imputacion._id = val._id;
                             imputacion.destino = val.entidad;
 
@@ -847,7 +859,7 @@ function eliminarRegistro(objeto, numeroForm, idRegistro) {
     });
 };
 function eliminarRegistroDesencadenado(objeto, numeroForm, idRegistro) {
-
+    console.log(0)
     $.ajax({
         type: "delete",
         url: `/delete?base=${objeto.accion} `,
@@ -868,17 +880,29 @@ function eliminarRegistroDesencadenado(objeto, numeroForm, idRegistro) {
     });
 };
 async function eliminarRegistroImputado(imputacion, objeto, data) {
+    const cambiosFuncionReverso = [];
+    const atributosImputables = [
+        imputacion?.atributoImputables,
+        ...Object.values(imputacion?.opciones || {}).map((opcion) => opcion?.atributoImputables)
+    ].filter(Boolean);
 
-    imputacion.log = { ...imputacion.opciones.true.atributoImputables.funcion };
-    imputacion.opciones.true.atributoImputables.funcion = imputacion.opciones.true.atributoImputables.funcionReverso;
+    for (const atributos of atributosImputables) {
+        if (atributos?.funcionReverso == undefined) continue;
+
+        cambiosFuncionReverso.push({
+            atributos,
+            teniaFuncion: Object.prototype.hasOwnProperty.call(atributos, "funcion"),
+            funcionOriginal: atributos?.funcion ? { ...atributos.funcion } : undefined
+        });
+
+        atributos.funcion = { ...atributos.funcionReverso };
+    }
+
     imputacion.origen = "imputado";
 
     try {
         data.borrar = true
-        const resultado = await imputacionDesdeColeccion(imputacion, objeto, data);
-
-        imputacion.opciones.true.atributoImputables.funcion = { ...imputacion.log };
-        delete imputacion.log;
+        await imputacionDesdeColeccion(imputacion, objeto, data);
 
         const idImputado = imputacion._id;
 
@@ -909,6 +933,15 @@ async function eliminarRegistroImputado(imputacion, objeto, data) {
     } catch (err) {
         console.error(err);
         throw err;
+    } finally {
+        for (const cambio of cambiosFuncionReverso) {
+            if (cambio.teniaFuncion) {
+                cambio.atributos.funcion = cambio.funcionOriginal;
+                continue;
+            }
+
+            delete cambio.atributos.funcion;
+        }
     }
 }
 
@@ -1355,6 +1388,19 @@ function rellenoAbmFechaVenc(objeto, numeroForm, atributo, opciones, fechaV) {
         let fechaCorregida = fechaVencimiento.split('-')?.reverse()?.join('-')
         if (new Date(fechaCorregida) < new Date()) {
             $(value).addClass(opciones[estado]);
+        }
+    });
+}
+function completarCeroEnCeldasVaciasAbm(objeto, numeroForm, atributo) {
+
+    let registros = $(`#t${numeroForm} .tr.fila`);
+
+    $.each(registros, (indice, value) => {
+        let celda = $(value).find(`.${atributo}`);
+        let texto = celda.text().trim();
+
+        if (texto === "") {
+            celda.text("0");
         }
     });
 }
@@ -2633,7 +2679,26 @@ async function cabeceraFiltroAbm(objeto, numeroForm) {
             $(`#bf${numeroForm} .fechaTablaAbm`).removeClass("ocultoBusq")
 
         }
-        reCrearTabla(numeroForm, objeto)
+        const cabeceraForm = $(`#bf${numeroForm}`);
+        const tablaForm = $(`#t${numeroForm}`);
+        const atributoCargando = $(e.target).closest(".atributoCompletoCabecera");
+
+        cabeceraForm.addClass("enEsperaCabecera");
+        tablaForm.addClass("enEsperaCabecera");
+        $("body").addClass("enEsperaCabecera");
+        $(`#bf${numeroForm} .atributoCompletoCabecera`).removeClass("estadoCabeceraCargando");
+        atributoCargando.addClass("estadoCabeceraCargando");
+
+        setTimeout(() => {
+            try {
+                reCrearTabla(numeroForm, objeto)
+            } finally {
+                $(`#bf${numeroForm}`).removeClass("enEsperaCabecera");
+                $(`#t${numeroForm}`).removeClass("enEsperaCabecera");
+                $("body").removeClass("enEsperaCabecera");
+                atributoCargando.removeClass("estadoCabeceraCargando");
+            }
+        }, 30);
 
     })
     // Aplicamos filtrado inicial si algún select ya tiene valor

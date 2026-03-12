@@ -76,9 +76,14 @@ const FacturasEmitidasSchema = new Schema({
         type: [String],
         ref: "producto"
     },
+    fechaVencimientoProducto: { type: [Date] },
     almacenProducto: {
         type: [String],
         ref: "almacen"
+    },
+    ubicacionProducto: {
+        type: [String],
+        ref: "ubicaciones"
     },
     importeProducto: { type: [Number] },
     importeProductomb: { type: [Number] },

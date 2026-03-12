@@ -182,25 +182,27 @@ function desencadenaColec(desencadenante, objeto, numeroForm, response, tableMod
         fileCabecera.historia = fileCabecera?.historia[Object.values(fileCabecera.historia).length - 1]
 
         let enviarObjetosPlanchado = unWindJavaScript(objeto, fileCabecera, desencadenante)
-
+        console.log(objeto)
+        console.log(fileCabecera)
+        console.log(desencadenante)
         contador = Object.values(enviarObjetosPlanchado).length
 
         let objetograbarEnOrigen = new Object
         objetograbarEnOrigen._id = response.posteo._id
 
         let respuestasOrigen = new Object
-
+        console.log(enviarObjetosPlanchado)
         for (const [indiceRespuesta, valueRespuesta] of Object.entries(enviarObjetosPlanchado)) {
             try {
-
+                console.log(desencadenante)
                 let desencadena = tipoDesencadenante[desencadenante.type](desencadenante, valueRespuesta) || false
                 desencadena.origen = desencadenante.origen
 
                 let idDesencadenado = valueRespuesta?.[`idCol${desencadena.identificador || desencadenante.identificador}`]
-
+                console.log(idDesencadenado)
                 let type = postPut[Math.min(idDesencadenado?.length || 0, 1)]
                 let objetoDestino = variablesModelo[desencadena.destino]
-
+                console.log(type)
                 contador--
 
                 if (desencadena != false && (type == "post" || tableModificadas?.[desencadena.coleccionOrigen.nombre]?.[valueRespuesta[`position${desencadena.coleccionOrigen.nombre}`]] != undefined)) {
@@ -320,10 +322,35 @@ async function desencadenanteAgrupado(desencadena, objeto, numeroForm, response)
     let atributoSecond = desencadena.atributosMain.slice(1) || []
     let objetoDestino = variablesModelo[desencadena.destino]
     let nuevosRegistros = []
+    const esGastoAgente = desencadena.identificador == "gastosAgente"
+    const indicesSinDesencadenar = []
 
     if (response?.anterior !== undefined) {
 
-        await responseDeleteColecion(objeto, desencadena, response); // ← acá usás await
+        let responseDelete = response
+
+        if (esGastoAgente) {
+            const idActuales = [...(response?.posteo?.[`idCol${desencadena.identificador}`] || [])]
+
+            $.each(idActuales, (indice) => {
+                const proveedor = String(response?.posteo?.proveedor?.[indice] || "").trim()
+                const itemVenta = String(response?.posteo?.itemVenta?.[indice] || "").trim().toLowerCase()
+
+                if (!proveedor || itemVenta.startsWith("seguro")) {
+                    idActuales[indice] = ""
+                }
+            })
+
+            responseDelete = {
+                ...response,
+                posteo: {
+                    ...response.posteo,
+                    [`idCol${desencadena.identificador}`]: idActuales
+                }
+            }
+        }
+
+        await responseDeleteColecion(objeto, desencadena, responseDelete); // ← acá usás await
     }
 
     const postPut = {
@@ -344,7 +371,14 @@ async function desencadenanteAgrupado(desencadena, objeto, numeroForm, response)
         for (let i = 0; i < arrMain.length; i++) {
 
             const atributo = arrMain[i];
-            if (!atributo) continue;
+            const proveedor = String(atributo || "").trim();
+            const itemVenta = String(base?.itemVenta?.[i] || "").trim().toLowerCase()
+            const filaBloqueada = !proveedor || (esGastoAgente && itemVenta.startsWith("seguro"))
+
+            if (filaBloqueada) {
+                indicesSinDesencadenar.push(i)
+                continue;
+            }
 
             let faltan = false;
             for (const val of atributoSecond) {
@@ -353,7 +387,7 @@ async function desencadenanteAgrupado(desencadena, objeto, numeroForm, response)
             }
             if (faltan) continue;
 
-            let key = `${atributo}`;
+            let key = `${proveedor}`;
             let objetoKey = {};
 
             for (const val of atributoSecond) {
@@ -364,7 +398,7 @@ async function desencadenanteAgrupado(desencadena, objeto, numeroForm, response)
 
             if (!acc[key]) {
                 acc[key] = Object.assign({}, base, {
-                    [atributoMain]: atributo,
+                    [atributoMain]: proveedor,
                     ...objetoKey,
                     indicesFusion: []
                 });
@@ -396,6 +430,14 @@ async function desencadenanteAgrupado(desencadena, objeto, numeroForm, response)
         }
 
         nuevosRegistros = Object.values(acc);
+    }
+
+    if (indicesSinDesencadenar.length > 0) {
+        objetograbarEnOrigen.array = (objetograbarEnOrigen.array || []).concat(indicesSinDesencadenar)
+        objetograbarEnOrigen.atributosArray = objetograbarEnOrigen.atributosArray || {}
+
+        objetograbarEnOrigen.atributosArray[`idCol${desencadena.identificador}`] = (objetograbarEnOrigen.atributosArray[`idCol${desencadena.identificador}`] || []).concat(indicesSinDesencadenar.map(() => ""))
+        objetograbarEnOrigen.atributosArray[`destino${desencadena.identificador}`] = (objetograbarEnOrigen.atributosArray[`destino${desencadena.identificador}`] || []).concat(indicesSinDesencadenar.map(() => ""))
     }
 
 
@@ -480,6 +522,9 @@ async function desencadenanteAgrupado(desencadena, objeto, numeroForm, response)
             }
 
             // contador == 0
+            if ((objetograbarEnOrigen.array || []).length > 0) {
+                return resolve(objetograbarEnOrigen);
+            }
             return resolve(null);
         } catch (e) {
             return reject(e);
@@ -856,13 +901,16 @@ async function imputacionDesdeColeccion(imputacion, objeto, response) {
         let respuestasOrigen = new Object
 
         for (const [indiceRespuesta, valueRespuesta] of Object.entries(enviarObjetosPlanchado)) {
+
             let objetoDestino = variablesModelo[imputacion.destino]
             let imputa = tipoImputacion[imputacion.type](imputacion, valueRespuesta);
             imputa.origen = imputacion.origen
             console.log(imputa)
             contador--;
 
-            if (imputa != "") {
+            if (imputa) {
+                imputa.origen = imputacion.origen
+                console.log(imputa)
                 let grabarEnDestino = {};
                 objetograbarEnOrigen.array = (objetograbarEnOrigen.array || []).concat(valueRespuesta.indiceArray);
                 objetograbarEnOrigen.atributosArray = objetograbarEnOrigen?.atributosArray || {};
@@ -913,12 +961,8 @@ async function imputacionDesdeColeccion(imputacion, objeto, response) {
 
                     });
 
-
-
-
                     console.log(respon)
                     console.log(objetoDestino)
-
                     respon.posteo[`position${imputa.coleccionOrigen.nombre}`] = valueRespuesta[`position${imputa.coleccionOrigen.nombre}`];
 
                     $.each(objetoDestino.acumulador, (indice, value) => {
@@ -966,7 +1010,7 @@ async function modificarObjetoAEnviar(atributos, datosEnviar) {//Agarra el objet
 
                 for (const [ind, val] of Object.entries(value)) {
 
-                    datosEnviar[ind] = await val[0](datosEnviar, val[1], val[2]);
+                    datosEnviar[ind] = await val[0](datosEnviar, ...(val.slice(1)));
                 }
 
                 break;
@@ -1039,7 +1083,7 @@ async function crearObjetoalEnviar(imputable, objetoEnviado) {
 
             case "funcion":
                 for (const [ind, val] of Object.entries(value)) {
-                    datosEnviarNuevo[ind] = await val[0](objetoEnviado, val[1], val[2]);
+                    datosEnviarNuevo[ind] = await val[0](objetoEnviado, ...(val.slice(1)));
                 }
                 break;
         }

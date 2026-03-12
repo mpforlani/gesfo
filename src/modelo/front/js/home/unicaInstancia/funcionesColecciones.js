@@ -1656,6 +1656,9 @@ function remitosPendientes(objeto, numeroForm) {
             proveedor: $(`#t${numeroForm} input.divSelectInput[name="proveedor"]`).val(),
             estadoFacturacion: "Pendiente"
         }
+        if (objeto.empresa != false) {
+            preFiltros = Object.assign(preFiltros, empresaFiltro);
+        }
 
         const filtros = `&filtros=${JSON.stringify(preFiltros)}`
         fetch(`/get?base=stock${filtros}`)
@@ -1710,6 +1713,16 @@ function remitosPendientes(objeto, numeroForm) {
                 $("input.idComprobante", remitoPendiente).val($("td.idComprobante", value).html()?.trim());
                 $("input.idColeccionUnWind", remitoPendiente).val($("td.idColeccionUnWind", value).html()?.trim());
                 $("input.estadoFacturacion", remitoPendiente).val("Facturado");
+                let numeroFila = remitoPendiente.attr("q");
+                let tablaDestino = $(`#t${numeroForm} table.compuestoFacturaCompras`);
+                if (numeroFila !== undefined && tablaDestino.length) {
+                    if ($(`tr[q="${numeroFila}"]:not(.last)`, tablaDestino)[0] == undefined) {
+                        $(`tr.last td.vacio`, tablaDestino).trigger("dblclick");
+                    }
+                    let filaDestino = $(`tr[q="${numeroFila}"]:not(.last)`, tablaDestino);
+                    $("input.cantidad", filaDestino).val($("input.cantidadRemito", remitoPendiente).val()).trigger("input").trigger("change");
+                    $("input.unidadesMedida", filaDestino).val($("input.unidadesMedidaRemito", remitoPendiente).val()).trigger("input").trigger("change");
+                }
 
                 $(`#t${numeroForm} .remitoIngreso .closePop`).trigger(`click`);
             });
@@ -1801,7 +1814,12 @@ function consultaStock(objeto, numeroForm) {
         let numeroFila = fila.attr("q");
 
         let cantidadInput = $(`#t${numeroForm} table.${tablaSelect.tabla} tr[q="${numeroFila}"] input.${tablaSelect.inputCantidad}`);
-        let cantidad = stringANumero(cantidadInput.val()) || 0;
+        let cantidadValor = (cantidadInput.val() ?? "").toString().trim();
+        if (cantidadValor == "") {
+            setTimeout(() => cantidadInput.removeClass("validado"), 200);
+            return;
+        }
+        let cantidad = stringANumero(cantidadValor) || 0;
 
         let unidadMedida = $(`#t${numeroForm} table.${tablaSelect.tabla} tr[q="${numeroFila}"] .divSelectInput[name='${tablaSelect.inputUnidad}']`).val();
         let productoSelect = $(`#t${numeroForm} table.${tablaSelect.tabla} tr[q="${numeroFila}"] .divSelectInput[name='producto']`).val();
@@ -1894,6 +1912,7 @@ function salidaStock(objeto, numeroForm) {
         ingresoPendiente = $(e.target).parents("tr");
 
         const idProducto = $(".divSelectInput[name='producto']", ingresoPendiente).val();
+        const idAlmacen = $(`#t${numeroForm} input.divSelectInput[name="almacen"]`).val();
 
         if (!idProducto) return;
 
@@ -1908,8 +1927,12 @@ function salidaStock(objeto, numeroForm) {
         let preFiltros = {
             operacionStock: operacion,
             estado: ["Ingresado", "Salida parcial"],
-            producto: productoFila
+            producto: productoFila,
+            almacen: idAlmacen
 
+        }
+        if (objeto.empresa != false) {
+            preFiltros = Object.assign(preFiltros, empresaFiltro);
         }
 
         const filtros = `&filtros=${JSON.stringify(preFiltros)}`
@@ -1972,50 +1995,73 @@ function salidaStock(objeto, numeroForm) {
 function completaConCodigo(objeto, numeroForm) {
 
 
+    function completarCodigoDesdeProducto(e) {
+        let fila = $(e.target).closest("tr");
+        let idProducto = $(".divSelectInput[name='producto']", fila).val();
+        let codigoDeBarrasInput = $("input.codigoDeBarras", fila);
+
+        if (!idProducto) {
+            codigoDeBarrasInput.val("").removeClass("validado");
+            return;
+        }
+
+        let codigoDeBarras = String(consultaPestanas?.producto?.[idProducto]?.codigoDeBarras || "").trim();
+
+        codigoDeBarrasInput.val(codigoDeBarras);
+        if (codigoDeBarras.length > 0) {
+            codigoDeBarrasInput.addClass("validado");
+        } else {
+            codigoDeBarrasInput.removeClass("validado");
+        }
+    }
+
     function completarAtributos(e) {
         let fila = $(e.target).closest("tr");
-        let numeroFila = fila.attr("q");
-        let codigoDeBarrasInput = $(`#t${numeroForm} table.movimientoStock tr[q="${numeroFila}"] input.codigoDeBarras`);
-        let codigoDeBarras = ($(`#t${numeroForm} table.movimientoStock tr[q="${numeroFila}"] input.codigoDeBarras`).val() || "").trim();
+        let codigoDeBarrasInput = $("input.codigoDeBarras", fila);
+        let codigoDeBarras = (codigoDeBarrasInput.val() || "").trim();
 
-        if (codigoDeBarras.length != 13) {
-            setTimeout(() => $(`#t${numeroForm} table.movimientoStock tr[q="${numeroFila}"] input.codigoDeBarras`).removeClass("validado"), 200);
+        if (!codigoDeBarras) {
+            setTimeout(() => codigoDeBarrasInput.removeClass("validado"), 200);
+            return;
+        }
 
-        } else {
-            $(`#t${numeroForm} table.movimientoStock tr[q="${numeroFila}"] input.codigoDeBarras`).addClass("validado");
+        let productoEncontrado = Object.entries(consultaPestanas?.producto || {}).find(([, producto]) =>
+            String(producto?.codigoDeBarras || "").trim() == codigoDeBarras
+        );
 
-            let productos = Object.values(consultaPestanas.producto);
+        if (!productoEncontrado) {
+            console.log("No se encontró producto");
+            setTimeout(() => codigoDeBarrasInput.removeClass("validado"), 200);
+            return;
+        }
 
-            let productoEncontrado = productos.find(e => String(e.codigoDeBarras).trim() == codigoDeBarras
-            );
+        codigoDeBarrasInput.addClass("validado");
 
+        let [idProducto, datosProducto] = productoEncontrado;
+        let primerUnidadDeMedida = datosProducto?.unidadesMedida?.[0];
 
-            if (!productoEncontrado) {
-                console.log("No se encontró producto");
-                return;
-            }
+        fila.find("input.cantidad").val(1).trigger("input");
 
+        if (primerUnidadDeMedida && consultaPestanas?.unidadesMedida?.[primerUnidadDeMedida]) {
+            fila.find(".divSelectInput[name='unidadesMedida']").val(primerUnidadDeMedida).trigger("change");
+            fila.find("input.unidadesMedida").val(consultaPestanas.unidadesMedida[primerUnidadDeMedida].name);
+        }
 
-            let primerUnidadDeMedida = productoEncontrado.unidadesMedida[0];
-            let tr = $(`#t${numeroForm} table.movimientoStock tr[q="${numeroFila}"]`);
+        fila.find(".divSelectInput[name='producto']").val(idProducto).trigger("change");
+        fila.find("input.producto").val(datosProducto?.name || "");
 
-            tr.find("input.cantidad").val(1).trigger("input");
-            tr.find('input.unidadesMedida').val(consultaPestanas.unidadesMedida[primerUnidadDeMedida].name).trigger("change");
-            tr.find('input.producto').val(productoEncontrado.name).trigger("change");
+        let entidad = objeto.accion
+        if (entidad == "salidaInventario") {
+            $(`#t${numeroForm} input[name="operacionStock"]`).val("Salida").trigger("change");
 
-            let entidad = objeto.accion
-            if (entidad == "salidaInventario") {
-                $(`#t${numeroForm} input[name="operacionStock"]`).val("Salida").trigger("change");
-
-            } else if (entidad == "entradaInventario") {
-                $(`#t${numeroForm} input[name="operacionStock"]`).val("Entrada").trigger("change");
-            }
-
+        } else if (entidad == "entradaInventario") {
+            $(`#t${numeroForm} input[name="operacionStock"]`).val("Entrada").trigger("change");
         }
 
     }
 
     $(`#t${numeroForm}`).on("change", "table.movimientoStock input.codigoDeBarras", completarAtributos);
+    $(`#t${numeroForm}`).on("change", "table.movimientoStock .divSelectInput[name='producto']", completarCodigoDesdeProducto);
 
 }
 function ajustesSalida(objeto, numeroForm) {
@@ -2050,9 +2096,11 @@ function traspasosDeUbicaciones(objeto, numeroForm) {
 
         let preFiltros = {
             estado: ["Ingresado", "Salida parcial"],
-            producto: idProducto,
             almacen: idAlmacenOrigen,
             ubicaciones: idUbicacionOrigen
+        }
+        if (objeto.empresa != false) {
+            preFiltros = Object.assign(preFiltros, empresaFiltro);
         }
         console.log(preFiltros)
         const filtros = `&filtros=${JSON.stringify(preFiltros)}`
@@ -2130,6 +2178,9 @@ function desconsolidar(objeto, numeroForm) {
             almacen: [almacenDestino],
             estado: ["Ingresado", "Salida parcial"]
         };
+        if (objeto.empresa != false) {
+            preFiltros = Object.assign(preFiltros, empresaFiltro);
+        }
 
         const filtros = `&filtros=${JSON.stringify(preFiltros)}`;
         fetch(`/get?base=stock${filtros}`)
@@ -2144,12 +2195,12 @@ function desconsolidar(objeto, numeroForm) {
                 let cuerpoPrincipal = "";
                 cuerpoPrincipal += `<table>`;
                 cuerpoPrincipal += `<tr class="titulosTable">`;
-                cuerpoPrincipal += `<th class="oculto">ID</th><th>Fecha</th><th>Producto</th><th>Marca</th><th>Unidad</th><th>Disponibles</th><th>Almacen</th><th>Ubicaciones</th><th>Proveedor</th><th>Remito</th>`;
+                cuerpoPrincipal += `<th class="oculto">ID</th><th>Fecha</th><th>Producto</th><th class="oculto">Cantidad</th><th>Marca</th><th>Unidad</th><th>Disponibles</th><th>Almacen</th><th>Ubicaciones</th><th>Proveedor</th><th>Remito</th>`;
                 cuerpoPrincipal += `</tr>`;
 
                 $.each(data, (indice, value) => {
                     cuerpoPrincipal += `<tr class="filaTable">`;
-                    cuerpoPrincipal += `<td class="oculto idComprobante">${value._id}</td><td class="fecha" fechaFormateada="${dateNowAFechaddmmyyyy(value.fecha, "y-m-d")}">${dateNowAFechaddmmyyyy(value.fecha, "d/m/y")}</td><td class="producto">${consultaPestanas?.producto?.[value.producto]?.name || ""}</td><td class="marca">${consultaPestanas?.marca?.[value.marca]?.name || ""}</td><td class="unidadesMedida">${consultaPestanas?.unidadesMedida?.[value.unidadesMedida]?.name || ""}</td><td class="disponibles">${value.disponibles || 0}</td><td class="almacen">${consultaPestanas?.almacen?.[value.almacen]?.name || ""}</td><td class="ubicaciones">${consultaPestanas?.ubicaciones?.[value.ubicaciones]?.name || ""}</td><td class="proveedor">${consultaPestanas?.proveedor?.[value.proveedor]?.name || ""}</td><td class="remito">${value.remito || ""}</td>`;
+                    cuerpoPrincipal += `<td class="oculto idComprobante">${value._id}</td><td class="fecha" fechaFormateada="${dateNowAFechaddmmyyyy(value.fecha, "y-m-d")}">${dateNowAFechaddmmyyyy(value.fecha, "d/m/y")}</td><td class="producto">${consultaPestanas?.producto?.[value.producto]?.name || ""}</td><td class="cantidad">${value.cantidad || 0}</td><td class="marca">${consultaPestanas?.marca?.[value.marca]?.name || ""}</td><td class="unidadesMedida">${consultaPestanas?.unidadesMedida?.[value.unidadesMedida]?.name || ""}</td><td class="disponibles">${value.disponibles || 0}</td><td class="almacen">${consultaPestanas?.almacen?.[value.almacen]?.name || ""}</td><td class="ubicaciones">${consultaPestanas?.ubicaciones?.[value.ubicaciones]?.name || ""}</td><td class="proveedor">${consultaPestanas?.proveedor?.[value.proveedor]?.name || ""}</td><td class="remito">${value.remito || ""}</td>`;
                     cuerpoPrincipal += `</tr>`;
                 });
                 $(cuerpoPrincipal).appendTo(`#t${numeroForm} .bloque1`);
@@ -2173,7 +2224,7 @@ function desconsolidar(objeto, numeroForm) {
                 ubiInput.addClass("autoValor");
                 $(`#t${numeroForm} input.ubicacionDestino`).val($("td.ubicaciones", value).html()?.trim()).trigger("change").addClass("soloLectura");
                 ubiInput.removeClass("autoValor");
-
+                $(`#t${numeroForm} input.cantidadOrigen`).val($("td.cantidad", value).html()?.trim()).trigger("input");
                 $(`#t${numeroForm} input.marcaOrigen`).val($("td.marca", value).html()?.trim()).trigger("change").addClass("soloLectura");
                 $(`#t${numeroForm} input.unidadesMedidaOrigen`).val($("td.unidadesMedida", value).html()?.trim()).trigger("change");
                 $(`#t${numeroForm} input.disponiblesOrigen`).val($("td.disponibles", value).html()?.trim()).trigger("input");

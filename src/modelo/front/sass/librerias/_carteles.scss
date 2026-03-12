@@ -413,6 +413,7 @@
     right: 30rem;
     transition: all 0.3s;
     animation: moveInBotton 0.3s ease-out;
+    font-family: $form-Individual, sans-serif;
 
     &.noShow {
         opacity: 0;
