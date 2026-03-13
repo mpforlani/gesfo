@@ -953,8 +953,11 @@ function dataFiscalDos(data, objeto, numeroForm,) {
 
 }
 function caeVencimiento(data, objeto, numeroForm) {
-    let cae = `<div class="cae"><p>CAE: ${data.CAE}</p></div>
-               <div class="vencimientoCae"><p>Vencimiento: ${dateNowAFechaddmmyyyy(data.vtocae, `d/m/y`)}</p></div> `
+    if (!data?.CAE && !data?.vtocae) return ""
+    let cae = `<div class="flex space-between widthCien">
+                    <div class="cae flex"><p class="bold fsUno">CAE:&nbsp</p><p class="fsUno">${data.CAE || ""}</p></div>
+                    <div class="vencimientoCae flex"><p class="bold fsUno">Vto. CAE:&nbsp</p><p class="fsUno">${data.vtocae ? dateNowAFechaddmmyyyy(data.vtocae, `d/m/y`) : ""}</p></div>
+               </div>`
 
     return cae
 
