@@ -29,6 +29,7 @@ function crearimpresion(objeto, numeroForm, data) {
 
             value[0](objeto, numeroForm, ...(value[1] || []))
         })
+        ajustarCabeceraLogoYTablaFactura(objeto, numeroForm)
 
         resolve(`#documentoImpresion`)
 

@@ -451,7 +451,7 @@ function itemsComprobantesDiv(data, objeto, numeroForm, atributos, tabla, clases
         }
     }
     let monedaData = consultaPestanas?.moneda?.[data?.moneda]?.name || data?.moneda || ""
-    let prefijoImporte = `${monedaData}`.toLowerCase() == "pesos" ? "$ " : ""
+    let prefijoImporte = `${monedaData}`.toLowerCase() == "pesos" ? "$&nbsp;" : ""
 
     const widthMapImpresion = {
         dos: "2rem",
@@ -594,7 +594,7 @@ function itemsComprobantesMayuscula(data, objeto, numeroForm, atributos, tabla, 
 function totalitemsPorTasa(data, objeto, numeroForm, atribut, clases) {
     let tasas = data.porcentaje
     let monedaData = consultaPestanas?.moneda?.[data?.moneda]?.name || data?.moneda || ""
-    let prefijoImporte = `${monedaData}`.toLowerCase() == "pesos" ? "$ " : ""
+    let prefijoImporte = `${monedaData}`.toLowerCase() == "pesos" ? "$&nbsp;" : ""
 
     let netos = new Object
     let bases = new Object
