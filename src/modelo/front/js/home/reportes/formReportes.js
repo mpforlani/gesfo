@@ -228,6 +228,7 @@ async function cabeceraReporte(objeto, numeroForm) {
     if (!contenedorBotones.length) {
         contenedorBotones = $(`<div class="divCabecera botones"></div>`).appendTo(`#bf${numeroForm}`)
     }
+    $(iCsvRep).prependTo(contenedorBotones)
     $(iResetResizeReporte).prependTo(contenedorBotones)
 
     $(`#bf${numeroForm}`).on("click", `.filtroRapido`, (e) => {
@@ -678,6 +679,325 @@ function obtenerOrdenFilasDragReporte(tabla) {
         .map((_, tr) => $(tr).attr("data-row-id"))
         .get()
         .filter((rowId) => !!rowId)
+}
+function obtenerTablasCsvReporte(numeroForm) {
+
+    return $(`#t${numeroForm} table[tablaRef]`).filter((_, tabla) => $(tabla).is(":visible"))
+}
+function normalizarTextoCsvReporte(valor) {
+
+    return `${valor ?? ""}`
+        .replace(/\u00A0/g, " ")
+        .replace(/\r\n/g, "\n")
+        .replace(/\r/g, "\n")
+        .split("\n")
+        .map((linea) => linea.replace(/[ \t]+/g, " ").trim())
+        .join("\n")
+        .trim()
+}
+function normalizarNombreArchivoCsvReporte(texto) {
+
+    return `${texto || "reporte"}`
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, "_")
+        .replace(/^_+|_+$/g, "") || "reporte"
+}
+function esCeldaExportableCsvReporte(celda) {
+
+    const $celda = $(celda)
+    if (!$celda.length) return false
+    if (!$celda.is(":visible")) return false
+    if ($celda.hasClass("_id") || $celda.hasClass("oculto") || $celda.hasClass("transparent")) return false
+    if ($celda.attr("oculto") == "true") return false
+    return true
+}
+function esFilaExportableCsvReporte(fila) {
+
+    const $fila = $(fila)
+    if (!$fila.length || !$fila.is(":visible")) return false
+    if ($fila.is(".titulosFila, .segunFilaTitulos, .filtros")) return false
+    return $fila.is(".fila, .itemsTabla, .filaTotal")
+}
+function extraerTextoCsvCelda(celda) {
+
+    const $celda = $(celda)
+    if (!$celda.length) return ""
+
+    const campoEditable = $celda.find("input:visible, textarea:visible, select:visible").filter((_, element) => {
+        const $element = $(element)
+        return !$element.closest(".resize-col-handle, .reorder-col-handle, .resize-row-handle, .reorder-row-handle").length
+    }).first()
+
+    if (campoEditable.length) {
+        if (campoEditable.is("select")) {
+            return normalizarTextoCsvReporte(campoEditable.find("option:selected").text() || campoEditable.val())
+        }
+        const tipo = `${campoEditable.attr("type") || ""}`.toLowerCase()
+        if (tipo == "checkbox" || tipo == "radio") {
+            return campoEditable.is(":checked") ? "Si" : "No"
+        }
+        return normalizarTextoCsvReporte(campoEditable.val())
+    }
+
+    const clon = $celda.clone()
+    clon.find(".resize-col-handle, .reorder-col-handle, .resize-row-handle, .reorder-row-handle, .iconos, .closeFiltro").remove()
+    clon.find(".material-symbols-outlined").remove()
+    return normalizarTextoCsvReporte(clon.text())
+}
+function obtenerSubtitulosCsvColumnaReporte(tabla, tablaConfig, header) {
+
+    const $tabla = $(tabla)
+    const $header = $(header)
+    const subtitulosFila = []
+    const filaSegunda = $tabla.find("tr.segunFilaTitulos").first()
+    const colId = $header.attr("data-col-id")
+
+    if (filaSegunda.length && colId) {
+        const headerSegundaFila = filaSegunda.children(`[data-col-id="${colId}"]`).first()
+        headerSegundaFila.children(".subth:visible").each((_, subth) => {
+            const texto = extraerTextoCsvCelda(subth)
+            if (texto) subtitulosFila.push(texto)
+        })
+    }
+    if (subtitulosFila.length) return subtitulosFila
+
+    const subtitulosPropios = $header.children(".subth:visible").map((_, subth) => extraerTextoCsvCelda(subth)).get().filter((texto) => texto !== "")
+    if (subtitulosPropios.length) return subtitulosPropios
+
+    const titulosMes = Array.isArray(tablaConfig?.titulosEnMeses)
+        ? tablaConfig.titulosEnMeses.map((titulo) => normalizarTextoCsvReporte(titulo)).filter((titulo) => titulo !== "")
+        : []
+    const claseHeader = $header.attr("class") || ""
+    const matchCompuesto = claseHeader.match(/compuesto(\d+)/i)
+
+    if (matchCompuesto && titulosMes.length) {
+        const cantidad = parseInt(matchCompuesto[1], 10) || titulosMes.length
+        return titulosMes.slice(0, cantidad)
+    }
+    if ($header.hasClass("anteriores") && titulosMes.length > 1) {
+        return titulosMes
+    }
+
+    return []
+}
+function obtenerTitulosColumnasCsvTablaReporte(tabla, tablaConfig) {
+
+    const $tabla = $(tabla)
+    asignarColIdsTablaReporte($tabla)
+
+    const filaTitulos = obtenerFilaTitulosReporte($tabla)
+    if (!filaTitulos.length) return []
+
+    const titulos = []
+
+    filaTitulos.children("th, td").each((_, header) => {
+        const $header = $(header)
+        if (!esCeldaExportableCsvReporte($header)) return
+
+        const tituloBase = extraerTextoCsvCelda($header)
+        const subtitulos = obtenerSubtitulosCsvColumnaReporte($tabla, tablaConfig, $header)
+
+        if (subtitulos.length) {
+            subtitulos.forEach((subtitulo) => {
+                const partes = [tituloBase, subtitulo].filter((parte, indice, array) => parte && array.indexOf(parte) === indice)
+                titulos.push(partes.join(" - ") || `Columna ${titulos.length + 1}`)
+            })
+            return
+        }
+
+        titulos.push(tituloBase || `Columna ${titulos.length + 1}`)
+    })
+
+    return titulos
+}
+function obtenerValoresExpandidosCsvCeldaReporte(celda) {
+
+    const $celda = $(celda)
+    if (!$celda.length) return [""]
+
+    const subtitulos = $celda.children(".subth:visible")
+    if (subtitulos.length) {
+        return subtitulos.map((_, subth) => extraerTextoCsvCelda(subth)).get()
+    }
+
+    const bloquesCompuestos = $celda.children("div.td:visible, div.total:visible, div.anteriores:visible")
+    if (bloquesCompuestos.length) {
+        return bloquesCompuestos.map((_, bloque) => extraerTextoCsvCelda(bloque)).get()
+    }
+
+    return [extraerTextoCsvCelda($celda)]
+}
+function rellenarPendientesCsvReporte(valoresFila, spansActivos, posicionActual) {
+
+    let posicion = posicionActual
+
+    while (spansActivos[posicion] && spansActivos[posicion].startNext !== true) {
+        valoresFila[posicion] = spansActivos[posicion].value
+        spansActivos[posicion].rowsLeft--
+
+        if (spansActivos[posicion].rowsLeft <= 0) {
+            delete spansActivos[posicion]
+        }
+
+        posicion++
+    }
+
+    return posicion
+}
+function obtenerFilasCsvVisualTablaReporte(tabla) {
+
+    const $tabla = $(tabla)
+    const filas = []
+    const spansActivos = {}
+
+    $tabla.find("tr").each((_, fila) => {
+        const $fila = $(fila)
+        if (!esFilaExportableCsvReporte($fila)) return
+
+        const valoresFila = []
+        let posicion = rellenarPendientesCsvReporte(valoresFila, spansActivos, 0)
+
+        $fila.children("th, td").each((__, celda) => {
+            const $celda = $(celda)
+            if (!esCeldaExportableCsvReporte($celda)) return
+
+            posicion = rellenarPendientesCsvReporte(valoresFila, spansActivos, posicion)
+
+            const valoresCelda = obtenerValoresExpandidosCsvCeldaReporte($celda)
+            const rowspan = Math.max(1, parseInt($celda.attr("rowspan"), 10) || 1)
+            const colspan = Math.max(1, parseInt($celda.attr("colspan"), 10) || 1)
+            const cantidadColumnas = Math.max(valoresCelda.length, colspan)
+
+            for (let indice = 0; indice < cantidadColumnas; indice++) {
+                const valor = valoresCelda[indice] ?? (valoresCelda.length === 1 ? valoresCelda[0] : "")
+                valoresFila[posicion] = valor
+
+                if (rowspan > 1) {
+                    spansActivos[posicion] = { value: valor, rowsLeft: rowspan - 1, startNext: true }
+                }
+
+                posicion++
+            }
+        })
+
+        posicion = rellenarPendientesCsvReporte(valoresFila, spansActivos, posicion)
+
+        Object.keys(spansActivos).forEach((key) => {
+            if (spansActivos[key]?.startNext === true) {
+                delete spansActivos[key].startNext
+            }
+        })
+
+        filas.push(valoresFila)
+    })
+
+    return filas
+}
+function escaparValorCsv(valor) {
+
+    const texto = `${valor ?? ""}`.replace(/"/g, `""`)
+    if (/[;"\n]/.test(texto)) {
+        return `"${texto}"`
+    }
+    return texto
+}
+function descargarContenidoCsv(nombreArchivo, contenido) {
+
+    const contenidoFinal = contenido.startsWith("\uFEFF") ? contenido : `\uFEFF${contenido}`
+    const blob = new Blob([contenidoFinal], { type: "text/csv;charset=utf-8;" })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+
+    link.href = url
+    link.download = nombreArchivo
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+
+    setTimeout(() => URL.revokeObjectURL(url), 0)
+}
+function obtenerTituloVisibleCsvTablaReporte(tabla, tablaConfig) {
+
+    const $tabla = $(tabla)
+    const tituloVisible = normalizarTextoCsvReporte($tabla.prev(".tituloTabla").find("h3").first().text())
+    return tituloVisible || normalizarTextoCsvReporte(tablaConfig?.tituloTabla || tablaConfig?.titulo || tablaConfig?.name || $tabla.attr("tablaRef"))
+}
+function construirSeccionCsvTablaReporte(tabla, tablaConfig) {
+
+    const titulos = obtenerTitulosColumnasCsvTablaReporte(tabla, tablaConfig)
+    const filas = obtenerFilasCsvVisualTablaReporte(tabla)
+    const totalColumnas = Math.max(titulos.length, ...filas.map((fila) => fila.length), 0)
+
+    while (titulos.length < totalColumnas) {
+        titulos.push(`Columna ${titulos.length + 1}`)
+    }
+
+    const lineas = []
+    if (titulos.length) {
+        lineas.push(titulos.map((titulo) => escaparValorCsv(titulo)).join(";"))
+    }
+
+    filas.forEach((fila) => {
+        const filaNormalizada = []
+        for (let indice = 0; indice < totalColumnas; indice++) {
+            filaNormalizada.push(escaparValorCsv(fila[indice] ?? ""))
+        }
+        lineas.push(filaNormalizada.join(";"))
+    })
+
+    return lineas
+}
+function exportarCsvVisualReporte(objeto, numeroForm) {
+
+    const tablas = obtenerTablasCsvReporte(numeroForm)
+    if (!tablas.length) {
+        let cartel = cartelInforUnaLinea("Primero genera el reporte antes de descargar CSV", "i", { cartel: "infoChiquito", close: "ocultoSiempre" })
+        $(cartel).appendTo(`#bf${numeroForm}`)
+        removeCartelInformativo(objeto, numeroForm)
+        return
+    }
+
+    const secciones = []
+
+    tablas.each((indice, tabla) => {
+        const $tabla = $(tabla)
+        const tablaRef = $tabla.attr("tablaRef")
+        const tablaConfig = objeto?.tablas?.[tablaRef]
+        const tituloTabla = obtenerTituloVisibleCsvTablaReporte($tabla, tablaConfig)
+        const lineas = construirSeccionCsvTablaReporte($tabla, tablaConfig)
+
+        if (!lineas.length) return
+
+        if (tablas.length > 1) {
+            secciones.push(escaparValorCsv(`Tabla: ${tituloTabla || tablaRef || `tabla_${indice + 1}`}`))
+        }
+
+        secciones.push(...lineas)
+
+        if (indice < tablas.length - 1) {
+            secciones.push("")
+        }
+    })
+
+    if (!secciones.length) {
+        let cartel = cartelInforUnaLinea("No hay datos visibles para exportar", "i", { cartel: "infoChiquito", close: "ocultoSiempre" })
+        $(cartel).appendTo(`#bf${numeroForm}`)
+        removeCartelInformativo(objeto, numeroForm)
+        return
+    }
+
+    const hoy = new Date()
+    const fecha = `${hoy.getFullYear()}-${`${hoy.getMonth() + 1}`.padStart(2, "0")}-${`${hoy.getDate()}`.padStart(2, "0")}`
+    const nombreBase = normalizarNombreArchivoCsvReporte(objeto?.nombre || objeto?.accion || objeto?.pest || "reporte")
+    const sufijoTabla = tablas.length === 1
+        ? normalizarNombreArchivoCsvReporte(obtenerTituloVisibleCsvTablaReporte(tablas.first(), objeto?.tablas?.[tablas.first().attr("tablaRef")]))
+        : ""
+    const nombreArchivo = `${[nombreBase, sufijoTabla, fecha].filter((parte, indice, array) => parte && array.indexOf(parte) === indice).join("_")}.csv`
+
+    descargarContenidoCsv(nombreArchivo, secciones.join("\r\n"))
 }
 function normalizarOrdenColIdsReporte(ordenGuardado, colIdsActuales) {
 

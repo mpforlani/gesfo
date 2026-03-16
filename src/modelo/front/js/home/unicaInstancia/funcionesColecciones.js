@@ -1328,60 +1328,127 @@ function estadoFacturacionRemito(objeto, numeroForm) {
         $(`#t${numeroForm} input.estado`).val("Directo")
 
     } else {
-        const comparaciones = {
-            compuestoFacturaCompras: "remitoIngreso",
-            remitoIngreso: "compuestoFacturaCompras"
-        };
-        function normalizarCantidad(valor) {
-            if (!valor) return 0;
-            return parseFloat(valor.toString().replace(/\./g, "").replace(",", ".")) || 0;
-        }
-        function normalizarUnidad(valor) {
-            if (!valor) return "";
-            return valor.toString().trim().toUpperCase().replace(/\./g, "");
-        }
         function cambiaEstado(e) {
 
             let estadoInput = $(`#t${numeroForm} input[name=estado]`);
             estadoInput.val("Pendiente");
+            let filasRemito = $(`#t${numeroForm} table.remitoIngreso tr.mainBody:not(.last)`);
+            let filasFactura = $(`#t${numeroForm} table.compuestoFacturaCompras tr.mainBody:not(.last)`);
+            let totalesRemito = {};
+            let totalesFactura = {};
+            let hayFilasIncompletas = false;
+            let cantidadFilasProducto = 0;
 
-            let fila = $(e.target).closest("tr");
-            let numeroFila = fila.attr("q");
-            let coleccionPartida = $(e.target).closest("table").attr("compuesto");
-            let cantidades = normalizarCantidad($(`input[name=cantidad], input[name=cantidadRemito]`, fila).val());
-            let unidadesMedida = normalizarUnidad($(`input[name=unidadesMedida], input[name=unidadesMedidaRemito]`, fila).val());
-            let filaDestino = $(`#t${numeroForm} [compuesto=${comparaciones[coleccionPartida]}] tr.mainBody[q="${numeroFila}"]:not(.last)`);
-
-            if (filaDestino.length) {
-                let cantidadFila = normalizarCantidad($("input[name=cantidad], input[name=cantidadRemito]", filaDestino).val());
-                let unidadMedidaFila = normalizarUnidad($("input[name=unidadesMedida], input[name=unidadesMedidaRemito]", filaDestino).val());
-
-                if (cantidadFila === cantidades && unidadMedidaFila === unidadesMedida) {
-                    filaDestino.attr("estado", "Aprobado");
-                    fila.attr("estado", "Aprobado");
-                } else {
-                    filaDestino.attr("estado", "Pendiente");
-                    fila.attr("estado", "Pendiente");
+            filasRemito.each((i, filaRemito) => {
+                let cantidad = stringANumero($("input[name=cantidadRemito]", filaRemito).val()) || 0;
+                let unidad = (($("input[name=unidadesMedidaRemito]", filaRemito).val()) || "").toString().trim();
+                let producto = (($("input[name=productoRemito]", filaRemito).val()) || "").toString().trim();
+                let itemCompra = (consultaPestanas?.producto?.[producto]?.itemCompra || Object.values(consultaPestanas?.producto || {}).find((prod) => ((prod?.name || "").toString().trim() == producto))?.itemCompra || "").toString().trim();
+                let clave = itemCompra && unidad ? `${itemCompra}|${unidad}` : "";
+                if (!clave) {
+                    hayFilasIncompletas = true;
+                    return;
                 }
+                totalesRemito[clave] = (totalesRemito[clave] || 0) + cantidad;
+            });
+
+            filasFactura.each((i, filaFactura) => {
+                let cantidad = stringANumero($("input[name=cantidad]", filaFactura).val()) || 0;
+                let unidad = (($("input[name=unidadesMedida]", filaFactura).val()) || "").toString().trim();
+                let itemCompraInput = (($("input[name=itemCompra], .divSelectInput[name=itemCompra]", filaFactura).val()) || "").toString().trim();
+                let itemCompra = (consultaPestanas?.itemCompra?.[itemCompraInput] ? itemCompraInput : Object.entries(consultaPestanas?.itemCompra || {}).find(([, item]) => ((item?.name || "").toString().trim() == itemCompraInput))?.[0] || itemCompraInput || "").toString().trim();
+                let concepto = ((consultaPestanas?.itemCompra?.[itemCompra]?.concepto || "").toString().trim().toLowerCase());
+                if (concepto != "producto") {
+                    return;
+                }
+                cantidadFilasProducto++;
+                let clave = itemCompra && unidad ? `${itemCompra}|${unidad}` : "";
+                if (!clave) {
+                    hayFilasIncompletas = true;
+                    return;
+                }
+                totalesFactura[clave] = (totalesFactura[clave] || 0) + cantidad;
+            });
+
+            if (cantidadFilasProducto == 0) {
+                estadoInput.val("Directo");
+                return;
             }
-            let filasColeccionDestino = $(`#t${numeroForm} [compuesto=${comparaciones[coleccionPartida]}] tr.mainBody:not(.last)`);
-            let todasAprobadas = true;
-            filasColeccionDestino.each((i, filaDest) => {
-                if ($(filaDest).attr("estado") == "Pendiente") {
+
+            let claves = new Set([...Object.keys(totalesRemito), ...Object.keys(totalesFactura)]);
+            let todasAprobadas = claves.size > 0 && filasRemito.length > 0 && cantidadFilasProducto > 0 && !hayFilasIncompletas;
+
+            claves.forEach((clave) => {
+                let totalRemito = totalesRemito[clave] || 0;
+                let totalFactura = totalesFactura[clave] || 0;
+                if (totalFactura !== totalRemito) {
                     todasAprobadas = false;
                 }
             });
 
-            if (todasAprobadas && filasColeccionDestino.length > 0) {
-                estadoInput.val("Aprobado");
-            } else {
-                estadoInput.val("Pendiente");
-            }
+            estadoInput.val(todasAprobadas ? "Aprobado" : "Pendiente");
         }
 
-        $(`#t${numeroForm}`).on("change", `input[name=cantidad], input[name=cantidadRemito], input[name=unidadesMedida], input[name=unidadesMedidaRemito]`, cambiaEstado);
+        $(`#t${numeroForm}`).on("change", `input[name=cantidad], input[name=unidadesMedida], .divSelectInput[name=itemCompra]`, cambiaEstado);
     }
 
+}
+function apruebaRemitos(objeto, numeroForm) {
+    const mensaje = "La cantidad a facturar es menor que la del remito";
+    let validado = true;
+    let empresaSel = $(`.empresaSelect`).html().trim();
+    let empresaSelecta = Object.values(consultaPestanas.empresa).find(e => e.name == empresaSel);
+
+    if (empresaSelecta?.ingresaStock == "Facturacion") {
+        return { validado, mensaje };
+    }
+
+    let totalesRemito = {};
+    let totalesFactura = {};
+    let filasRemito = $(`#t${numeroForm} table.remitoIngreso tr.mainBody:not(.last)`);
+    let filasFactura = $(`#t${numeroForm} table.compuestoFacturaCompras tr.mainBody:not(.last)`);
+    let cantidadFilasProducto = 0;
+
+    filasRemito.each((i, filaRemito) => {
+        let cantidad = stringANumero($("input[name=cantidadRemito]", filaRemito).val()) || 0;
+        let unidad = (($("input[name=unidadesMedidaRemito]", filaRemito).val()) || "").toString().trim();
+        let producto = (($("input[name=productoRemito]", filaRemito).val()) || "").toString().trim();
+        let itemCompra = (consultaPestanas?.producto?.[producto]?.itemCompra || Object.values(consultaPestanas?.producto || {}).find((prod) => ((prod?.name || "").toString().trim() == producto))?.itemCompra || "").toString().trim();
+        let clave = itemCompra && unidad ? `${itemCompra}|${unidad}` : "";
+        if (!clave) return;
+        totalesRemito[clave] = (totalesRemito[clave] || 0) + cantidad;
+    });
+
+    filasFactura.each((i, filaFactura) => {
+        let cantidad = stringANumero($("input[name=cantidad]", filaFactura).val()) || 0;
+        let unidad = (($("input[name=unidadesMedida]", filaFactura).val()) || "").toString().trim();
+        let itemCompraInput = (($("input[name=itemCompra], .divSelectInput[name=itemCompra]", filaFactura).val()) || "").toString().trim();
+        let itemCompra = (consultaPestanas?.itemCompra?.[itemCompraInput] ? itemCompraInput : Object.entries(consultaPestanas?.itemCompra || {}).find(([, item]) => ((item?.name || "").toString().trim() == itemCompraInput))?.[0] || itemCompraInput || "").toString().trim();
+        let concepto = ((consultaPestanas?.itemCompra?.[itemCompra]?.concepto || "").toString().trim().toLowerCase());
+        if (concepto != "producto") return;
+        cantidadFilasProducto++;
+        let clave = itemCompra && unidad ? `${itemCompra}|${unidad}` : "";
+        if (!clave) return;
+        totalesFactura[clave] = (totalesFactura[clave] || 0) + cantidad;
+    });
+
+    if (cantidadFilasProducto == 0) {
+        return {
+            validado,
+            mensaje
+        };
+    }
+
+    Object.keys(totalesRemito).forEach((clave) => {
+        if ((totalesFactura[clave] || 0) < totalesRemito[clave]) {
+            validado = false;
+        }
+    });
+
+    return {
+        validado,
+        mensaje
+    };
 }
 function destruirSortablesColecciones(numeroForm) {
     const filasSortables = sortableFilasColeccionPorForm[numeroForm] || [];
@@ -1720,6 +1787,11 @@ function remitosPendientes(objeto, numeroForm) {
                         $(`tr.last td.vacio`, tablaDestino).trigger("dblclick");
                     }
                     let filaDestino = $(`tr[q="${numeroFila}"]:not(.last)`, tablaDestino);
+                    let productoSeleccionado = ($("input.productoRemito", remitoPendiente).val() || "").trim();
+                    let itemProducto = Object.values(consultaPestanas.producto).find(e => e.name == productoSeleccionado)
+                    let itemDestino = itemProducto?.itemCompra
+                    $(`.divSelectInput[name=itemCompra]`, filaDestino).val(itemDestino).trigger("change")
+                    $(`.inputSelect.itemCompra`, filaDestino).trigger("change")
                     $("input.cantidad", filaDestino).val($("input.cantidadRemito", remitoPendiente).val()).trigger("input").trigger("change");
                     $("input.unidadesMedida", filaDestino).val($("input.unidadesMedidaRemito", remitoPendiente).val()).trigger("input").trigger("change");
                 }

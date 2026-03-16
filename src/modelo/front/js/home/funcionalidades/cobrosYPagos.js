@@ -6,7 +6,8 @@ let variablesModeloPagosCobros = {
         FH(),
         PPE({ nombre: "comprobante", width: "quince", clase: "requerido", opciones: ["Factura electronica", "Factura de Credito", "Nota de debito", "Nota de credito"], valorInicial: "Factura electronica" }),
         PPE({ nombre: "tipoComprobante", width: "diez", clase: "requerido", opciones: ["Letra C"], valorInicial: "Letra C" }),
-        NCT({ nombre: "numeradorFactura", trigger: ["tipoComprobante", "comprobante"], width: "quince", valorInicialAncla: [valorFijoNum, "0001"], orden: "reves", funcion: { formatoDigitosExtra: [formatoDigitosExtra, 8] } }),
+        NCT({ nombre: "numeradorFactura", trigger: ["tipoComprobante", "comprobante"], width: "quince", valorInicialAncla: [valorFijoNum, "0002"], orden: "reves", funcion: { formatoDigitosExtra: [formatoDigitosExtra, 8] } }),
+        P({ nombre: "comprobanteAsociado", origen: "facturasEmitidas", pestRef: "referenciaAsociada", width: "veinte", oculto: "oculto" }),
         P({ nombre: "moneda", width: "doce", clase: "requerido" }),
         N({ nombre: "tipoCambio", width: "diez", clase: "requerido" }),
         F({ nombre: "fechaVencimiento", clase: "requerido" }),
@@ -14,6 +15,7 @@ let variablesModeloPagosCobros = {
         compuestoFacturaVentas,
         compuestoMedioPagos,
         I({ nombre: "importeTotal", clase: "soloLectura transparente" }),
+        I({ nombre: "saldoFiscal", oculto: "oculto" }),
         P({ nombre: "cuentasBancariasPago", origen: "cuentasBancarias" }),
         TF("descripcionCompleto"),
         TD({ nombre: "tipoCambioPesos", texto: "", oculto: "oculto" }),
@@ -23,7 +25,7 @@ let variablesModeloPagosCobros = {
         T({ nombre: "CAE", clase: "transparente soloLectura textoCentrado" }),
         F({ nombre: "vtocae", clase: "transparente soloLectura" }),
       ],
-      titulos: ["Cliente", `Fecha`, `Comprobante`, `Letra`, "Numero", `Moneda`, `TC`, `Vencimiento`, `detalleProducto`, `compuestoFacturaVentas`, `compuestoMedioPagos`, `Importe`, "Cuenta Bancaria", `Observaciones`, "", "", `Adjuntos`, `CAE`, `Vto CAE`],
+      titulos: ["Cliente", `Fecha`, `Comprobante`, `Letra`, "Numero", "Comp. asociado", `Moneda`, `TC`, `Vencimiento`, `detalleProducto`, `compuestoFacturaVentas`, `compuestoMedioPagos`, `Importe`, "Saldo fiscal", "Cuenta Bancaria", `Observaciones`, "", "", `Adjuntos`, `CAE`, `Vto CAE`],
       limiteCabecera: true,
       editar: false,
       eliminar: false,
@@ -35,7 +37,7 @@ let variablesModeloPagosCobros = {
       }
     },
     formInd: {
-      inputRenglones: [5, 3, `compuesto`, 3, 6],
+      inputRenglones: [6, 3, `compuesto`, 3, 6],
       impresion: {
         bloques: {
           primerRenglon: {
@@ -201,11 +203,15 @@ let variablesModeloPagosCobros = {
         valoresInicialesMediosPagos: [valoresInicialesMediosPagos, "importeTotal"],
         cuentaBcaria: [cuentaBcaria],
         consultaStock: [consultaStock],
-        configurarFacturacionElectronica: [configurarFacturacionElectronica]
+        configurarFacturacionElectronica: [configurarFacturacionElectronica],
+        comprobanteAsociadoElectronico: [comprobanteAsociadoElectronico]
       },
       formularioIndivFinal: {
         fijarComprobanteCFijoMonotributoFinal: [fijarComprobanteCFijoMonotributo],
         monedaBaseEmpresaEmitirFacturaFinal: [monedaBaseEmpresaEmitirFactura],
+      },
+      validarAlConfirmar: {
+        validarNotaCreditoNoMayorComprobanteAsociado: validarNotaCreditoNoMayorComprobanteAsociado
       },
     },
     desencadenante: {
@@ -351,6 +357,60 @@ let variablesModeloPagosCobros = {
         },
       },
     },
+    imputarcoleccion: {
+      saldoFiscalCompAsoc: {
+        type: "condicionSegunFuncion",
+        destino: "facturasEmitidas",
+        coleccionOrigen: compuestoFacturaVentas,
+        identificador: "saldoFiscalCompAsoc",
+        nombreEnDestino: "saldo fiscal de comprobante asociado",
+        funcionCondicion: [imputacionSaldoFiscalComprobanteAsociado],
+        opciones: {
+          notaCredito: {
+            destino: "facturasEmitidas",
+            nombre: "Comprobante asociado",
+            atributoImputables: {
+              cambioNombre: {
+                _id: "comprobanteAsociado",
+              },
+              funcion: {
+                saldoFiscal: [actualizarSaldoFiscalComprobanteAsociado, "saldoFiscal", "importeTotal", -1],
+                saldoFiscalmb: [actualizarSaldoFiscalComprobanteAsociado, "saldoFiscalmb", "importeTotalmb", -1],
+                saldoFiscalma: [actualizarSaldoFiscalComprobanteAsociado, "saldoFiscalma", "importeTotalma", -1],
+              },
+              funcionReverso: {
+                saldoFiscal: [reversoSaldoFiscalComprobanteAsociado, "saldoFiscal", "importeTotal", -1],
+                saldoFiscalmb: [reversoSaldoFiscalComprobanteAsociado, "saldoFiscalmb", "importeTotalmb", -1],
+                saldoFiscalma: [reversoSaldoFiscalComprobanteAsociado, "saldoFiscalma", "importeTotalma", -1],
+              },
+            },
+            grabarEnOrigenColeccion: { Comprobante: "comprobante", Letra: "tipoComprobante", Número: "numerador" },
+            grabarEnDestino: { Comprobante: "comprobante", Letra: "tipoComprobante", Número: "numerador" },
+          },
+          notaDebito: {
+            destino: "facturasEmitidas",
+            nombre: "Comprobante asociado",
+            atributoImputables: {
+              cambioNombre: {
+                _id: "comprobanteAsociado",
+              },
+              funcion: {
+                saldoFiscal: [actualizarSaldoFiscalComprobanteAsociado, "saldoFiscal", "importeTotal", 1],
+                saldoFiscalmb: [actualizarSaldoFiscalComprobanteAsociado, "saldoFiscalmb", "importeTotalmb", 1],
+                saldoFiscalma: [actualizarSaldoFiscalComprobanteAsociado, "saldoFiscalma", "importeTotalma", 1],
+              },
+              funcionReverso: {
+                saldoFiscal: [reversoSaldoFiscalComprobanteAsociado, "saldoFiscal", "importeTotal", 1],
+                saldoFiscalmb: [reversoSaldoFiscalComprobanteAsociado, "saldoFiscalmb", "importeTotalmb", 1],
+                saldoFiscalma: [reversoSaldoFiscalComprobanteAsociado, "saldoFiscalma", "importeTotalma", 1],
+              },
+            },
+            grabarEnOrigenColeccion: { Comprobante: "comprobante", Letra: "tipoComprobante", Número: "numerador" },
+            grabarEnDestino: { Comprobante: "comprobante", Letra: "tipoComprobante", Número: "numerador" },
+          },
+        }
+      },
+    },
     totalizadores: {
       formulario: {
         type: "totalizadorCabecera",
@@ -359,11 +419,18 @@ let variablesModeloPagosCobros = {
         digitosPositivos: ["subtotalVentas"],
         trigger: ["subtotalVentas"],
       },
+      saldoFiscal: {
+        type: "totalizadorCabecera",
+        total: ["saldoFiscal"],
+        cantidad: false,
+        digitosPositivos: ["subtotalVentas"],
+        trigger: ["subtotalVentas"],
+      },
     },
-    pestanas: [P("agrupadorImpuesto"), P("impuestoDefinicion"), P("provincia"), P("ciudad"),],//Provincia y ciudad lo necesito para la impresion
+    pestanas: [P("agrupadorImpuesto"), P("impuestoDefinicion"), P("provincia"), P("ciudad"), P("facturasEmitidas"),],//Provincia y ciudad lo necesito para la impresion
     key: "numeradorFactura",
-    pest: `Facturas emitidas`,
-    pestIndividual: `Emitir facturas`,
+    pest: `Comprobantes Fiscales`,
+    pestIndividual: `Emitir comprobante`,
     accion: `facturasEmitidas`,
     multimoneda: true,
     type: "transaccion",
@@ -1575,7 +1642,7 @@ let variablesModeloPagosCobros = {
         adjunto,
 
       ],
-      titulos: ["Proveedor", `Fecha`, `Fecha vencimiento`, `Letra`, "Numero", `Moneda`, `TC`, "detalleProducto", "compuestoFacturaVentas", "compuestoMedioPagos", "remitoIngreso", `Importe`, `Estado Remito`, `Observaciones`, `Adjuntos`],
+      titulos: ["Proveedor", `Fecha`, `Fecha vencimiento`, `Letra`, "Numero", `Moneda`, `TC`, "detalleProducto", "compuestoFacturaVentas", "compuestoMedioPagos", "remitoIngreso", `Importe`, `Estado Factura`, `Observaciones`, `Adjuntos`],
       limiteCabecera: true,
       deshabilitar: false,
       valorInicial: {
@@ -1597,8 +1664,12 @@ let variablesModeloPagosCobros = {
         mostrarPestanaProductoProveedores: [mostrarPestanaProductoProveedores],
         estadoFacturacionRemito: [estadoFacturacionRemito],
         formatoFacturas: [formatoFacturas, "numComprobante"],
+
         //cambiarBoton: [cambiarBoton, `okBoton`, iOkFacturaElec],
         //cambiarBotonD: [cambiarBoton, `okfPlus`, okPlusElectronica],
+      },
+      validarAlConfirmar: {
+        apruebaRemitos: apruebaRemitos
       },
       finalAbm: {
         rellenoAbmEstado: [rellenoAbmEstado, "estado", { pendiente: "naranjaLetra", directo: "verdeLetra", aprobado: "azulLetra" }],
@@ -1767,6 +1838,9 @@ let variablesModeloPagosCobros = {
                 comprobanteOP: "numComprobante",
                 _id: "idComprobante",
                 //q: "idColeccionUnWind",
+              },
+              funcionReverso: {
+                estadoFacturacion: [reversoString, "estadoFacturacion"],
               },
               valorFijo: {
                 estadoFacturacion: "Facturado"

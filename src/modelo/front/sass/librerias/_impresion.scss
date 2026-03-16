@@ -16,7 +16,7 @@
     display: none;
     margin: 0;
     padding: 20px;
-    z-index: 10001;
+    z-index: 10000001;
     cursor: default !important;
 
     &.show {
@@ -90,7 +90,7 @@
 #visorPdf {
     position: fixed;
     inset: 0;
-    z-index: 999999;
+    z-index: 10000001;
 
     &.oculto {
         display: none;
@@ -123,7 +123,7 @@
         position: absolute;
         top: 10px;
         right: 10px;
-        z-index: 9999999;
+        z-index: 10000002;
         width: 36px;
         height: 36px;
         border-radius: 999px;

@@ -396,6 +396,11 @@ async function creacionReportes(e) {
 
         cartelEnviarReporte(objeto, numeroForm)
     })
+    $(`#bf${numeroForm}`).on("click", `span.descargarCsvRep`, (e) => {
+
+        e.preventDefault()
+        exportarCsvVisualReporte(objeto, numeroForm)
+    })
     $(`#bf${numeroForm}`).on("click", `.resetResizeReporte:visible`, async (e) => {
 
         e.preventDefault();

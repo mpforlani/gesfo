@@ -51,7 +51,7 @@ $('body').on('click ', `.nav-vert:not(.enEspera) .menuSelectAbm`, async function
     let p = `<div id=p${numeroForm} class="pestana active"><div class="palabraPest">${objeto.pest}</div><div class="close" id="${numeroForm}">+</div></div>`; //definicion de pestaña
     let pestana = $(p);
 
-    let imgs = `<div class="comand" id="bf${contador}" agrupado=${indice} linea="uno"><div class="comandPrimeraLinea">${iHistoria}${iRecargar}${iResetResizeAbm}${iDeshabilitar}${iDelete}${iEdit}${iCrearInd}${iCruz}${iOk}
+    let imgs = `<div class="comand" id="bf${contador}" agrupado=${indice} linea="uno"><div class="comandPrimeraLinea">${iHistoria}${iRecargar}${iResetResizeAbm}${iCsvAbm}${iDeshabilitar}${iDelete}${iEdit}${iCrearInd}${iCruz}${iOk}
       <div class="fechaTablaAbm oculto">
       <div><p>De:</p><input type="date" class="fechaTextoDeAbm" ${autoCompOff} ></div>
       <div><p>Hasta:</p><input type="date" class="fechaTextoHastaAbm" ${autoCompOff} ></div></div>

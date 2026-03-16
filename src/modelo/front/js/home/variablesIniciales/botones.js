@@ -33,6 +33,7 @@ const iRecargar = `<div class="barraForm"><span class="material-symbols-outlined
 const iResetOrdenFormInd = `<div class="barraForm"><span class="material-symbols-outlined botones resetOrdenFormInd" title="Resetear orden de campos">reset_wrench</span></div>`;
 const iResetResizeAbm = `<div class="barraForm"><span class="material-symbols-outlined botones resetResizeAbm" title="Resetear ancho y orden">reset_wrench</span></div>`;
 const iResetResizeReporte = `<div class="barraForm"><span class="material-symbols-outlined botones resetResizeReporte" title="Resetear ancho y orden">reset_wrench</span></div>`;
+const iCsvAbm = `<div class="barraForm"><span class="material-symbols-outlined botones descargarCsvAbm" title="Descargar CSV">table_view</span></div>`;
 const iPlay = `<div class="barraForm"><span class="material-symbols-outlined botones play">play_arrow</span></div>`;
 /////
 const iSave = `<div class="barraForm"><span class="material-symbols-outlined botones save">save</span></div>`;
@@ -41,6 +42,7 @@ const logoFormIndividual = `<div class="logoIndividual"><img alt=""></img></div>
 /////Reportes
 const configReporte = `<div class="barraForm"><span class="material-symbols-outlined botones">settings</span></div>`
 const emailRep = `<div class="barraForm"><span class="material-symbols-outlined botones envioEmail">outgoing_mail</span></div>`
+const iCsvRep = `<div class="barraForm"><span class="material-symbols-outlined botones descargarCsvRep">table_view</span></div>`
 ////////////////
 const flechasOrden = `<div class="flechasOrden"><span class="material-symbols-outlined arriba">stat_1</span><span class="material-symbols-outlined abajo">stat_minus_1</span></div>`
 const filtroIcon = `<div class="filtro"><span class="material-symbols-outlined filtro">filter_alt</span></div>`

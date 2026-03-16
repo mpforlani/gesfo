@@ -392,8 +392,9 @@ function itemsComprobantes(data, objeto, numeroForm, atributos, tabla, clases, a
     let tableItems = `<table class="table tableItems ${tabla.nombre}">`
     tableItems += `<tr class="titulosTable">`
     $.each(atributos, (indice, value) => {
+        let claseImporte = tabla.componentes[value.nombre || value]?.type == "importe" ? "columnaImporteImpresion" : ""
 
-        tableItems += `<th class="${value.nombre || value}" width="${value.width || ""}">${value.titulo || $(`#t${numeroForm} table.${tabla.nombre} th.${value.nombre || value}`).html()}</th>`
+        tableItems += `<th class="${value.nombre || value} ${claseImporte}" width="${value.width || ""}">${value.titulo || $(`#t${numeroForm} table.${tabla.nombre} th.${value.nombre || value}`).html()}</th>`
     })
 
     tableItems += `</tr>`
@@ -424,7 +425,8 @@ function itemsComprobantes(data, objeto, numeroForm, atributos, tabla, clases, a
                         break;
                 }
 
-                tableItems += `<td class="${val.nombre || val} ${val.clase} ${clases?.celda || ""}" width="${val.width || ""}">${valor || ""}</td>`
+                let claseImporte = tabla.componentes[val.nombre || val]?.type == "importe" ? "columnaImporteImpresion" : ""
+                tableItems += `<td class="${val.nombre || val} ${claseImporte} ${val.clase} ${clases?.celda || ""}" width="${val.width || ""}">${valor || ""}</td>`
 
             })
             tableItems += `</tr>`
@@ -489,8 +491,9 @@ function itemsComprobantesDiv(data, objeto, numeroForm, atributos, tabla, clases
     let tableItems = `<div class="table tableItems ${tabla.nombre}">`//table
     tableItems += `<div class="tr titulosTable ${clases?.claseFilaTitulo || ""}"${styleTemplate}>`//tr
     $.each(atributosNormalizados, (indice, value) => {
+        let claseImporte = tabla.componentes[value.nombre || value]?.type == "importe" ? "columnaImporteImpresion" : ""
 
-        tableItems += `<div class="th ${value.nombre || value} ${clases?.titulo || ""}" width="${value.width || ""}">${value.titulo || $(`#t${numeroForm} table.${tabla.nombre} th.${value.nombre || value}`).html()}</div>`
+        tableItems += `<div class="th ${value.nombre || value} ${claseImporte} ${clases?.titulo || ""}" width="${value.width || ""}">${value.titulo || $(`#t${numeroForm} table.${tabla.nombre} th.${value.nombre || value}`).html()}</div>`
     })
 
     tableItems += `</div>`//tr
@@ -524,7 +527,8 @@ function itemsComprobantesDiv(data, objeto, numeroForm, atributos, tabla, clases
                         break;
                 }
 
-                tableItems += `<div class="td ${val.nombre || val} ${val.clase} ${clases?.celda || ""}" width="${val.width || ""}">${valor || ""}</div>`
+                let claseImporte = tabla.componentes[val.nombre || val]?.type == "importe" ? "columnaImporteImpresion" : ""
+                tableItems += `<div class="td ${val.nombre || val} ${claseImporte} ${val.clase} ${clases?.celda || ""}" width="${val.width || ""}">${valor || ""}</div>`
 
             })
             tableItems += `</div>`//tr
@@ -541,8 +545,9 @@ function itemsComprobantesMayuscula(data, objeto, numeroForm, atributos, tabla, 
     let tableItems = `<table class="table tableItems ${tabla.nombre}">`
     tableItems += `<tr class="titulosTable">`
     $.each(atributos, (indice, value) => {
+        let claseImporte = tabla.componentes[value.nombre || value]?.type == "importe" ? "columnaImporteImpresion" : ""
 
-        tableItems += `<th class="${value.nombre || value} mayuscula" width="${value.width || ""}">${value.titulo || $(`#t${numeroForm} table.${tabla.nombre} th.${value.nombre || value}`).html()}</th>`
+        tableItems += `<th class="${value.nombre || value} ${claseImporte} mayuscula" width="${value.width || ""}">${value.titulo || $(`#t${numeroForm} table.${tabla.nombre} th.${value.nombre || value}`).html()}</th>`
     })
 
     tableItems += `</tr>`
@@ -573,7 +578,8 @@ function itemsComprobantesMayuscula(data, objeto, numeroForm, atributos, tabla, 
                         break;
                 }
 
-                tableItems += `<td class="${val.nombre || val} ${val.clase} mayuscula" width="${val.width || ""}">${valor || ""}</td>`
+                let claseImporte = tabla.componentes[val.nombre || val]?.type == "importe" ? "columnaImporteImpresion" : ""
+                tableItems += `<td class="${val.nombre || val} ${claseImporte} ${val.clase} mayuscula" width="${val.width || ""}">${valor || ""}</td>`
 
             })
             tableItems += `</tr>`
@@ -615,7 +621,7 @@ function totalitemsPorTasa(data, objeto, numeroForm, atribut, clases) {
 
         tabla += `<tr class="fila">
         <th class="primeraFila celdaTotal ${clases?.titulo}">Neto No Gravado</th>`
-        tabla += `<td class="celdaTotal ${clases?.celda}"> ${prefijoImporte}${numeroAString(bases.noGravado)}</td>`
+        tabla += `<td class="celdaTotal columnaImporteImpresion ${clases?.celda}"> ${prefijoImporte}${numeroAString(bases.noGravado)}</td>`
         tabla += `</tr>`
     }
 
@@ -623,24 +629,24 @@ function totalitemsPorTasa(data, objeto, numeroForm, atribut, clases) {
 
         tabla += `<tr class="fila">
         <th class="primeraFila celdaTotal ${clases?.titulo}">Neto Gravado</th>`
-        tabla += `<td class="celdaTotal ${clases?.celda}"> ${prefijoImporte}${numeroAString(bases.gravado)}</td>`
+        tabla += `<td class="celdaTotal columnaImporteImpresion ${clases?.celda}"> ${prefijoImporte}${numeroAString(bases.gravado)}</td>`
         tabla += `</tr>`
     }
 
 
     $.each(iva, (indice, value) => {
         tabla += `<tr class="fila"><th class="primeraFila celdaTotal ${clases?.titulo}">${atribut.impuesto.titulo}&nbsp(${indice})</th>`
-        tabla += `<td class="celdaTotal ${clases?.celda}"> ${prefijoImporte}${numeroAString(value)}</td>`
+        tabla += `<td class="celdaTotal columnaImporteImpresion ${clases?.celda}"> ${prefijoImporte}${numeroAString(value)}</td>`
         tabla += `</tr>`
     })
 
     tabla += `<tr class="fila"><th class="primeraFila celdaTotal ${clases?.titulo}">${atribut.otroImpuesto.titulo}</th>`
-    tabla += `<td class="celdaTotal ${clases?.celda}"> ${prefijoImporte}${numeroAString(otrosImpuestos)}</td>`
+    tabla += `<td class="celdaTotal columnaImporteImpresion ${clases?.celda}"> ${prefijoImporte}${numeroAString(otrosImpuestos)}</td>`
     tabla += `</tr>`
 
 
     tabla += `<tr class="fila"><th class="primeraFila celdaTotal ${clases?.titulo}">Total</th>`
-    tabla += `<td class="celdaTotal bold ${clases?.celda}"> ${prefijoImporte}${numeroAString(data[atribut.total.atr])}</td>`
+    tabla += `<td class="celdaTotal columnaImporteImpresion bold ${clases?.celda}"> ${prefijoImporte}${numeroAString(data[atribut.total.atr])}</td>`
     tabla += `</tr>`
 
     return tabla
@@ -666,7 +672,7 @@ function totalitemsporMon(data, objeto, numeroForm, atribut, clase) {
 
         $.each(objetoTabla.moneda, (i, v) => {
 
-            tabla += `<td class="celdaTotal ${value.atr} ${clase?.celda || ""}" moneda="${consultaPestanas?.moneda?.[v]?.name.toLowerCase()}"> ${numeroAStringCom(totalObjeto[v])}</td>`
+            tabla += `<td class="celdaTotal columnaImporteImpresion ${value.atr} ${clase?.celda || ""}" moneda="${consultaPestanas?.moneda?.[v]?.name.toLowerCase()}"> ${numeroAStringCom(totalObjeto[v])}</td>`
         })
 
         tabla += `</tr>`
@@ -751,8 +757,9 @@ function elegirCompuesto(data, objeto, numeroForm, tabla1, tabla2) {
         }
 
         $.each(atributos, (indice, value) => {
+            let claseImporte = tabla.componentes[value.nombre || value]?.type == "importe" ? "columnaImporteImpresion" : ""
 
-            tableItems += `<th class="${value.nombre || value}" width="${value.width || ""}">${value.titulo || $(`#t${numeroForm} table.${tabla.nombre} th.${value.nombre || value}`).html()}</th>`
+            tableItems += `<th class="${value.nombre || value} ${claseImporte}" width="${value.width || ""}">${value.titulo || $(`#t${numeroForm} table.${tabla.nombre} th.${value.nombre || value}`).html()}</th>`
         })
 
         tableItems += `</tr>`
@@ -780,7 +787,8 @@ function elegirCompuesto(data, objeto, numeroForm, tabla1, tabla2) {
 
                         break;
                 }
-                tableItems += `<td class="${val.nombre || val} ${val.clase}" width="${val.width || ""}">${valor || ""}</td>`
+                let claseImporte = tabla.componentes[val.nombre || val]?.type == "importe" ? "columnaImporteImpresion" : ""
+                tableItems += `<td class="${val.nombre || val} ${claseImporte} ${val.clase}" width="${val.width || ""}">${valor || ""}</td>`
 
             })
             tableItems += `</tr>`
@@ -814,8 +822,9 @@ function elegirCompuesto(data, objeto, numeroForm, tabla1, tabla2) {
             ]
         }
         $.each(atributos, (indice, value) => {
+            let claseImporte = tabla.componentes[value.nombre || value]?.type == "importe" ? "columnaImporteImpresion" : ""
 
-            tableItems += `<th class="${value.nombre || value}" width="${value.width || ""}">${value.titulo || $(`#t${numeroForm} table.${tabla.nombre} th.${value.nombre || value}`).html()}</th>`
+            tableItems += `<th class="${value.nombre || value} ${claseImporte}" width="${value.width || ""}">${value.titulo || $(`#t${numeroForm} table.${tabla.nombre} th.${value.nombre || value}`).html()}</th>`
         })
 
         tableItems += `</tr>`
@@ -851,7 +860,8 @@ function elegirCompuesto(data, objeto, numeroForm, tabla1, tabla2) {
                         break;
                 }
 
-                tableItems += `<td class="${val.nombre || val} ${val.clase}" width="${val.width || ""}">${valor || ""}</td>`
+                let claseImporte = tabla.componentes[val.nombre || val]?.type == "importe" ? "columnaImporteImpresion" : ""
+                tableItems += `<td class="${val.nombre || val} ${claseImporte} ${val.clase}" width="${val.width || ""}">${valor || ""}</td>`
 
             })
             tableItems += `</tr>`

@@ -882,13 +882,6 @@ async function imputacionDesdeColeccion(imputacion, objeto, response) {
         };
         console.log(response)
         let fileCabecera = fileDesencadenante(response);
-
-        /*if (response?.anterior !== undefined) {
-            await responseDeleteColecion(objeto, desencadenante, response); // ← acá usás await
-        }*/
-        //Tengo que poner algo de borra imputacion si se elimina renglon
-
-        //fileCabecera.historia = fileCabecera?.historia[Object.values(fileCabecera.historia).length - 1];
         console.log(imputacion)
         console.log(objeto)
         console.log(fileCabecera)
@@ -904,7 +897,9 @@ async function imputacionDesdeColeccion(imputacion, objeto, response) {
 
             let objetoDestino = variablesModelo[imputacion.destino]
             let imputa = tipoImputacion[imputacion.type](imputacion, valueRespuesta);
-            imputa.origen = imputacion.origen
+            if (imputa) {
+                imputa.origen = imputacion.origen
+            }
             console.log(imputa)
             contador--;
 

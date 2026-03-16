@@ -12,6 +12,19 @@ try {
         });
     }
 
+    const tiposNota = [2, 3, 7, 8, 12, 13, 20, 21, 202, 203];
+    const cbtesAsoc = req.body.CbtesAsoc;
+    const tieneCbtesAsoc = Array.isArray(cbtesAsoc)
+        ? cbtesAsoc.length > 0
+        : Array.isArray(cbtesAsoc?.CbteAsoc)
+            ? cbtesAsoc.CbteAsoc.length > 0
+            : !!cbtesAsoc?.CbteAsoc || !!cbtesAsoc;
+    if (tiposNota.includes(Number(req.body.CbteTipo)) && !tieneCbtesAsoc) {
+        return res.status(400).json({
+            error: 'Las notas electronicas deben informar un comprobante asociado en CbtesAsoc.',
+        });
+    }
+
     const ultimo = await afip.ElectronicBilling.getLastVoucher(req.body.PtoVta, req.body.CbteTipo);
     const siguiente = ultimo + 1;
 

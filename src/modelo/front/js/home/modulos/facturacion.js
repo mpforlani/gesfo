@@ -417,21 +417,46 @@ function mostrarPestanaProductoProveedores(objeto, numeroForm) {
         $(`table.detalleProducto input.requerido`).removeClass("requerido");
 
         $(`div.cabeceraCol.${numeroForm} a.compuestoFacturaCompras:not([tabla="vistaPrevia"] a.compuestoFacturaCompras)`).trigger("click");
-        function consultaItem(e) {
+        function esItemCompraProducto(item) {
+            const itemLimpio = (item || "").toString().trim();
+            if (itemLimpio == "") return false;
+            const itemPorId = consultaPestanas?.itemCompra?.[itemLimpio];
+            if (itemPorId) {
+                return (itemPorId?.concepto || "").toString().trim().toLowerCase() == "producto";
+            }
+            const itemPorNombre = Object.values(consultaPestanas?.itemCompra || {}).find((it) => (it?.name || "").toString().trim() == itemLimpio);
+            return (itemPorNombre?.concepto || "").toString().trim().toLowerCase() == "producto";
+        }
+        function consultaItem() {
+            let hayItemProducto = false;
+            $(`#t${numeroForm} table.compuestoFacturaCompras tr.mainBody:not(.last)`).each((indice, fila) => {
+                let itemFila = $(`.divSelectInput[name="itemCompra"], input[name="itemCompra"]`, fila).val();
+                if (esItemCompraProducto(itemFila)) {
+                    hayItemProducto = true;
+                    return false;
+                }
+            });
 
-            let item = $(e.target).val();
-            if (consultaPestanas.itemCompra[item]?.concepto == "Producto") {
+            let tieneId = (($(`#t${numeroForm} input._id`).val() || "").toString().trim().length > 0);
+            if (hayItemProducto || tieneId) {
                 cabeceraB.removeClass("ocultoSiempre");
-                $(`#t${numeroForm} input.estado`).val("Pendiente")
-
             } else {
                 cabeceraB.addClass("ocultoSiempre");
+            }
+
+            if (hayItemProducto) {
+                if ($(`#t${numeroForm} input.estado`).val() == "Directo") {
+                    $(`#t${numeroForm} input.estado`).val("Pendiente")
+                }
+            } else {
                 if ($(`#t${numeroForm} input.estado`).val() != "Aprobado") {
                     $(`#t${numeroForm} input.estado`).val("Directo")
                 }
-            };
+            }
         }
-        $(`#t${numeroForm}`).on(`change`, `.divSelectInput[name="itemCompra"]`, consultaItem)
+        $(`#t${numeroForm}`).off(`change.mostrarPestanaProductoProveedores`, `.divSelectInput[name="itemCompra"]`)
+        $(`#t${numeroForm}`).on(`change.mostrarPestanaProductoProveedores`, `.divSelectInput[name="itemCompra"]`, consultaItem)
+        consultaItem()
     }
     if (empresaSelecta.ingresaStock == "Facturacion") {
         cabeceraB.addClass("ocultoSiempre");
@@ -532,4 +557,192 @@ function cuentaBcaria(objeto, numeroForm) {
         let cuenta = consultaPestanas.cuentasBancarias?.[empresaSelect.cuentasBancarias]?.name
         $(`#t${numeroForm} .inputSelect.cuentasBancariasPago`).val(cuenta).trigger("change")
     }
+}
+function nombreOperacionComprobanteElectronico(comprobante = "") {
+
+    switch ((comprobante || "").toString().replace(/\s+/g, "").toLowerCase()) {
+        case "notadedebito":
+            return "notaDebito"
+        case "notadecredito":
+            return "notaCredito"
+        default:
+            return "facturasEmitidas"
+    }
+}
+function comprobanteElectronicoEsNota(comprobante = "") {
+
+    let operacion = nombreOperacionComprobanteElectronico(comprobante)
+    return operacion == "notaDebito" || operacion == "notaCredito"
+}
+function empresaFacturaElectronicaActiva() {
+
+    let empresaActiva = obtenerEmpresaEmisoraActiva() || empresaSeleccionada || {}
+    return empresaActiva?.electronica === true || empresaActiva?.electronica == "true"
+}
+function fechaComprobanteAsociadoFormateada(fecha = "") {
+
+    let fechaTexto = (fecha || "").toString()
+
+    if (fechaTexto.includes("T")) {
+        fechaTexto = fechaTexto.split("T")[0]
+    }
+
+    if (/^\d{4}-\d{2}-\d{2}$/.test(fechaTexto)) {
+        return `${fechaTexto.slice(8, 10)}/${fechaTexto.slice(5, 7)}/${fechaTexto.slice(0, 4)}`
+    }
+
+    if (/^\d{8}$/.test(fechaTexto)) {
+        return `${fechaTexto.slice(6, 8)}/${fechaTexto.slice(4, 6)}/${fechaTexto.slice(0, 4)}`
+    }
+
+    return fechaTexto
+}
+function referenciaComprobanteAsociado(valor = {}) {
+
+    let tipo = [valor?.comprobante, valor?.tipoComprobante].filter(Boolean).join(" ").trim()
+    let ptoVta = (valor?.ancla || "").toString().trim()
+    let numero = (valor?.numerador || "").toString().trim()
+    let fecha = fechaComprobanteAsociadoFormateada(valor?.fecha || valor?.date || "")
+    let importe = valor?.importeTotal === undefined || valor?.importeTotal === ""
+        ? ""
+        : `$ ${numeroAString(Number(stringANumero(valor?.importeTotal || 0)))}`
+
+    return [tipo, [ptoVta, numero].filter(Boolean).join("-"), fecha, importe].filter(Boolean).join(" ")
+}
+function comprobanteAsociadoElectronico(objeto, numeroForm) {
+    if (objeto?.accion != "facturasEmitidas") return
+
+    const father = $(`#t${numeroForm}`)
+    const origenNotasElectronicas = `facturasEmitidasNotasElectronicas${numeroForm}`
+
+    const renderizarComprobanteAsociado = async () => {
+        if (!consultaPestanas?.facturasEmitidas || !consultaPestanasConOrden?.facturasEmitidas || consultaPestanasConOrden?.facturasEmitidas?.length == 0) {
+            await consultasPestanaIndividual("facturasEmitidas", false)
+        }
+
+        let contenedor = $(`div.fo.comprobanteAsociado`, father)
+        if (contenedor.length == 0) return
+
+        $.each(consultaPestanasConOrden?.facturasEmitidas || [], (indice, value) => {
+            if (!value) return
+            value.referenciaAsociada = referenciaComprobanteAsociado(value)
+            if (consultaPestanas?.facturasEmitidas?.[value._id]) {
+                consultaPestanas.facturasEmitidas[value._id].referenciaAsociada = value.referenciaAsociada
+            }
+        })
+
+        let comprobante = $(`.inputSelect.comprobante`, father).first().val() || ""
+        let tipoComprobante = $(`.inputSelect.tipoComprobante`, father).first().val() || ""
+        let cliente = $(`.divSelectInput[name=cliente]`, father).first().val() || ""
+        let empresa = $(`input.empresa`, father).first().val() || empresaSeleccionada?._id || obtenerEmpresaEmisoraActiva()?._id || ""
+        let idActual = $(`input._id`, father).first().val() || ""
+        let comprobanteAsociadoActual = $(`.divSelectInput[name=comprobanteAsociado]`, father).first().val() || ""
+        let debeMostrar = empresaFacturaElectronicaActiva() && comprobanteElectronicoEsNota(comprobante)
+
+        consultaPestanas[origenNotasElectronicas] = {}
+        consultaPestanasConOrden[origenNotasElectronicas] = []
+
+        $.each(consultaPestanasConOrden?.facturasEmitidas || [], (indice, value) => {
+            if (!value || value._id == idActual) return
+            if ((value?.CAE || "").toString().trim() == "") return
+            if ((value?.empresa || "") != empresa) return
+            if (cliente == "" || (value?.cliente || "") != cliente) return
+            if (tipoComprobante == "" || (value?.tipoComprobante || "") != tipoComprobante) return
+            if ((value?.comprobante || "").toString().trim() != "Factura electronica") return
+
+            let referenciaAsociada = value.referenciaAsociada || referenciaComprobanteAsociado(value)
+            let opcionComprobanteAsociado = {
+                _id: value._id,
+                name: referenciaAsociada,
+                referenciaAsociada,
+                cliente: value.cliente,
+                empresa: value.empresa,
+                comprobante: value.comprobante,
+                tipoComprobante: value.tipoComprobante,
+                CAE: value.CAE,
+                ancla: value.ancla,
+                numerador: value.numerador,
+                fecha: value.fecha,
+                date: value.date,
+                importeTotal: value.importeTotal
+            }
+
+            consultaPestanas[origenNotasElectronicas][value._id] = opcionComprobanteAsociado
+            consultaPestanasConOrden[origenNotasElectronicas].push(opcionComprobanteAsociado)
+        })
+
+        if (!consultaPestanas[origenNotasElectronicas][comprobanteAsociadoActual]) {
+            comprobanteAsociadoActual = ""
+        }
+
+        let tabIndex = $(`.inputSelect.comprobanteAsociado`, father).first().attr("tabindex") || 1
+        let nuevoSelector = prestanaFormIndividual(
+            objeto,
+            numeroForm,
+            P({ nombre: "comprobanteAsociado", origen: origenNotasElectronicas, pestRef: "referenciaAsociada", width: "veinte" }),
+            comprobanteAsociadoActual,
+            tabIndex,
+            { clase: "form" }
+        )
+
+        $(`.selectCont.comprobanteAsociado`, contenedor).remove()
+        $(nuevoSelector).appendTo(contenedor)
+
+        if (debeMostrar) {
+            contenedor.removeAttr("oculto")
+            $(`.inputSelect.comprobanteAsociado`, contenedor).addClass("requerido")
+        } else {
+            contenedor.attr("oculto", "true")
+            $(`.inputSelect.comprobanteAsociado`, contenedor).val("").removeClass("requerido validado")
+            $(`.divSelectInput[name=comprobanteAsociado]`, contenedor).val("")
+        }
+    }
+
+    const actualizar = () => {
+        setTimeout(() => {
+            renderizarComprobanteAsociado()
+        }, 0)
+    }
+
+    father.off("change.comprobanteAsociadoElectronico", ".inputSelect.comprobante")
+    father.off("change.comprobanteAsociadoElectronico", ".inputSelect.tipoComprobante")
+    father.off("change.comprobanteAsociadoElectronico", ".inputSelect.cliente")
+    father.off("change.comprobanteAsociadoElectronico", ".divSelectInput[name=cliente]")
+
+    father.on("change.comprobanteAsociadoElectronico", ".inputSelect.comprobante", actualizar)
+    father.on("change.comprobanteAsociadoElectronico", ".inputSelect.tipoComprobante", actualizar)
+    father.on("change.comprobanteAsociadoElectronico", ".inputSelect.cliente", actualizar)
+    father.on("change.comprobanteAsociadoElectronico", ".divSelectInput[name=cliente]", actualizar)
+
+    renderizarComprobanteAsociado()
+    ;[80, 200, 500].forEach((delay) => setTimeout(renderizarComprobanteAsociado, delay))
+}
+function validarNotaCreditoNoMayorComprobanteAsociado(objeto, numeroForm) {
+    if (objeto?.accion != "facturasEmitidas") {
+        return { validado: true, mensaje: "" }
+    }
+
+    let comprobante = $(`#t${numeroForm} .inputSelect.comprobante`).first().val() || ""
+    if ((comprobante || "").toString().trim() != "Nota de credito") {
+        return { validado: true, mensaje: "" }
+    }
+
+    let comprobanteAsociadoId = $(`#t${numeroForm} .divSelectInput[name=comprobanteAsociado]`).first().val() || ""
+    if (comprobanteAsociadoId == "") {
+        return { validado: true, mensaje: "" }
+    }
+
+    let comprobanteAsociado = consultaPestanas?.facturasEmitidas?.[comprobanteAsociadoId]
+    if (!comprobanteAsociado) {
+        return { validado: true, mensaje: "" }
+    }
+
+    let importeNotaCredito = Number(stringANumero($(`#t${numeroForm} input.importeTotal`).first().val() || 0))
+    let importeComprobanteAsociado = Number(stringANumero(comprobanteAsociado?.importeTotal || 0))
+
+    if (importeNotaCredito > importeComprobanteAsociado) {
+        return { validado: false, mensaje: "La nota de credito no puede ser mayor al importe del comprobante asociado" }
+    }
+
+    return { validado: true, mensaje: "" }
 }

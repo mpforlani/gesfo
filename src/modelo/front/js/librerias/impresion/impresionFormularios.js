@@ -456,59 +456,165 @@ function ajustarCabeceraLogoYTablaFactura(objeto, numeroForm) {
     };
 
     const ajustarTablaItems = () => {
-        const tabla = documento.querySelector(".table.tableItems.compuestoFacturaVentas");
-        if (!tabla) return true;
+        const tablas = documento.querySelectorAll(".table.tableItems");
+        if (!tablas.length) return true;
 
-        const filas = tabla.querySelectorAll(".tr");
-        if (!filas.length) return true;
+        let tablaPendiente = false;
 
-        const template = filas[0].style.gridTemplateColumns || "";
-        if (template.trim() == "") return true;
-
-        const columnas = template.trim().split(/\s+/).filter(Boolean);
-        if (!columnas.length) return true;
-
-        const anchoTabla = tabla.clientWidth || (tabla.parentElement ? tabla.parentElement.clientWidth : 0);
-        if (anchoTabla <= 0) return false;
-
-        const fontBase = parseFloat(window.getComputedStyle(document.documentElement).fontSize) || 16;
-        const aPx = (valor) => {
-            const numero = parseFloat(valor);
-            if (!isFinite(numero)) return null;
-
-            if (valor.endsWith("rem")) return numero * fontBase;
-            if (valor.endsWith("px")) return numero;
-            if (valor.endsWith("%")) return (anchoTabla * numero) / 100;
-
-            return null;
-        };
-
-        const columnasPx = columnas.map(aPx);
-        if (columnasPx.some(v => v === null)) return true;
-
-        const celdas = tabla.querySelectorAll(".th, .td");
-        celdas.forEach((celda) => {
-            celda.removeAttribute("width");
-            celda.style.setProperty("width", "auto", "important");
-            celda.style.setProperty("min-width", "0", "important");
-            celda.style.setProperty("max-width", "none", "important");
-            celda.style.setProperty("overflow-wrap", "anywhere", "important");
-            celda.style.setProperty("word-break", "break-word", "important");
+        documento.querySelectorAll(".columnaImporteImpresion").forEach((celda) => {
+            celda.style.setProperty("white-space", "nowrap", "important");
+            celda.style.setProperty("overflow-wrap", "normal", "important");
+            celda.style.setProperty("word-break", "normal", "important");
+            celda.style.setProperty("hyphens", "none", "important");
         });
 
-        const anchoTotal = columnasPx.reduce((acu, valor) => acu + valor, 0);
-        if (anchoTotal <= anchoTabla) return true;
+        tablas.forEach((tabla) => {
+            const filas = tabla.querySelectorAll(".tr");
+            if (!filas.length) return;
 
-        const factor = anchoTabla / anchoTotal;
-        const nuevoTemplate = columnasPx
-            .map(valor => `${Math.max(42, Math.floor(valor * factor))}px`)
-            .join(" ");
+            const template = filas[0].style.gridTemplateColumns || "";
+            if (template.trim() == "") return;
 
-        filas.forEach((fila) => {
-            fila.style.gridTemplateColumns = nuevoTemplate;
+            const columnas = template.match(/minmax\([^)]+\)|[^\s]+/g) || [];
+            if (!columnas.length) return;
+
+            const anchoTabla = tabla.clientWidth || (tabla.parentElement ? tabla.parentElement.clientWidth : 0);
+            if (anchoTabla <= 0) {
+                tablaPendiente = true;
+                return;
+            }
+
+            const fontBase = parseFloat(window.getComputedStyle(document.documentElement).fontSize) || 16;
+            const aPx = (valor) => {
+                const numero = parseFloat(valor);
+                if (!isFinite(numero)) return null;
+
+                if (valor.endsWith("rem")) return numero * fontBase;
+                if (valor.endsWith("px")) return numero;
+                if (valor.endsWith("%")) return (anchoTabla * numero) / 100;
+
+                return null;
+            };
+
+            const columnasPx = columnas.map(aPx);
+            const celdas = tabla.querySelectorAll(".th, .td");
+            celdas.forEach((celda) => {
+                celda.removeAttribute("width");
+                celda.style.setProperty("width", "auto", "important");
+                celda.style.setProperty("min-width", "0", "important");
+                celda.style.setProperty("max-width", "none", "important");
+                celda.style.setProperty("overflow-wrap", "anywhere", "important");
+                celda.style.setProperty("word-break", "break-word", "important");
+            });
+            tabla.querySelectorAll(".columnaImporteImpresion").forEach((celda) => {
+                celda.style.setProperty("white-space", "nowrap", "important");
+                celda.style.setProperty("overflow-wrap", "normal", "important");
+                celda.style.setProperty("word-break", "normal", "important");
+                celda.style.setProperty("hyphens", "none", "important");
+            });
+
+            const filaTitulos = filas[0];
+            const encabezados = Array.from(filaTitulos.querySelectorAll(".th"));
+            if (!encabezados.length) return;
+
+            const indicesImporte = encabezados
+                .map((encabezado, indice) => encabezado.classList.contains("columnaImporteImpresion") ? indice : -1)
+                .filter((indice) => indice >= 0);
+
+            if (indicesImporte.length > 0) {
+                const columnasTexto = ["itemVenta", "itemCompra", "producto", "descripcion", "detalleProducto", "unidadesMedida"];
+                const anchoMinimoColumna = 42;
+                const anchoMinimoTexto = 80;
+                const indicesFlexibles = columnasPx
+                    .map((valor, indice) => valor === null ? indice : -1)
+                    .filter((indice) => indice >= 0);
+                const anchoBaseFijo = columnasPx.reduce((acu, valor) => acu + (valor || 0), 0);
+                const anchoFlexible = indicesFlexibles.length > 0 ? Math.max(0, anchoTabla - anchoBaseFijo) / indicesFlexibles.length : 0;
+                const columnasFinalesPx = columnasPx.map((valor) => valor === null ? Math.max(anchoMinimoTexto, anchoFlexible) : valor);
+                const esColumnaTexto = (indice) => columnasTexto.some((nombre) => encabezados[indice]?.classList.contains(nombre));
+                const anchoMinimoPorIndice = (indice) => columnasPx[indice] === null || esColumnaTexto(indice) ? anchoMinimoTexto : anchoMinimoColumna;
+                const medirAnchoColumna = (indice) => {
+                    let anchoMayor = 0;
+
+                    filas.forEach((fila) => {
+                        const celdasFila = fila.querySelectorAll(".th, .td");
+                        const celda = celdasFila[indice];
+                        if (!celda) return;
+
+                        anchoMayor = Math.max(anchoMayor, Math.ceil(celda.scrollWidth) + 12);
+                    });
+
+                    return anchoMayor;
+                };
+
+                indicesImporte.forEach((indice) => {
+                    const anchoRequerido = medirAnchoColumna(indice);
+                    columnasFinalesPx[indice] = Math.max(columnasFinalesPx[indice] || 0, anchoRequerido);
+                });
+
+                let faltante = columnasFinalesPx.reduce((acu, valor, indice) => acu + Math.max(valor || 0, anchoMinimoPorIndice(indice)), 0) - anchoTabla;
+
+                if (faltante > 0) {
+                    const indicesDonantes = encabezados
+                        .map((encabezado, indice) => indicesImporte.includes(indice) ? -1 : indice)
+                        .filter((indice) => indice >= 0)
+                        .sort((a, b) => {
+                            if (esColumnaTexto(a) != esColumnaTexto(b)) return esColumnaTexto(a) ? -1 : 1;
+                            return (columnasFinalesPx[b] || 0) - (columnasFinalesPx[a] || 0);
+                        });
+
+                    indicesDonantes.forEach((indice) => {
+                        if (faltante <= 0) return;
+
+                        const anchoMinimo = anchoMinimoPorIndice(indice);
+                        const anchoReducible = Math.max(0, (columnasFinalesPx[indice] || 0) - anchoMinimo);
+                        const recorte = Math.min(anchoReducible, faltante);
+
+                        columnasFinalesPx[indice] -= recorte;
+                        faltante -= recorte;
+                    });
+                }
+
+                if (faltante > 0) {
+                    indicesImporte.forEach((indice) => {
+                        if (faltante <= 0) return;
+
+                        const anchoMinimo = Math.max(columnasPx[indice] || 0, 70);
+                        const anchoReducible = Math.max(0, (columnasFinalesPx[indice] || 0) - anchoMinimo);
+                        const recorte = Math.min(anchoReducible, faltante);
+
+                        columnasFinalesPx[indice] -= recorte;
+                        faltante -= recorte;
+                    });
+                }
+
+                const nuevoTemplate = columnasFinalesPx
+                    .map((valor, indice) => `${Math.max(anchoMinimoPorIndice(indice), Math.floor(valor || 0))}px`)
+                    .join(" ");
+
+                filas.forEach((fila) => {
+                    fila.style.gridTemplateColumns = nuevoTemplate;
+                });
+
+                return;
+            }
+
+            if (columnasPx.some(v => v === null)) return;
+
+            const anchoTotal = columnasPx.reduce((acu, valor) => acu + valor, 0);
+            if (anchoTotal <= anchoTabla) return;
+
+            const factor = anchoTabla / anchoTotal;
+            const nuevoTemplate = columnasPx
+                .map(valor => `${Math.max(42, Math.floor(valor * factor))}px`)
+                .join(" ");
+
+            filas.forEach((fila) => {
+                fila.style.gridTemplateColumns = nuevoTemplate;
+            });
         });
 
-        return true;
+        return !tablaPendiente;
     };
 
     let intentos = 0;

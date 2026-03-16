@@ -139,6 +139,9 @@ const FacturasEmitidasSchema = new Schema({
     importeTotal: { type: Number },
     importeTotalmb: { type: Number },
     importeTotalma: { type: Number },
+    saldoFiscal: { type: Number },
+    saldoFiscalmb: { type: Number },
+    saldoFiscalma: { type: Number },
     CAE: { type: String },
     vtocae: { type: Date },
     ...AtributosCompartidosSchema

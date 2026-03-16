@@ -3350,6 +3350,149 @@ function adjuntoCeldaAbm(objeto, numeroForm) {
         }
     })
 }
+function normalizarTextoCsvAbm(valor) {
+
+    return `${valor ?? ""}`
+        .replace(/\u00A0/g, " ")
+        .replace(/\r\n/g, "\n")
+        .replace(/\r/g, "\n")
+        .split("\n")
+        .map((linea) => linea.replace(/[ \t]+/g, " ").trim())
+        .join("\n")
+        .trim()
+}
+function normalizarNombreArchivoCsvAbm(texto) {
+
+    return `${texto || "abm"}`
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, "_")
+        .replace(/^_+|_+$/g, "") || "abm"
+}
+function esCeldaExportableCsvAbm(celda) {
+
+    const $celda = $(celda)
+    if (!$celda.length) return false
+    if (!$celda.is(":visible")) return false
+    if ($celda.hasClass("_id") || $celda.hasClass("empresa") || $celda.hasClass("version")) return false
+    if ($celda.hasClass("oculto") || $celda.hasClass("ocultoSeguridad") || $celda.hasClass("ocultoSiempre") || $celda.hasClass("ocultoConLugar")) return false
+    if ($celda.attr("oculto") == "true") return false
+    return true
+}
+function extraerTextoCsvAbm(celda) {
+
+    const $celda = $(celda)
+    if (!$celda.length) return ""
+
+    const clon = $celda.clone()
+    clon.find(".resize-col-handle, .reorder-col-handle, .resize-row-handle, .reorder-row-handle, .iconos, .closeFiltro, .material-symbols-outlined, img").remove()
+    return normalizarTextoCsvAbm(clon.text())
+}
+function obtenerColumnasCsvVisualAbm(numeroForm) {
+
+    asignarColIdsAbm(numeroForm)
+
+    return $(`#t${numeroForm} .tr.tituloTablas .th.tituloTablas`).toArray()
+        .filter((header) => esCeldaExportableCsvAbm(header))
+        .map((header, indice) => {
+            const $header = $(header)
+            return {
+                indice,
+                order: obtenerOrdenColumnaAbm($header) ?? indice,
+                colId: $header.attr("data-col-id"),
+                titulo: extraerTextoCsvAbm($header) || `Columna ${indice + 1}`
+            }
+        })
+        .filter((columna) => !!columna.colId)
+        .sort((a, b) => {
+            if (a.order === b.order) return a.indice - b.indice
+            return a.order - b.order
+        })
+}
+function obtenerFilasCsvVisualAbm(numeroForm, columnas) {
+
+    return $(`#t${numeroForm} .table .tr.fila:visible`).toArray().map((fila) => {
+        const $fila = $(fila)
+
+        return columnas.map((columna) => {
+            const celda = $fila.children(`[data-col-id="${columna.colId}"]`).first()
+            if (!esCeldaExportableCsvAbm(celda)) return ""
+            return extraerTextoCsvAbm(celda)
+        })
+    })
+}
+function escaparValorCsvAbm(valor) {
+
+    const texto = `${valor ?? ""}`.replace(/"/g, `""`)
+    if (/[;"\n]/.test(texto)) {
+        return `"${texto}"`
+    }
+    return texto
+}
+function descargarContenidoCsvAbm(nombreArchivo, contenido) {
+
+    const contenidoFinal = contenido.startsWith("\uFEFF") ? contenido : `\uFEFF${contenido}`
+    const blob = new Blob([contenidoFinal], { type: "text/csv;charset=utf-8;" })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement("a")
+
+    link.href = url
+    link.download = nombreArchivo
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+
+    setTimeout(() => URL.revokeObjectURL(url), 0)
+}
+function exportarCsvVisualAbm(objeto, numeroForm) {
+
+    const tabla = $(`#t${numeroForm}[tabla="abm"] .table`).first()
+    if (!tabla.length) {
+        let cartel = cartelInforUnaLinea("Primero genera la tabla antes de descargar CSV", "i", { cartel: "infoChiquito", close: "ocultoSiempre" })
+        $(cartel).appendTo(`#bf${numeroForm}`)
+        removeCartelInformativo(objeto, numeroForm)
+        return
+    }
+
+    const columnas = obtenerColumnasCsvVisualAbm(numeroForm)
+    if (!columnas.length) {
+        let cartel = cartelInforUnaLinea("No hay columnas visibles para exportar", "i", { cartel: "infoChiquito", close: "ocultoSiempre" })
+        $(cartel).appendTo(`#bf${numeroForm}`)
+        removeCartelInformativo(objeto, numeroForm)
+        return
+    }
+
+    const filas = obtenerFilasCsvVisualAbm(numeroForm, columnas)
+    const lineas = [columnas.map((columna) => escaparValorCsvAbm(columna.titulo)).join(";")]
+
+    filas.forEach((fila) => {
+        lineas.push(fila.map((valor) => escaparValorCsvAbm(valor)).join(";"))
+    })
+
+    const hoy = new Date()
+    const fecha = `${hoy.getFullYear()}-${`${hoy.getMonth() + 1}`.padStart(2, "0")}-${`${hoy.getDate()}`.padStart(2, "0")}`
+    const nombreBase = normalizarNombreArchivoCsvAbm(objeto?.nombre || objeto?.accion || objeto?.pest || "abm")
+    const nombreArchivo = `${nombreBase}_${fecha}.csv`
+
+    descargarContenidoCsvAbm(nombreArchivo, lineas.join("\r\n"))
+}
+$(`body`).on("click", `#comandera .descargarCsvAbm`, function (e) {
+
+    const barra = $(e.currentTarget).closest(`.comand[id^="bf"]`)
+    const numeroForm = `${barra.attr("id") || ""}`.replace(/^bf/, "")
+    if (numeroForm == "") return
+    if ($(`#t${numeroForm}[tabla="abm"]`).length == 0) return
+
+    const objeto = {
+        nombre: $(`#t${numeroForm}`).attr("nombre"),
+        accion: $(`#t${numeroForm}`).attr("accion"),
+        pest: $(`#p${numeroForm} .palabraPest`).text().trim()
+    }
+
+    exportarCsvVisualAbm(objeto, numeroForm)
+})
 const resizeTablaAbmState = {}
 const sortableColumnasAbm = {}
 const sortableFilasAbm = {}

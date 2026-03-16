@@ -107,6 +107,7 @@
 //Botones abm y form individual
 .barraForm {
     display: flex;
+    flex-shrink: 0;
     justify-content: center;
     align-items: end;
     align-content: end;

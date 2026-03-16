@@ -92,7 +92,7 @@ let variablesModeloGenerales = {
             names: [
                 T({ nombre: `name`, clase: "primeraMayusOracion requerido", width: "veinte", validacion: "textoMayuscula" }),
                 T({ nombre: `cp`, clase: "textoCentrado", width: "siete" }),
-                P({ nombre: "provincia", clase: "requerido" }),
+                P("provincia"),
                 P("pais"),
                 habilitado],
             titulos: ['Nombre', `CP`, `Provincia`, `Pais`],

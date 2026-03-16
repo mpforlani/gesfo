@@ -1686,6 +1686,7 @@ div[color=Amarillo]::before {
 
 .barraForm {
   display: flex;
+  flex-shrink: 0;
   justify-content: center;
   align-items: end;
   align-content: end;
@@ -7941,7 +7942,7 @@ body.enEsperaCabecera * {
   display: none;
   margin: 0;
   padding: 20px;
-  z-index: 10001;
+  z-index: 10000001;
   cursor: default !important;
 }
 #impresionFormulario.show {
@@ -8001,7 +8002,7 @@ body.enEsperaCabecera * {
 #visorPdf {
   position: fixed;
   inset: 0;
-  z-index: 999999;
+  z-index: 10000001;
 }
 #visorPdf.oculto {
   display: none;
@@ -8030,7 +8031,7 @@ body.enEsperaCabecera * {
   position: absolute;
   top: 10px;
   right: 10px;
-  z-index: 9999999;
+  z-index: 10000002;
   width: 36px;
   height: 36px;
   border-radius: 999px;

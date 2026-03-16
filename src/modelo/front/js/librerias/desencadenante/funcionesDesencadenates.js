@@ -145,6 +145,74 @@ function alMenosUnValor(data, atributos) {
 
     return desencadena
 }
+function imputacionSaldoFiscalComprobanteAsociado(data) {
+
+    let comprobante = (data?.comprobante || "").toString().trim().toLowerCase()
+    let comprobanteAsociado = (data?.comprobanteAsociado || "").toString().trim()
+    let indiceArray = Number(data?.indiceArray || 0)
+
+    if (comprobanteAsociado == "" || indiceArray !== 0) {
+        return false
+    }
+
+    if (comprobante == "nota de credito") {
+        return "notaCredito"
+    }
+    if (comprobante == "nota de debito") {
+        return "notaDebito"
+    }
+
+    return false
+}
+async function obtenerComprobanteAsociadoFiscal(datos) {
+
+    let comprobanteAsociado = (datos?.comprobanteAsociado || "").toString().trim()
+
+    if (comprobanteAsociado == "") {
+        return {}
+    }
+
+    let detalleFiltroAtributos = { _id: comprobanteAsociado }
+    const filtros = `&filtros=${JSON.stringify(detalleFiltroAtributos)}`
+
+    try {
+        const response = await fetch(`/get?base=facturasEmitidas${filtros}`);
+        if (!response.ok) throw new Error(`Error ${response.status}: ${response.statusText}`);
+        const data = await response.json();
+
+        return data?.[0] || consultaPestanas?.facturasEmitidas?.[comprobanteAsociado] || {}
+
+    } catch (error) {
+        return consultaPestanas?.facturasEmitidas?.[comprobanteAsociado] || {}
+    }
+}
+function valorSaldoFiscalDisponible(datos, atributoSaldo, atributoTotal) {
+
+    let saldoFiscal = Number(stringANumero(datos?.[atributoSaldo] || ""))
+    let importeTotal = Number(stringANumero(datos?.[atributoTotal] || ""))
+
+    if (Number.isFinite(saldoFiscal) && `${datos?.[atributoSaldo] || ""}`.toString().trim() != "") {
+        return saldoFiscal
+    }
+
+    return Number.isFinite(importeTotal) ? importeTotal : 0
+}
+async function actualizarSaldoFiscalComprobanteAsociado(datos, atributoSaldo, atributoTotal, signo) {
+
+    let comprobanteAsociado = await obtenerComprobanteAsociadoFiscal(datos)
+    let saldoFiscalDestino = valorSaldoFiscalDisponible(comprobanteAsociado, atributoSaldo, atributoTotal)
+    let saldoFiscalNota = valorSaldoFiscalDisponible(datos, atributoSaldo, atributoTotal)
+
+    return saldoFiscalDestino + (saldoFiscalNota * Number(signo || 1))
+}
+async function reversoSaldoFiscalComprobanteAsociado(datos, atributoSaldo, atributoTotal, signo) {
+
+    let comprobanteAsociado = await obtenerComprobanteAsociadoFiscal(datos)
+    let saldoFiscalDestino = valorSaldoFiscalDisponible(comprobanteAsociado, atributoSaldo, atributoTotal)
+    let saldoFiscalNota = valorSaldoFiscalDisponible(datos, atributoSaldo, atributoTotal)
+
+    return saldoFiscalDestino + (saldoFiscalNota * (Number(signo || 1) * -1))
+}
 //////funcioens Datos Desencadenateas
 function fechaInicialHoyDesencadenante() {
 
@@ -260,7 +328,7 @@ function reversoString(datos, atributo) {
     if (!atributo) {
         return datos.almacenOrigen || datos.ubicacionOrigen || ""
     }
-
+    console.log(datos)
     return datos[atributoOrigen] ?? datos[atributo] ?? ""
 }
 function saldoComprobanteFact(datos) {

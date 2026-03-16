@@ -411,7 +411,7 @@ function importeForm(objeto, numeroForm, indice, value, titulos, consulta, disab
     let valorDefMb = consulta[value.nombre + "mb"] || ""
     let valorDefMa = consulta[value.nombre + "ma"] || ""
 
-    form += `<div class="fo ${value.nombre}"   ${widthObject[value.width] || ""} moneda="${monedaGesfin[value?.moneda] || consultaPestanas?.moneda?.[moneda]?.name?.toLowerCase() || ""}"  >
+    form += `<div class="fo ${value.nombre}"   ${widthObject[value.width] || ""} moneda="${monedaGesfin[value?.moneda] || consultaPestanas?.moneda?.[moneda]?.name?.toLowerCase() || ""}" ${ocultoOject[value.oculto] || ""} >
 
    <h2>${titulos[indice]}</h2>`;
 

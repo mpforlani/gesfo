@@ -1396,6 +1396,23 @@ async function enviarRegistroEditadoForm(objeto, numeroForm, modificar, tableMod
 
     const form = document.querySelector(`#f${objeto.accion}${numeroForm}`);
     const file = new FormData(form);
+    const consultaAnterior = consultaGet?.[numeroForm] || {}
+
+    if (objeto.accion == "facturasEmitidas") {
+        $.each(consultaAnterior?.referencias?.imputado, (indice, value) => {
+            if (value?.identificador == "saldoFiscalCompAsoc") {
+                modificar.eliminarRef[`referencias.imputado.${indice}`] = ""
+            }
+        })
+        $.each(["idColsaldoFiscalCompAsoc", "destinosaldoFiscalCompAsoc"], (indice, value) => {
+            $.each(consultaAnterior?.[value] || [], (ind, val) => {
+                if (`${val || ""}`.toString().trim() != "") {
+                    modificar.eliminarRef[`${value}.${ind}`] = ""
+                }
+            })
+            file.delete(value)
+        })
+    }
 
     file.set("descripcionEnvio", modificar.tipoDeModif);
     delete modificar.tipoDeModif
@@ -1517,6 +1534,23 @@ async function enviarRegistroEditadoForm(objeto, numeroForm, modificar, tableMod
 
             acumuladorUpdateEdit(value, response, objeto)
         })
+        if (objeto.accion == "facturasEmitidas") {
+            for (const value of Object.values(response?.anterior?.referencias?.imputado || {})) {
+                if (value?.identificador != "saldoFiscalCompAsoc") {
+                    continue
+                }
+
+                let imputacion = { ...(objeto?.imputarcoleccion?.[value.identificador] || {}) }
+                if (Object.values(imputacion).length == 0) {
+                    continue
+                }
+
+                imputacion._id = value._id
+                imputacion.destino = value.entidad
+
+                await eliminarRegistroImputado(imputacion, objeto, { posteo: response.anterior })
+            }
+        }
         $.each(objeto.imputarcoleccion, (indice, value) => {
             value.origen = "imputado"
             const promise = imputacionDesdeColeccion(value, objeto, response).then((resultado) => {
@@ -2235,13 +2269,16 @@ function funcionesAntesdeEnviar(objeto, numeroForm) {//dic
         validarAlConfirmar.validar = []
         validarAlConfirmar.mensaje = []
         validarAlConfirmar.detalle = []
-
+        console.log(objeto)
         $.each(objeto?.funcionesPropias?.validarAlConfirmar, (indice, value) => {
 
             let resultado = value(objeto, numeroForm)
+            let validado = resultado?.validado
 
-            validarAlConfirmar.validar.push(resultado.validado)
-            validarAlConfirmar.mensaje.push(resultado.mensaje)
+            validarAlConfirmar.validar.push(validado)
+            if (validado == false) {
+                validarAlConfirmar.mensaje.push(resultado?.mensaje || "Validación al confirmar no superada")
+            }
         })
 
         let valid = [];
@@ -2298,6 +2335,17 @@ function funcionesAntesdeEnviar(objeto, numeroForm) {//dic
 function posteoElectronica(objeto, numeroForm) {
     return new Promise(async (resolve, reject) => {
         try {
+            const nombreOperacionComprobante = (comprobante = "") => {
+                switch ((comprobante || "").toString().replace(/\s+/g, "").toLowerCase()) {
+                    case "notadedebito":
+                        return "notaDebito";
+                    case "notadecredito":
+                        return "notaCredito";
+                    default:
+                        return "facturasEmitidas";
+                }
+            };
+            const normalizarTipoComprobante = (tipo = "") => (tipo || "").toString().replace(/\s+/g, "").toLowerCase();
             let mon = {
                 Pesos: "PES",
                 Dolar: "DOL"
@@ -2319,7 +2367,8 @@ function posteoElectronica(objeto, numeroForm) {
                 data.DocNro = cliente.documento.replace(/[-.]/g, '');
             }
 
-            let tipoDeComprobante = tiposComprobante[formData.get('tipoComprobante').replace(/\s+/g, '')?.toLowerCase()][objeto.accion];
+            let operacionComprobante = nombreOperacionComprobante(formData.get('comprobante'));
+            let tipoDeComprobante = tiposComprobante[normalizarTipoComprobante(formData.get('tipoComprobante'))]?.[operacionComprobante];
             data.CbteTipo = tipoDeComprobante;
 
             let importeNeto = formData.getAll('importeNeto');
@@ -2329,7 +2378,7 @@ function posteoElectronica(objeto, numeroForm) {
             let importeNetoDef = 0;
             let ivaDef = 0;
 
-            if (tipoDeComprobante == 1 || tipoDeComprobante == 6) {
+            if ([1, 2, 3, 6, 7, 8].includes(tipoDeComprobante)) {
                 data.Iva = [];
                 let ivas = {};
 
@@ -2381,6 +2430,19 @@ function posteoElectronica(objeto, numeroForm) {
             data.PtoVta = stringANumero(formData.get('ancla'));
             data.MonCotiz = stringANumero(formData.get('tipoCambio') || 1);
             data.ImpTotal = stringANumero(formData.get('importeTotal'));
+
+            let comprobanteAsociado = consultaPestanas?.facturasEmitidas?.[formData.get('comprobanteAsociado')];
+            if (comprobanteAsociado?._id) {
+                let tipoComprobanteAsociado = tiposComprobante[normalizarTipoComprobante(comprobanteAsociado?.tipoComprobante)]?.[nombreOperacionComprobante(comprobanteAsociado?.comprobante)];
+
+                if (tipoComprobanteAsociado != undefined) {
+                    data.CbtesAsoc = [{
+                        Tipo: tipoComprobanteAsociado,
+                        PtoVta: stringANumero(comprobanteAsociado?.ancla),
+                        Nro: stringANumero(comprobanteAsociado?.numerador)
+                    }];
+                }
+            }
 
             const res = await fetch('/facturaElectronica', {
                 method: 'POST',
