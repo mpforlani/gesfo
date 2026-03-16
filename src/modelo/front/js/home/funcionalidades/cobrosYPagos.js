@@ -6,7 +6,7 @@ let variablesModeloPagosCobros = {
         FH(),
         PPE({ nombre: "comprobante", width: "quince", clase: "requerido", opciones: ["Factura electronica", "Factura de Credito", "Nota de debito", "Nota de credito"], valorInicial: "Factura electronica" }),
         PPE({ nombre: "tipoComprobante", width: "diez", clase: "requerido", opciones: ["Letra C"], valorInicial: "Letra C" }),
-        NCT({ nombre: "numeradorFactura", trigger: ["tipoComprobante", "comprobante"], width: "quince", valorInicialAncla: [valorFijoNum, "0002"], orden: "reves", funcion: { formatoDigitosExtra: [formatoDigitosExtra, 8] } }),
+        NCT({ nombre: "numeradorFactura", trigger: ["tipoComprobante", "comprobante"], width: "quince", valorInicialAncla: [valorFijoNum, "0001"], orden: "reves", funcion: { formatoDigitosExtra: [formatoDigitosExtra, 8] } }),
         P({ nombre: "comprobanteAsociado", origen: "facturasEmitidas", pestRef: "referenciaAsociada", width: "veinte", oculto: "oculto" }),
         P({ nombre: "moneda", width: "doce", clase: "requerido" }),
         N({ nombre: "tipoCambio", width: "diez", clase: "requerido" }),
